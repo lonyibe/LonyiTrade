@@ -6,11 +6,15 @@ import com.lonyitrade.app.data.models.RegisterRequest
 import com.lonyitrade.app.data.models.TokenResponse
 import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.data.models.AdRequest
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import retrofit2.http.Path
 
 interface ApiService {
 
@@ -25,4 +29,8 @@ interface ApiService {
 
     @POST("api/adverts")
     suspend fun postAdvert(@Header("Authorization") token: String, @Body adRequest: AdRequest): Response<Ad>
+
+    @Multipart
+    @POST("api/adverts/{id}/upload-photo")
+    suspend fun uploadAdPhoto(@Header("Authorization") token: String, @Path("id") adId: String, @Part photo: MultipartBody.Part): Response<Void>
 }

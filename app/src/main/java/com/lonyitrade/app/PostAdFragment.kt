@@ -24,6 +24,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
 class PostAdFragment : Fragment() {
 
@@ -137,16 +143,23 @@ class PostAdFragment : Fragment() {
                     return@setOnClickListener
                 }
 
+                // Create the AdRequest first, this will be sent as a separate body part
                 val newAdRequest = AdRequest(title, description, category, "for_sale", price, district)
 
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
+                        // Post the ad data first
                         val response = ApiClient.apiService.postAdvert("Bearer $token", newAdRequest)
+
                         withContext(Dispatchers.Main) {
                             if (response.isSuccessful) {
-                                Toast.makeText(requireContext(), "Selling ad posted successfully!", Toast.LENGTH_SHORT).show()
-                                // Optionally, refresh the home feed or navigate back
-                                // requireActivity().supportFragmentManager.popBackStack()
+                                val postedAd = response.body()
+                                if (postedAd != null && selectedPhotoUri != null) {
+                                    // If ad is posted successfully and a photo is selected, upload the photo
+                                    uploadPhotoForAd(postedAd.id!!, selectedPhotoUri!!)
+                                } else {
+                                    Toast.makeText(requireContext(), "Selling ad posted successfully!", Toast.LENGTH_SHORT).show()
+                                }
                             } else if (response.code() == 401) {
                                 // Handle unauthorized access by logging the user out
                                 sessionManager.logoutUser()
@@ -169,6 +182,69 @@ class PostAdFragment : Fragment() {
                 // so we will not post a "buy" ad to the server for now.
                 Toast.makeText(requireContext(), "Buying requests are not yet supported on the server.", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun uploadPhotoForAd(adId: String, photoUri: Uri) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Get the temporary file from the URI
+                val file = getTempFileFromUri(photoUri)
+
+                if (file == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to create temporary file for upload.", Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
+                }
+
+                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+                val token = sessionManager.fetchAuthToken()
+
+                if (token.isNullOrEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Session expired. Please log in again.", Toast.LENGTH_LONG).show()
+                        sessionManager.logoutUser()
+                        requireActivity().finish()
+                    }
+                    return@launch
+                }
+
+                val response = ApiClient.apiService.uploadAdPhoto("Bearer $token", adId, photoPart)
+
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(requireContext(), "Ad posted and photo uploaded successfully!", Toast.LENGTH_SHORT).show()
+                        // Delete the temporary file after successful upload
+                        file.delete()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to upload photo: ${response.code()}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Photo upload network error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    // Helper function to create a temporary file from a content URI
+    private fun getTempFileFromUri(uri: Uri): File? {
+        return try {
+            val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
+            val file = File(requireContext().cacheDir, "temp_image_for_upload.jpg")
+            val outputStream = FileOutputStream(file)
+            inputStream?.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
