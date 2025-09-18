@@ -15,6 +15,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -32,5 +33,14 @@ interface ApiService {
 
     @Multipart
     @POST("api/adverts/{id}/upload-photo")
-    suspend fun uploadAdPhoto(@Header("Authorization") token: String, @Path("id") adId: String, @Part photo: MultipartBody.Part): Response<Void>
+    suspend fun uploadAdPhoto(@Header("Authorization") token: String, @Path("id") adId: String, @Part photo: MultipartBody.Part): Response<Unit>
+
+    // New Search Function
+    @GET("api/adverts")
+    suspend fun searchAdverts(
+        @Query("q") query: String?,
+        @Query("district") district: String?,
+        @Query("min_price") minPrice: String?,
+        @Query("max_price") maxPrice: String?
+    ): Response<List<Ad>>
 }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/form_background_dark">
+
+    <EditText
+        android:id="@+id/search_query"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search by keyword..."
+        android:textColor="@color/text_light_gray"
+        android:textColorHint="@color/text_light_gray" />
+
+    <EditText
+        android:id="@+id/search_district"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="District"
+        android:textColor="@color/text_light_gray"
+        android:textColorHint="@color/text_light_gray" />
+
+    <EditText
+        android:id="@+id/search_min_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Min Price"
+        android:inputType="numberDecimal"
+        android:textColor="@color/text_light_gray"
+        android:textColorHint="@color/text_light_gray" />
+
+    <EditText
+        android:id="@+id/search_max_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Max Price"
+        android:inputType="numberDecimal"
+        android:textColor="@color/text_light_gray"
+        android:textColorHint="@color/text_light_gray" />
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Search"
+        android:textColor="@color/black"
+        android:backgroundTint="@color/primary_color_accent" />
+
+</LinearLayout>
