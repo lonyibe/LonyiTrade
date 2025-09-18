@@ -276,7 +276,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Upload up to 4 Photos"
+                        android:text="Upload a Photo"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_light_gray"
@@ -298,34 +298,6 @@
                             android:src="@drawable/ic_add_photo"
                             tools:ignore="ContentDescription" />
 
-                        <ImageView
-                            android:id="@+id/photo2ImageView"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
-                            android:layout_marginEnd="6dp"
-                            android:background="@drawable/rounded_profile_pic"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_add_photo"
-                            tools:ignore="ContentDescription" />
-
-                        <ImageView
-                            android:id="@+id/photo3ImageView"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
-                            android:layout_marginEnd="6dp"
-                            android:background="@drawable/rounded_profile_pic"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_add_photo"
-                            tools:ignore="ContentDescription" />
-
-                        <ImageView
-                            android:id="@+id/photo4ImageView"
-                            android:layout_width="60dp"
-                            android:layout_height="60dp"
-                            android:background="@drawable/rounded_profile_pic"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_add_photo"
-                            tools:ignore="ContentDescription" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -486,64 +458,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Contact Info"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_light_gray"
-                        android:layout_marginBottom="16dp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.TextInputLayout.FilledBox"
-                        app:boxBackgroundColor="@color/background_dark">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/buyContactPhoneEditText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Phone Number"
-                            android:inputType="phone"
-                            android:textColor="@color/text_light_gray" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="16dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Show on WhatsApp?"
-                            android:textColor="@color/text_light_gray" />
-                        <Switch
-                            android:id="@+id/buyWhatsappSwitch"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/form_background_dark"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Condition"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -625,15 +539,29 @@
 
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/postAdButton"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary_color_accent"
-            android:text="Post Ad"
-            android:textColor="@color/black"
-            android:padding="16dp"
-            app:cornerRadius="12dp" />
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/postAdButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/primary_color_accent"
+                android:text="Post Ad"
+                android:textColor="@color/black"
+                android:padding="16dp"
+                app:cornerRadius="12dp" />
+
+            <ProgressBar
+                android:id="@+id/postAdProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="@color/black"/>
+
+        </FrameLayout>
 
     </LinearLayout>
 </ScrollView>

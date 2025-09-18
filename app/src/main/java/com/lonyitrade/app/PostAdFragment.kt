@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
@@ -33,6 +34,9 @@ class PostAdFragment : Fragment() {
     private lateinit var sessionManager: SessionManager
     private var selectedPhotoUri: Uri? = null
 
+    // UI elements
+    private lateinit var postAdButton: Button
+    private lateinit var postAdProgressBar: ProgressBar
     private lateinit var sellFormLayout: View
     private lateinit var buyFormLayout: View
     private lateinit var tradeTypeRadioGroup: RadioGroup
@@ -71,7 +75,6 @@ class PostAdFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         sessionManager = SessionManager(requireContext())
         initializeViews(view)
 
@@ -88,7 +91,7 @@ class PostAdFragment : Fragment() {
             }
         }
 
-        view.findViewById<Button>(R.id.postAdButton).setOnClickListener {
+        postAdButton.setOnClickListener {
             handlePostAd()
         }
 
@@ -98,6 +101,8 @@ class PostAdFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
+        postAdButton = view.findViewById(R.id.postAdButton)
+        postAdProgressBar = view.findViewById(R.id.postAdProgressBar)
         tradeTypeRadioGroup = view.findViewById(R.id.tradeTypeRadioGroup)
         sellFormLayout = view.findViewById(R.id.sell_form_layout)
         buyFormLayout = view.findViewById(R.id.buy_form_layout)
@@ -132,7 +137,20 @@ class PostAdFragment : Fragment() {
         }
 
         if (adRequest != null) {
+            showLoading(true)
             postAd(token, adRequest)
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            postAdButton.text = ""
+            postAdProgressBar.visibility = View.VISIBLE
+            postAdButton.isEnabled = false
+        } else {
+            postAdButton.text = "Post Ad"
+            postAdProgressBar.visibility = View.GONE
+            postAdButton.isEnabled = true
         }
     }
 
@@ -170,6 +188,7 @@ class PostAdFragment : Fragment() {
             try {
                 val response = ApiClient.apiService.postAdvert("Bearer $token", adRequest)
                 withContext(Dispatchers.Main) {
+                    showLoading(false)
                     if (response.isSuccessful) {
                         val postedAd = response.body()
                         if (postedAd?.id != null && selectedPhotoUri != null) {
@@ -183,6 +202,7 @@ class PostAdFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    showLoading(false)
                     Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -192,13 +212,21 @@ class PostAdFragment : Fragment() {
     private fun uploadPhotoForAd(token: String, adId: String, photoUri: Uri) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val file = getTempFileFromUri(photoUri) ?: return@launch
+                val file = getTempFileFromUri(photoUri)
+                if (file == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to create temporary file for upload.", Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
+                }
                 val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
                 val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+
                 val response = ApiClient.apiService.uploadAdPhoto("Bearer $token", adId, photoPart)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         Toast.makeText(requireContext(), "Ad posted and photo uploaded successfully!", Toast.LENGTH_SHORT).show()
+                        file.delete()
                     } else {
                         Toast.makeText(requireContext(), "Failed to upload photo: ${response.code()}", Toast.LENGTH_LONG).show()
                     }
@@ -214,7 +242,7 @@ class PostAdFragment : Fragment() {
     private fun getTempFileFromUri(uri: Uri): File? {
         return try {
             val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
-            val file = File(requireContext().cacheDir, "temp_image.jpg")
+            val file = File(requireContext().cacheDir, "temp_image_for_upload.jpg")
             val outputStream = FileOutputStream(file)
             inputStream?.copyTo(outputStream)
             file
