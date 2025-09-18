@@ -1,21 +1,32 @@
 package com.lonyitrade.app.adapters
 
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.lonyitrade.app.R
-import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.data.models.Ad
 
 class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
     class AdViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageContainer: FrameLayout = view.findViewById(R.id.adImageContainer)
         val photoImageView: ImageView = view.findViewById(R.id.adPhotoImageView)
+        val progressBar: ProgressBar = view.findViewById(R.id.imageProgressBar)
         val titleTextView: TextView = view.findViewById(R.id.adTitleTextView)
+        val adTypeTextView: TextView = view.findViewById(R.id.adTypeTextView)
         val descriptionTextView: TextView = view.findViewById(R.id.adDescriptionTextView)
         val priceTextView: TextView = view.findViewById(R.id.adPriceTextView)
         val priceTypeTextView: TextView = view.findViewById(R.id.adPriceTypeTextView)
@@ -32,29 +43,71 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
         val ad = adList[position]
 
-        if (!ad.photos.isNullOrEmpty() && ad.photos.first() != null) {
-            val imagePath = ad.photos.first()
-            val imageUrl = if (imagePath.startsWith("http")) {
-                imagePath
-            } else {
-                ApiClient.BASE_URL.trimEnd('/') + "/" + imagePath.trimStart('/')
-            }
-            Glide.with(holder.itemView.context)
-                .load(imageUrl)
-                .placeholder(R.drawable.ic_add_photo)
-                .error(R.drawable.ic_add_photo)
-                .into(holder.photoImageView)
+        // Handle Ad Type and Image Visibility
+        if (ad.type == "wanted") {
+            holder.imageContainer.visibility = View.GONE // Hide image section for "wanted" ads
         } else {
-            holder.photoImageView.setImageResource(R.drawable.ic_add_photo)
+            holder.imageContainer.visibility = View.VISIBLE
+            holder.progressBar.visibility = View.VISIBLE // Show spinner
+
+            if (!ad.photos.isNullOrEmpty() && ad.photos.first() != null) {
+                val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + ad.photos.first()!!.trimStart('/')
+                Glide.with(holder.itemView.context)
+                    .load(imageUrl)
+                    .listener(object : RequestListener<Drawable> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            holder.progressBar.visibility = View.GONE
+                            return false // Important to return false so the error placeholder can be displayed
+                        }
+
+                        override fun onResourceReady(
+                            resource: Drawable,
+                            model: Any,
+                            target: Target<Drawable>,
+                            dataSource: DataSource,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            holder.progressBar.visibility = View.GONE
+                            return false // Important to return false so the image can be displayed
+                        }
+                    })
+                    .error(R.drawable.ic_add_photo)
+                    .into(holder.photoImageView)
+            } else {
+                holder.progressBar.visibility = View.GONE
+                holder.photoImageView.setImageResource(R.drawable.ic_add_photo)
+            }
         }
 
+        // Set Ad Details
         holder.titleTextView.text = ad.title
         holder.descriptionTextView.text = ad.description
-        holder.priceTextView.text = "UGX ${ad.price}"
+        holder.priceTextView.text = "UGX ${ad.price ?: "0"}"
         holder.priceTypeTextView.text = ad.priceType ?: ""
         holder.conditionTextView.text = "Condition: ${ad.condition ?: "N/A"}"
-        holder.locationTextView.text = ad.district
+        holder.locationTextView.text = ad.district ?: "N/A"
         holder.phoneNumberTextView.text = ad.sellerPhoneNumber ?: "N/A"
+
+        // Set Ad Type Badge
+        when (ad.type) {
+            "for_sale" -> {
+                holder.adTypeTextView.text = "For Sale"
+                holder.adTypeTextView.setBackgroundColor(Color.parseColor("#03DAC6")) // Teal
+            }
+            "wanted" -> {
+                holder.adTypeTextView.text = "Wanted"
+                holder.adTypeTextView.setBackgroundColor(Color.parseColor("#FFBB86FC")) // Purple
+                holder.priceTextView.text = "Budget: UGX ${ad.price ?: "0"}"
+            }
+            else -> {
+                holder.adTypeTextView.visibility = View.GONE
+            }
+        }
     }
 
     override fun getItemCount() = adList.size

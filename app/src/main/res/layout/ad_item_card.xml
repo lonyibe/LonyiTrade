@@ -14,14 +14,26 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/adPhotoImageView"
+        <FrameLayout
+            android:id="@+id/adImageContainer"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:background="@color/black"
-            tools:src="@drawable/ic_add_photo"
-            android:contentDescription="Ad image"/>
+            android:background="@color/black">
+
+            <ImageView
+                android:id="@+id/adPhotoImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Ad image"/>
+
+            <ProgressBar
+                android:id="@+id/imageProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,14 +41,36 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/adTitleTextView"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/primary_color_accent"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                tools:text="Ad Title" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/adTitleTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/primary_color_accent"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="Ad Title" />
+
+                <TextView
+                    android:id="@+id/adTypeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_profile_pic"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="For Sale" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/adDescriptionTextView"
@@ -127,7 +161,6 @@
                     tools:text="077-XXX-XXXX" />
 
             </LinearLayout>
-
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
