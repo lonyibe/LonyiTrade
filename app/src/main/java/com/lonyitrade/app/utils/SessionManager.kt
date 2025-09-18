@@ -46,4 +46,11 @@ class SessionManager(context: Context) {
     fun getPhoneNumber(): String? {
         return prefs.getString(PHONE_NUMBER, null)
     }
+
+    // This method logs the user out by clearing all saved preferences.
+    fun logoutUser() {
+        val editor = prefs.edit()
+        editor.clear()
+        editor.apply()
+    }
 }

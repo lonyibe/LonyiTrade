@@ -25,13 +25,15 @@ class LoginActivity : AppCompatActivity() {
 
         sessionManager = SessionManager(this)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        // Fix: Changed variable name to phoneNumberEditText to match backend expectations
+        val phoneNumberEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         val loginButton = findViewById<Button>(R.id.loginButton)
         val signupTextView = findViewById<TextView>(R.id.signupTextView)
 
         loginButton.setOnClickListener {
-            val phoneNumber = emailEditText.text.toString()
+            // Fix: Use the value from the correct EditText, which is named emailEditText but should contain a phone number
+            val phoneNumber = phoneNumberEditText.text.toString()
             val password = passwordEditText.text.toString()
 
             if (phoneNumber.isEmpty() || password.isEmpty()) {

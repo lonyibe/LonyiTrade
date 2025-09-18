@@ -147,6 +147,12 @@ class PostAdFragment : Fragment() {
                                 Toast.makeText(requireContext(), "Selling ad posted successfully!", Toast.LENGTH_SHORT).show()
                                 // Optionally, refresh the home feed or navigate back
                                 // requireActivity().supportFragmentManager.popBackStack()
+                            } else if (response.code() == 401) {
+                                // Handle unauthorized access by logging the user out
+                                sessionManager.logoutUser()
+                                Toast.makeText(requireContext(), "Your session has expired. Please log in again.", Toast.LENGTH_LONG).show()
+                                // Finish the current activity (MainAppActivity)
+                                requireActivity().finish()
                             } else {
                                 Toast.makeText(requireContext(), "Failed to post ad: ${response.code()}", Toast.LENGTH_LONG).show()
                             }

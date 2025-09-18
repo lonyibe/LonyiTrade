@@ -39,7 +39,7 @@ class SignupActivity : AppCompatActivity() {
 
         // Corrected variable names to match the XML IDs
         val nameEditText = findViewById<EditText>(R.id.nameEditText)
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val phoneNumberEditText = findViewById<EditText>(R.id.phoneNumberEditText)
         val districtEditText = findViewById<EditText>(R.id.districtEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
 
@@ -58,16 +58,16 @@ class SignupActivity : AppCompatActivity() {
 
         signupButton.setOnClickListener {
             val fullName = nameEditText.text.toString()
-            val email = emailEditText.text.toString() // Corrected to use the emailEditText
+            val phoneNumber = phoneNumberEditText.text.toString()
             val district = districtEditText.text.toString()
             val password = passwordEditText.text.toString()
 
-            if (fullName.isEmpty() || email.isEmpty() || district.isEmpty() || password.isEmpty()) {
+            if (fullName.isEmpty() || phoneNumber.isEmpty() || district.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        val request = RegisterRequest(fullName, email, password, district)
+                        val request = RegisterRequest(fullName, phoneNumber, password, district)
                         val response = ApiClient.apiService.registerUser(request)
 
                         withContext(Dispatchers.Main) {
