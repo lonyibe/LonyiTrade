@@ -1,12 +1,16 @@
 package com.lonyitrade.app
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,12 +36,30 @@ class HomeFragment : Fragment() {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var sessionManager: SessionManager
     private lateinit var categoryContainer: LinearLayout
+    private var selectedCategory: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (selectedCategory != null) {
+                    fetchAllAdverts(null)
+                    selectedCategory = null
+                    Toast.makeText(requireContext(), "Showing all ads", Toast.LENGTH_SHORT).show()
+                } else {
+                    isEnabled = false
+                    requireActivity().onBackPressed()
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,6 +97,17 @@ class HomeFragment : Fragment() {
 
         // Initial load of all adverts
         fetchAllAdverts()
+
+        // FIX: Prevent ViewPager2 from intercepting horizontal scrolls on the category bar
+        view.findViewById<HorizontalScrollView>(R.id.categoryScrollView).setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            when (event.action) {
+                MotionEvent.ACTION_UP -> {
+                    v.parent.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+            v.onTouchEvent(event)
+        }
     }
 
     private fun setupCategoryBubbles() {
@@ -89,6 +122,7 @@ class HomeFragment : Fragment() {
             categoryTextView.text = category
             categoryView.setOnClickListener {
                 // When a category is clicked, fetch ads for that specific category
+                selectedCategory = category
                 fetchAllAdverts(category)
                 Toast.makeText(context, "Searching for ads in $category...", Toast.LENGTH_SHORT).show()
             }
