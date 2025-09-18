@@ -199,11 +199,17 @@ class PostAdFragment : Fragment() {
             try {
                 val response = ApiClient.apiService.postAdvert("Bearer $token", adRequest)
                 withContext(Dispatchers.Main) {
-                    showLoading(false)
                     if (response.isSuccessful) {
-                        Toast.makeText(requireContext(), "Ad posted successfully!", Toast.LENGTH_SHORT).show()
-                        // Optionally clear form or navigate away
+                        val ad = response.body()
+                        // **THIS IS THE FIX**: This block will now correctly call the photo upload
+                        if (ad?.id != null && itemPhotoUri != null) {
+                            uploadAdPhoto(token, ad.id, itemPhotoUri!!)
+                        } else {
+                            showLoading(false)
+                            Toast.makeText(requireContext(), "Ad posted successfully!", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
+                        showLoading(false)
                         Toast.makeText(requireContext(), "Failed to post ad", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -211,6 +217,27 @@ class PostAdFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     showLoading(false)
                     Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun uploadAdPhoto(token: String, adId: String, uri: Uri) {
+        getTempFileFromUri(uri)?.let { file ->
+            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+            val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    ApiClient.apiService.uploadAdPhoto("Bearer $token", adId, photoPart)
+                    withContext(Dispatchers.Main) {
+                        showLoading(false)
+                        Toast.makeText(requireContext(), "Ad and photo posted successfully!", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        showLoading(false)
+                        Toast.makeText(requireContext(), "Photo upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -298,15 +325,15 @@ class PostAdFragment : Fragment() {
     }
 
     private fun displayRentalImages() {
-        rentalImageContainer.removeViews(0, rentalImageContainer.childCount - 1) // Clear previous images, keep button
+        rentalImageContainer.removeViews(0, rentalImageContainer.childCount - 1)
         rentalPhotoUris.forEach { uri ->
             val imageView = ImageView(requireContext()).apply {
-                layoutParams = ViewGroup.LayoutParams(160, 160) // size of image preview
+                layoutParams = ViewGroup.LayoutParams(160, 160)
                 setImageURI(uri)
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 setPadding(8, 0, 8, 0)
             }
-            rentalImageContainer.addView(imageView, 0) // Add new images at the beginning
+            rentalImageContainer.addView(imageView, 0)
         }
     }
 
