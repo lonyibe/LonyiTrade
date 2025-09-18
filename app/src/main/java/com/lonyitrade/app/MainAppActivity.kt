@@ -6,15 +6,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+// We still need the placeholder for MessagesFragment until we build it out
 class MessagesFragment : Fragment(R.layout.fragment_messages)
-class MyAccountFragment : Fragment(R.layout.fragment_my_account)
+// MyAccountFragment placeholder has been REMOVED from here
 
 class MainAppActivity : AppCompatActivity() {
 
     private val homeFragment = HomeFragment()
     private val postAdFragment = PostAdFragment()
     private val messagesFragment = MessagesFragment()
-    private val myAccountFragment = MyAccountFragment()
+    private val myAccountFragment = MyAccountFragment() // This now correctly refers to your full MyAccountFragment.kt file
     private var activeFragment: Fragment = homeFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +35,6 @@ class MainAppActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    // When Home is clicked, refresh the ads and show the fragment
                     homeFragment.fetchAllAdverts()
                     showFragment(homeFragment)
                 }
@@ -54,7 +54,6 @@ class MainAppActivity : AppCompatActivity() {
         }
     }
 
-    // Helper function to handle showing/hiding fragments
     private fun showFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().hide(activeFragment).show(fragment).commit()
         activeFragment = fragment

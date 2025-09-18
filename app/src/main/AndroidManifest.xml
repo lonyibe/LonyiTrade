@@ -38,5 +38,9 @@
             android:name=".MainAppActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".MyAdsActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
