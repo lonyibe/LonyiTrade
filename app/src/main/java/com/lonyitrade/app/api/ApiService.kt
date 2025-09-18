@@ -7,18 +7,12 @@ import com.lonyitrade.app.data.models.LoginRequest
 import com.lonyitrade.app.data.models.RegisterRequest
 import com.lonyitrade.app.data.models.TokenResponse
 import com.lonyitrade.app.data.models.UserProfile
+// We will create these models in the next step
+import com.lonyitrade.app.data.models.Rental
+import com.lonyitrade.app.data.models.RentalRequest
 import okhttp3.MultipartBody
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Part
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ApiService {
 
@@ -47,20 +41,29 @@ interface ApiService {
     @POST("api/adverts/{id}/upload-photo")
     suspend fun uploadAdPhoto(@Header("Authorization") token: String, @Path("id") adId: String, @Part photo: MultipartBody.Part): Response<Unit>
 
-    // Delete Function
     @DELETE("api/adverts/{id}")
     suspend fun deleteAdvert(@Header("Authorization") token: String, @Path("id") adId: String): Response<Unit>
 
-    // Update Function
     @PUT("api/adverts/{id}")
     suspend fun updateAdvert(@Header("Authorization") token: String, @Path("id") adId: String, @Body adRequest: AdRequest): Response<Ad>
 
-    // Search Function
     @GET("api/adverts")
     suspend fun searchAdverts(
         @Query("q") query: String?,
         @Query("district") district: String?,
         @Query("min_price") minPrice: String?,
-        @Query("max_price") maxPrice: String? // This line has been corrected
+        @Query("max_price") maxPrice: String?
     ): Response<List<Ad>>
+
+
+    // --- Rentals ---
+    @POST("api/rentals")
+    suspend fun postRental(@Header("Authorization") token: String, @Body rentalRequest: RentalRequest): Response<Rental>
+
+    @GET("api/rentals")
+    suspend fun getRentals(): Response<List<Rental>>
+
+    @Multipart
+    @POST("api/rentals/{id}/upload-photo")
+    suspend fun uploadRentalPhotos(@Header("Authorization") token: String, @Path("id") rentalId: String, @Part photos: List<MultipartBody.Part>): Response<Unit>
 }

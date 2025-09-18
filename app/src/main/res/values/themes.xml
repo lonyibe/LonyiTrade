@@ -11,4 +11,15 @@
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o">false</item>
     </style>
+
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconSize">@dimen/bottom_nav_icon_size</item>
+        <item name="itemTextAppearanceActive">@style/Widget.App.BottomNavigationView.TextAppearance</item>
+        <item name="itemTextAppearanceInactive">@style/Widget.App.BottomNavigationView.TextAppearance</item>
+    </style>
+
+    <style name="Widget.App.BottomNavigationView.TextAppearance" parent="">
+        <item name="android:textSize">@dimen/bottom_nav_text_size</item>
+    </style>
+
 </resources>

@@ -4,14 +4,22 @@
         android:id="@+id/nav_home"
         android:icon="@drawable/ic_home"
         android:title="Home" />
+
+    <item
+        android:id="@+id/nav_rentals"
+        android:icon="@drawable/ic_rentals"
+        android:title="Rentals" />
+
     <item
         android:id="@+id/nav_post_ad"
         android:icon="@drawable/ic_add"
         android:title="Post Ad" />
+
     <item
         android:id="@+id/nav_messages"
         android:icon="@drawable/ic_mail"
         android:title="Messages" />
+
     <item
         android:id="@+id/nav_my_account"
         android:icon="@drawable/ic_person"
