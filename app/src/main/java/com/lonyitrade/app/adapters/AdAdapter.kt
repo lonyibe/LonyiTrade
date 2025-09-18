@@ -30,12 +30,18 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
         val ad = adList[position]
 
-        if (!ad.photos.isNullOrEmpty()) {
-            val imageUrl = ApiClient.BASE_URL + ad.photos.first()
+        if (!ad.photos.isNullOrEmpty() && ad.photos.first() != null) {
+            val imagePath = ad.photos.first()
+            // Corrected image URL construction
+            val imageUrl = if (imagePath.startsWith("http")) {
+                imagePath
+            } else {
+                ApiClient.BASE_URL.trimEnd('/') + "/" + imagePath.trimStart('/')
+            }
             Glide.with(holder.itemView.context)
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_add_photo)
-                .error(R.drawable.ic_add_photo)
+                .error(R.drawable.ic_add_photo) // Shows an error icon if the image fails to load
                 .into(holder.photoImageView)
         } else {
             holder.photoImageView.setImageResource(R.drawable.ic_add_photo)
@@ -50,6 +56,7 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
             holder.priceTextView.text = "Budget: UGX ${ad.price}"
         }
 
+        // You can update this to show the actual condition if it's available in your Ad model
         holder.conditionTextView.text = "Condition: N/A"
         holder.locationTextView.text = ad.district
     }
