@@ -44,7 +44,9 @@ class HomeFragment : Fragment() {
 
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
             val currentUserId = sessionManager.fetchAuthToken() // Assuming the token contains the user ID
-            adAdapter = AdAdapter(updatedList, currentUserId)
+            adAdapter = AdAdapter(updatedList, currentUserId) { ad ->
+                (activity as? MainAppActivity)?.openChatActivity(ad)
+            }
             adsRecyclerView.adapter = adAdapter
 
             // New: Check if the list is empty

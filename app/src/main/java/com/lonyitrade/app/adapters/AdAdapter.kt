@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Button
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -21,7 +20,7 @@ import com.lonyitrade.app.R
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Ad
 
-class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
+class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?, private val onMessageSellerClick: (Ad) -> Unit) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
     class AdViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageContainer: FrameLayout = view.findViewById(R.id.adImageContainer)
@@ -52,7 +51,7 @@ class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?
         } else {
             holder.messageSellerButton.visibility = View.VISIBLE
             holder.messageSellerButton.setOnClickListener {
-                Toast.makeText(holder.itemView.context, "Messaging ${ad.sellerPhoneNumber}", Toast.LENGTH_SHORT).show()
+                onMessageSellerClick(ad)
             }
         }
 

@@ -4,6 +4,7 @@ import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.data.models.AdRequest
 import com.lonyitrade.app.data.models.AuthResponse
 import com.lonyitrade.app.data.models.LoginRequest
+import com.lonyitrade.app.data.models.Message
 import com.lonyitrade.app.data.models.RegisterRequest
 import com.lonyitrade.app.data.models.Rental
 import com.lonyitrade.app.data.models.RentalRequest
@@ -24,6 +25,9 @@ interface ApiService {
 
     @GET("api/auth/me")
     suspend fun getUserProfile(@Header("Authorization") token: String): Response<UserProfile>
+
+    @GET("api/users/{id}")
+    suspend fun getUserById(@Header("Authorization") token: String, @Path("id") userId: String): Response<UserProfile>
 
 
     // --- Adverts ---
@@ -75,4 +79,16 @@ interface ApiService {
 
     @DELETE("api/rentals/{id}")
     suspend fun deleteRental(@Header("Authorization") token: String, @Path("id") rentalId: String): Response<Unit>
+
+
+    // --- Messages ---
+    @POST("api/messages")
+    suspend fun postMessage(@Header("Authorization") token: String, @Body message: Message): Response<Message>
+
+    @GET("api/messages/{advertId}/{otherUserId}")
+    suspend fun getMessages(
+        @Header("Authorization") token: String,
+        @Path("advertId") advertId: String,
+        @Path("otherUserId") otherUserId: String
+    ): Response<List<Message>>
 }

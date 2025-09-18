@@ -6,15 +6,13 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-
-// Placeholder fragments that are not yet fully built out
-class MessagesFragment : Fragment(R.layout.fragment_messages)
+import com.lonyitrade.app.data.models.Ad
 
 class MainAppActivity : AppCompatActivity() {
 
-    // 1. Create instances of all fragments, including the new RentalsFragment
+    // 1. Create instances of all fragments
     private val homeFragment = HomeFragment()
-    private val rentalsFragment = RentalsFragment() // New
+    private val rentalsFragment = RentalsFragment()
     private val postAdFragment = PostAdFragment()
     private val messagesFragment = MessagesFragment()
     private val myAccountFragment = MyAccountFragment()
@@ -34,18 +32,18 @@ class MainAppActivity : AppCompatActivity() {
             add(R.id.main_frame_layout, myAccountFragment, "5").hide(myAccountFragment)
             add(R.id.main_frame_layout, messagesFragment, "4").hide(messagesFragment)
             add(R.id.main_frame_layout, postAdFragment, "3").hide(postAdFragment)
-            add(R.id.main_frame_layout, rentalsFragment, "2").hide(rentalsFragment) // New
+            add(R.id.main_frame_layout, rentalsFragment, "2").hide(rentalsFragment)
             add(R.id.main_frame_layout, homeFragment, "1")
         }.commit()
 
-        // 4. Update the listener to handle the new nav_rentals item
+        // 4. Update the listener to handle the new nav_rentals and nav_messages item
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
                     homeFragment.fetchAllAdverts()
                     showFragment(homeFragment)
                 }
-                R.id.nav_rentals -> showFragment(rentalsFragment) // New
+                R.id.nav_rentals -> showFragment(rentalsFragment)
                 R.id.nav_post_ad -> showFragment(postAdFragment)
                 R.id.nav_messages -> showFragment(messagesFragment)
                 R.id.nav_my_account -> showFragment(myAccountFragment)
@@ -66,5 +64,13 @@ class MainAppActivity : AppCompatActivity() {
     private fun showFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().hide(activeFragment).show(fragment).commit()
         activeFragment = fragment
+    }
+
+    // Function to open the chat activity
+    fun openChatActivity(ad: Ad) {
+        val intent = Intent(this, ChatActivity::class.java).apply {
+            putExtra("AD_EXTRA", ad)
+        }
+        startActivity(intent)
     }
 }

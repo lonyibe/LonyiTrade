@@ -31,3 +31,12 @@ data class AdRequest(
     val district: String,
     val condition: String
 )
+
+data class Message(
+    val id: String,
+    @SerializedName("sender_id") val senderId: String,
+    @SerializedName("receiver_id") val receiverId: String,
+    @SerializedName("advert_id") val advertId: String,
+    val content: String,
+    @SerializedName("created_at") val createdAt: String
+)
