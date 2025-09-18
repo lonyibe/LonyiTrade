@@ -1,5 +1,6 @@
 package com.lonyitrade.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -57,7 +58,8 @@ class MainAppActivity : AppCompatActivity() {
         }
 
         searchIcon.setOnClickListener {
-            SearchDialogFragment().show(supportFragmentManager, "SearchDialog")
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
         }
     }
 
