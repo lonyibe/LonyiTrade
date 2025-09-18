@@ -6,7 +6,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.lonyitrade.app.adapters.MainAppPagerAdapter // Added this import
+import com.lonyitrade.app.adapters.MainAppPagerAdapter
 import com.lonyitrade.app.data.models.Ad
 
 class MainAppActivity : AppCompatActivity() {
@@ -24,6 +24,9 @@ class MainAppActivity : AppCompatActivity() {
 
         // Set up the adapter for ViewPager2
         viewPager.adapter = MainAppPagerAdapter(this)
+
+        // This change will ensure a smoother transition between Fragments
+        viewPager.offscreenPageLimit = 4
 
         // Set up swipe navigation
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
