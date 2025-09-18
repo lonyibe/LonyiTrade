@@ -72,10 +72,10 @@
                 android:id="@+id/emailEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email Address"
-                android:inputType="textEmailAddress"
+                android:hint="Phone Number"
+                android:inputType="phone"
                 android:paddingTop="20dp"
-                android:drawableStart="@drawable/ic_email"
+                android:drawableStart="@drawable/ic_phone"
                 android:drawableTint="@color/text_light_gray"
                 android:drawablePadding="12dp"
                 android:textColor="@color/text_light_gray" />
