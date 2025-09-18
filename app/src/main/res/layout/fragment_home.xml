@@ -14,7 +14,7 @@
         android:scrollbars="none"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:background="@color/form_background_dark">
+        android:background="@color/background_dark">
 
         <LinearLayout
             android:id="@+id/categoryContainer"
