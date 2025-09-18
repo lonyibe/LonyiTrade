@@ -37,12 +37,13 @@ class PostAdFragment : Fragment() {
     private lateinit var listingTypeRadioGroup: RadioGroup
 
     // Sell/Buy Form Fields
+    private lateinit var tradeTypeRadioGroup: RadioGroup
     private lateinit var titleEditText: EditText
     private lateinit var descriptionEditText: EditText
     private lateinit var priceEditText: EditText
     private lateinit var priceTypeRadioGroup: RadioGroup
     private lateinit var sellConditionRadioGroup: RadioGroup
-    private lateinit var sellDistrictEditText: EditText
+    private lateinit var districtEditText: EditText
 
     // Rental Form Fields
     private lateinit var propertyTypeSpinner: Spinner
@@ -99,12 +100,13 @@ class PostAdFragment : Fragment() {
         rentalFormLayout = view.findViewById(R.id.rental_form_layout)
 
         // Sell/Buy Form
+        tradeTypeRadioGroup = view.findViewById(R.id.tradeTypeRadioGroup)
         titleEditText = view.findViewById(R.id.titleEditText)
         descriptionEditText = view.findViewById(R.id.descriptionEditText)
         priceEditText = view.findViewById(R.id.priceEditText)
         priceTypeRadioGroup = view.findViewById(R.id.priceTypeRadioGroup)
         sellConditionRadioGroup = view.findViewById(R.id.conditionRadioGroup)
-        sellDistrictEditText = view.findViewById(R.id.districtEditText)
+        districtEditText = view.findViewById(R.id.districtEditText)
 
         // Rental Form
         propertyTypeSpinner = view.findViewById(R.id.propertyTypeSpinner)
@@ -175,20 +177,21 @@ class PostAdFragment : Fragment() {
         }
     }
 
-    // --- Ad Logic (Modified from previous version) ---
+    // --- Ad Logic ---
     private fun createAdRequest(): AdRequest? {
         val title = titleEditText.text.toString()
-        // ... (rest of the ad creation logic is the same)
         val description = descriptionEditText.text.toString()
         val price = priceEditText.text.toString().toDoubleOrNull()
-        val district = sellDistrictEditText.text.toString()
+        val district = districtEditText.text.toString()
         val priceType = view?.findViewById<RadioButton>(priceTypeRadioGroup.checkedRadioButtonId)?.text.toString()
         val condition = view?.findViewById<RadioButton>(sellConditionRadioGroup.checkedRadioButtonId)?.text.toString()
+        val adType = if (view?.findViewById<RadioButton>(R.id.tradeTypeSellItem)?.isChecked == true) "for_sale" else "wanted"
+
         if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields for the item", Toast.LENGTH_SHORT).show()
             return null
         }
-        return AdRequest(title, description, "Unspecified", "for_sale", price, priceType, district, condition)
+        return AdRequest(title, description, "Unspecified", adType, price, priceType, district, condition)
     }
 
     private fun postAd(token: String, adRequest: AdRequest) {
@@ -213,7 +216,7 @@ class PostAdFragment : Fragment() {
         }
     }
 
-    // --- Rental Logic (New) ---
+    // --- Rental Logic ---
     private fun createRentalRequest(): RentalRequest? {
         val rooms = rentalRoomsEditText.text.toString().toIntOrNull()
         val rent = rentalRentEditText.text.toString().toDoubleOrNull()
@@ -295,7 +298,7 @@ class PostAdFragment : Fragment() {
     }
 
     private fun displayRentalImages() {
-        rentalImageContainer.removeAllViews() // Clear previous images
+        rentalImageContainer.removeViews(0, rentalImageContainer.childCount - 1) // Clear previous images, keep button
         rentalPhotoUris.forEach { uri ->
             val imageView = ImageView(requireContext()).apply {
                 layoutParams = ViewGroup.LayoutParams(160, 160) // size of image preview
@@ -303,9 +306,8 @@ class PostAdFragment : Fragment() {
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 setPadding(8, 0, 8, 0)
             }
-            rentalImageContainer.addView(imageView)
+            rentalImageContainer.addView(imageView, 0) // Add new images at the beginning
         }
-        rentalImageContainer.addView(addRentalPhotoButton) // Re-add the button at the end
     }
 
     // --- Utility Functions ---
