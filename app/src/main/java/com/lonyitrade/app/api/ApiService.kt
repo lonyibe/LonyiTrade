@@ -10,30 +10,33 @@ import com.lonyitrade.app.data.models.UserProfile
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
 
+    // --- Auth ---
     @POST("api/auth/register")
     suspend fun registerUser(@Body registerRequest: RegisterRequest): Response<AuthResponse>
 
     @POST("api/auth/login")
     suspend fun loginUser(@Body loginRequest: LoginRequest): Response<TokenResponse>
 
-    // New endpoint to get user profile
     @GET("api/auth/me")
     suspend fun getUserProfile(@Header("Authorization") token: String): Response<UserProfile>
 
+
+    // --- Adverts ---
     @GET("api/adverts")
     suspend fun getAdverts(): Response<List<Ad>>
 
-    // New endpoint to get user's ads
     @GET("api/adverts/my")
     suspend fun getMyAdverts(@Header("Authorization") token: String): Response<List<Ad>>
 
@@ -44,12 +47,20 @@ interface ApiService {
     @POST("api/adverts/{id}/upload-photo")
     suspend fun uploadAdPhoto(@Header("Authorization") token: String, @Path("id") adId: String, @Part photo: MultipartBody.Part): Response<Unit>
 
+    // Delete Function
+    @DELETE("api/adverts/{id}")
+    suspend fun deleteAdvert(@Header("Authorization") token: String, @Path("id") adId: String): Response<Unit>
+
+    // Update Function
+    @PUT("api/adverts/{id}")
+    suspend fun updateAdvert(@Header("Authorization") token: String, @Path("id") adId: String, @Body adRequest: AdRequest): Response<Ad>
+
     // Search Function
     @GET("api/adverts")
     suspend fun searchAdverts(
         @Query("q") query: String?,
         @Query("district") district: String?,
         @Query("min_price") minPrice: String?,
-        @Query("max_price") maxPrice: String?
+        @Query("max_price") maxPrice: String? // This line has been corrected
     ): Response<List<Ad>>
 }

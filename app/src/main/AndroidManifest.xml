@@ -42,5 +42,9 @@
             android:name=".MyAdsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".EditAdActivity"
+            android:exported="false" />
+
     </application>
 </manifest>

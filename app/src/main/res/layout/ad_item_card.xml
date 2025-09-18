@@ -159,8 +159,37 @@
                     android:textColor="@color/text_light_gray"
                     android:textSize="14sp"
                     tools:text="077-XXX-XXXX" />
-
             </LinearLayout>
+
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/editDeleteLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/editButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Edit"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="@color/primary_color_accent"/>
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Delete"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="#D32F2F"/>
+        </LinearLayout>
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
