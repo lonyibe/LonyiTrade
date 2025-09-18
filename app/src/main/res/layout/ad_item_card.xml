@@ -17,7 +17,7 @@
         <FrameLayout
             android:id="@+id/adImageContainer"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="150dp"
             android:background="@color/black">
 
             <ImageView
@@ -53,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textColor="@color/primary_color_accent"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     tools:text="Ad Title" />
 
@@ -67,7 +67,7 @@
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
                     android:textColor="@color/black"
-                    android:textSize="12sp"
+                    android:textSize="10sp"
                     android:textStyle="bold"
                     tools:text="For Sale" />
             </LinearLayout>
@@ -93,7 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/primary_color_accent"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     tools:text="UGX 250,000" />
 
@@ -103,7 +103,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:textColor="@color/text_light_gray"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     tools:text="Negotiable"/>
 
             </LinearLayout>
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/text_light_gray"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textStyle="italic"
                 tools:text="Condition: Used" />
 
@@ -137,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textColor="@color/text_light_gray"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     tools:text="Arua" />
 
                 <View
@@ -157,7 +157,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textColor="@color/text_light_gray"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     tools:text="077-XXX-XXXX" />
             </LinearLayout>
 
