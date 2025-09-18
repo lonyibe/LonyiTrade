@@ -9,7 +9,7 @@ object ApiClient {
 
     // IMPORTANT: Replace this with your Ubuntu server's IP address and port.
     // To find your IP address on Ubuntu, open the terminal and type: hostname -I
-    private const val BASE_URL = "http://212.115.108.58:3000/"
+    const val BASE_URL = "http://212.115.108.58:3000/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY // This logs all request/response data

@@ -36,12 +36,15 @@ class HomeFragment : Fragment() {
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        fetchAdverts()
-
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
             adAdapter = AdAdapter(updatedList)
             adsRecyclerView.adapter = adAdapter
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        fetchAdverts()
     }
 
     private fun fetchAdverts() {

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.lonyitrade.app.R
 import com.lonyitrade.app.data.models.Ad
+import com.lonyitrade.app.api.ApiClient
 
 class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
@@ -30,10 +31,11 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
         val ad = adList[position]
 
         if (!ad.photos.isNullOrEmpty()) {
+            val imageUrl = ApiClient.BASE_URL + ad.photos.first()
             Glide.with(holder.itemView.context)
-                .load(ad.photos.first())
-                .placeholder(R.drawable.ic_add_photo) // Show placeholder while loading
-                .error(R.drawable.ic_add_photo) // Show placeholder if an error occurs
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_add_photo)
+                .error(R.drawable.ic_add_photo)
                 .into(holder.photoImageView)
         } else {
             holder.photoImageView.setImageResource(R.drawable.ic_add_photo)
