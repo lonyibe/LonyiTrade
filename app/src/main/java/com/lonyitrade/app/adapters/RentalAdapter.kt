@@ -4,9 +4,11 @@ import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -17,7 +19,7 @@ import com.lonyitrade.app.R
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Rental
 
-class RentalAdapter(private val rentalList: List<Rental>) : RecyclerView.Adapter<RentalAdapter.RentalViewHolder>() {
+class RentalAdapter(private val rentalList: List<Rental>, private val currentUserId: String?) : RecyclerView.Adapter<RentalAdapter.RentalViewHolder>() {
 
     class RentalViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val photoImageView: ImageView = view.findViewById(R.id.rentalPhotoImageView)
@@ -28,6 +30,7 @@ class RentalAdapter(private val rentalList: List<Rental>) : RecyclerView.Adapter
         val roomsTextView: TextView = view.findViewById(R.id.rentalRoomsTextView)
         val landlordNameTextView: TextView = view.findViewById(R.id.landlordNameTextView)
         val landlordPhoneTextView: TextView = view.findViewById(R.id.landlordPhoneTextView)
+        val messageSellerButton: Button = view.findViewById(R.id.messageSellerButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RentalViewHolder {
@@ -37,6 +40,16 @@ class RentalAdapter(private val rentalList: List<Rental>) : RecyclerView.Adapter
 
     override fun onBindViewHolder(holder: RentalViewHolder, position: Int) {
         val rental = rentalList[position]
+
+        // Hide message button if the rental belongs to the current user
+        if (rental.userId == currentUserId) {
+            holder.messageSellerButton.visibility = View.GONE
+        } else {
+            holder.messageSellerButton.visibility = View.VISIBLE
+            holder.messageSellerButton.setOnClickListener {
+                Toast.makeText(holder.itemView.context, "Messaging ${rental.landlordName}", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // Set Text Data
         holder.propertyTypeTextView.text = rental.propertyType

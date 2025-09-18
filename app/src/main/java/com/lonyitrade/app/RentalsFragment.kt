@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.RentalAdapter
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +22,8 @@ class RentalsFragment : Fragment() {
     private lateinit var rentalsRecyclerView: RecyclerView
     private lateinit var noRentalsTextView: TextView // New
     private lateinit var rentalAdapter: RentalAdapter
+    private lateinit var sessionManager: SessionManager
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,6 +35,7 @@ class RentalsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        sessionManager = SessionManager(requireContext())
         rentalsRecyclerView = view.findViewById(R.id.rentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView) // New
         rentalsRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -46,7 +50,8 @@ class RentalsFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val rentals = response.body() ?: emptyList()
-                        rentalAdapter = RentalAdapter(rentals)
+                        val currentUserId = sessionManager.fetchAuthToken()
+                        rentalAdapter = RentalAdapter(rentals, currentUserId)
                         rentalsRecyclerView.adapter = rentalAdapter
 
                         // New: Check if the list is empty

@@ -160,7 +160,19 @@
                     android:textSize="12sp"
                     tools:text="077-XXX-XXXX" />
             </LinearLayout>
-
+            <Button
+                android:id="@+id/messageSellerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="end"
+                android:text="Message Seller"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/primary_color_accent"
+                android:drawableLeft="@drawable/ic_mail"
+                android:drawableTint="@color/black"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"/>
         </LinearLayout>
 
         <LinearLayout

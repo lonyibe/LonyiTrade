@@ -38,14 +38,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
-                android:layout_margin="8dp"
+                android:layout_margin="12dp"
                 android:background="@drawable/rounded_profile_pic"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 android:textColor="@color/black"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="Apartment"/>
         </FrameLayout>
@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/primary_color_accent"
-                android:textSize="18sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 tools:text="UGX 500,000 / month"/>
 
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/text_light_gray"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 tools:text="Kampala, Central"/>
 
             <TextView
@@ -80,15 +80,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/text_light_gray"
-                android:textSize="12sp"
+                android:textSize="14sp"
                 tools:text="3 Rooms"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#424242"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -97,8 +97,8 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:src="@drawable/ic_person"
                     app:tint="@color/text_light_gray"/>
 
@@ -106,9 +106,8 @@
                     android:id="@+id/landlordNameTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="8dp"
                     android:textColor="@color/text_light_gray"
-                    android:textSize="12sp"
                     tools:text="John Doe (Landlord)"/>
 
                 <View
@@ -117,8 +116,8 @@
                     android:layout_weight="1"/>
 
                 <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:src="@drawable/ic_phone"
                     app:tint="@color/text_light_gray"/>
 
@@ -128,11 +127,49 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textColor="@color/text_light_gray"
-                    android:textSize="12sp"
                     tools:text="077-XXX-XXXX"/>
             </LinearLayout>
 
+            <Button
+                android:id="@+id/messageSellerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="end"
+                android:text="Message Seller"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/primary_color_accent"
+                android:drawableLeft="@drawable/ic_mail"
+                android:drawableTint="@color/black"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/editDeleteLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/editButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Edit"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="@color/primary_color_accent"/>
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Delete"
+                android:layout_marginStart="4dp"
+                android:backgroundTint="#D32F2F"/>
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

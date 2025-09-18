@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.AdAdapter
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ class HomeFragment : Fragment() {
     private lateinit var noAdsTextView: TextView // New
     private lateinit var adAdapter: AdAdapter
     private val sharedViewModel: SharedViewModel by activityViewModels()
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,12 +37,14 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        sessionManager = SessionManager(requireContext())
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
         noAdsTextView = view.findViewById(R.id.noAdsTextView) // New
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
-            adAdapter = AdAdapter(updatedList)
+            val currentUserId = sessionManager.fetchAuthToken() // Assuming the token contains the user ID
+            adAdapter = AdAdapter(updatedList, currentUserId)
             adsRecyclerView.adapter = adAdapter
 
             // New: Check if the list is empty

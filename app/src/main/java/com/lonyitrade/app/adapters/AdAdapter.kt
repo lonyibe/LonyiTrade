@@ -9,6 +9,8 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Button
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -19,7 +21,7 @@ import com.lonyitrade.app.R
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Ad
 
-class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
+class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
     class AdViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageContainer: FrameLayout = view.findViewById(R.id.adImageContainer)
@@ -33,6 +35,7 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
         val conditionTextView: TextView = view.findViewById(R.id.adConditionTextView)
         val locationTextView: TextView = view.findViewById(R.id.adLocationTextView)
         val phoneNumberTextView: TextView = view.findViewById(R.id.adPhoneNumberTextView)
+        val messageSellerButton: Button = view.findViewById(R.id.messageSellerButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdViewHolder {
@@ -42,6 +45,16 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
 
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
         val ad = adList[position]
+
+        // Hide message button if the ad belongs to the current user
+        if (ad.userId == currentUserId) {
+            holder.messageSellerButton.visibility = View.GONE
+        } else {
+            holder.messageSellerButton.visibility = View.VISIBLE
+            holder.messageSellerButton.setOnClickListener {
+                Toast.makeText(holder.itemView.context, "Messaging ${ad.sellerPhoneNumber}", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // Handle Ad Type and Image Visibility
         if (ad.type == "wanted") {
