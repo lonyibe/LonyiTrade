@@ -4,66 +4,56 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.lonyitrade.app.adapters.MainAppPagerAdapter
 import com.lonyitrade.app.data.models.Ad
 
 class MainAppActivity : AppCompatActivity() {
 
-    // 1. Create instances of all fragments
-    private val homeFragment = HomeFragment()
-    private val rentalsFragment = RentalsFragment()
-    private val postAdFragment = PostAdFragment()
-    private val messagesFragment = MessagesFragment()
-    private val myAccountFragment = MyAccountFragment()
-
-    // 2. Keep track of the active fragment
-    private var activeFragment: Fragment = homeFragment
+    private lateinit var viewPager: ViewPager2
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_app)
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        viewPager = findViewById(R.id.main_view_pager)
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
         val searchIcon = findViewById<ImageView>(R.id.search_icon)
 
-        // 3. Add all fragments to the manager
-        supportFragmentManager.beginTransaction().apply {
-            add(R.id.main_frame_layout, myAccountFragment, "5").hide(myAccountFragment)
-            add(R.id.main_frame_layout, messagesFragment, "4").hide(messagesFragment)
-            add(R.id.main_frame_layout, postAdFragment, "3").hide(postAdFragment)
-            add(R.id.main_frame_layout, rentalsFragment, "2").hide(rentalsFragment)
-            add(R.id.main_frame_layout, homeFragment, "1")
-        }.commit()
+        // Set up the adapter for ViewPager2
+        viewPager.adapter = MainAppPagerAdapter(this)
 
-        // 4. Update the listener to handle the new nav_rentals and nav_messages item
+        // Set up swipe navigation
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                bottomNavigationView.menu.getItem(position).isChecked = true
+            }
+        })
+
+        // Set up BottomNavigationView to change pages
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> {
-                    homeFragment.fetchAllAdverts()
-                    showFragment(homeFragment)
-                }
-                R.id.nav_rentals -> showFragment(rentalsFragment)
-                R.id.nav_post_ad -> showFragment(postAdFragment)
-                R.id.nav_messages -> showFragment(messagesFragment)
-                R.id.nav_my_account -> showFragment(myAccountFragment)
+                R.id.nav_home -> viewPager.currentItem = 0
+                R.id.nav_rentals -> viewPager.currentItem = 1
+                R.id.nav_post_ad -> viewPager.currentItem = 2
+                R.id.nav_messages -> viewPager.currentItem = 3
+                R.id.nav_my_account -> viewPager.currentItem = 4
             }
             true
         }
 
+        // Set the default page
         if (savedInstanceState == null) {
-            bottomNavigationView.selectedItemId = R.id.nav_home
+            viewPager.currentItem = 0
         }
 
         searchIcon.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
         }
-    }
-
-    private fun showFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().hide(activeFragment).show(fragment).commit()
-        activeFragment = fragment
     }
 
     // Function to open the chat activity

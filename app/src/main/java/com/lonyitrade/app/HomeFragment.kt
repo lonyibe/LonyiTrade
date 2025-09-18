@@ -10,8 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.lonyitrade.app.adapters.AdAdapter
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -21,8 +23,9 @@ import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
 
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var adsRecyclerView: RecyclerView
-    private lateinit var noAdsTextView: TextView // New
+    private lateinit var noAdsTextView: TextView
     private lateinit var adAdapter: AdAdapter
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var sessionManager: SessionManager
@@ -38,18 +41,18 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         sessionManager = SessionManager(requireContext())
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
-        noAdsTextView = view.findViewById(R.id.noAdsTextView) // New
+        noAdsTextView = view.findViewById(R.id.noAdsTextView)
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
-            val currentUserId = sessionManager.fetchAuthToken() // Assuming the token contains the user ID
+            val currentUserId = sessionManager.fetchAuthToken()
             adAdapter = AdAdapter(updatedList, currentUserId) { ad ->
                 (activity as? MainAppActivity)?.openChatActivity(ad)
             }
             adsRecyclerView.adapter = adAdapter
 
-            // New: Check if the list is empty
             if (updatedList.isEmpty()) {
                 adsRecyclerView.visibility = View.GONE
                 noAdsTextView.visibility = View.VISIBLE
@@ -57,6 +60,11 @@ class HomeFragment : Fragment() {
                 adsRecyclerView.visibility = View.VISIBLE
                 noAdsTextView.visibility = View.GONE
             }
+        }
+
+        // Set up the refresh listener
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchAllAdverts()
         }
     }
 
@@ -66,10 +74,16 @@ class HomeFragment : Fragment() {
     }
 
     fun fetchAllAdverts() {
+        // Show the refresh spinner
+        if (!swipeRefreshLayout.isRefreshing) {
+            swipeRefreshLayout.isRefreshing = true
+        }
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = ApiClient.apiService.getAdverts()
                 withContext(Dispatchers.Main) {
+                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
                     if (response.isSuccessful) {
                         val fetchedAds = response.body()
                         sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
@@ -79,6 +93,7 @@ class HomeFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
                     Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }

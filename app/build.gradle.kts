@@ -61,4 +61,7 @@ dependencies {
 
     // Add this line for Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // New dependency for pull-to-refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }
