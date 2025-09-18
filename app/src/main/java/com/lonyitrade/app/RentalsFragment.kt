@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,13 +19,13 @@ import kotlinx.coroutines.withContext
 class RentalsFragment : Fragment() {
 
     private lateinit var rentalsRecyclerView: RecyclerView
+    private lateinit var noRentalsTextView: TextView // New
     private lateinit var rentalAdapter: RentalAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_rentals, container, false)
     }
 
@@ -32,6 +33,7 @@ class RentalsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         rentalsRecyclerView = view.findViewById(R.id.rentalsRecyclerView)
+        noRentalsTextView = view.findViewById(R.id.noRentalsTextView) // New
         rentalsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         fetchRentals()
@@ -46,6 +48,15 @@ class RentalsFragment : Fragment() {
                         val rentals = response.body() ?: emptyList()
                         rentalAdapter = RentalAdapter(rentals)
                         rentalsRecyclerView.adapter = rentalAdapter
+
+                        // New: Check if the list is empty
+                        if (rentals.isEmpty()) {
+                            rentalsRecyclerView.visibility = View.GONE
+                            noRentalsTextView.visibility = View.VISIBLE
+                        } else {
+                            rentalsRecyclerView.visibility = View.VISIBLE
+                            noRentalsTextView.visibility = View.GONE
+                        }
                     } else {
                         Toast.makeText(requireContext(), "Failed to load rentals", Toast.LENGTH_SHORT).show()
                     }
