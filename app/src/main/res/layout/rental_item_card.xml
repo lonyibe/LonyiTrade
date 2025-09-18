@@ -14,136 +14,158 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="150dp">
-
-            <ImageView
-                android:id="@+id/rentalPhotoImageView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="@color/black"
-                tools:src="@drawable/ic_add_photo"/>
-
-            <ProgressBar
-                android:id="@+id/rentalImageProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"/>
-
-            <TextView
-                android:id="@+id/rentalPropertyTypeTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|start"
-                android:layout_margin="12dp"
-                android:background="@drawable/rounded_profile_pic"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                tools:text="Apartment"/>
-        </FrameLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/rentalPriceTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/primary_color_accent"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                tools:text="UGX 500,000 / month"/>
+            <FrameLayout
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginEnd="16dp">
 
-            <TextView
-                android:id="@+id/rentalLocationTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/text_light_gray"
-                android:textSize="16sp"
-                tools:text="Kampala, Central"/>
+                <ImageView
+                    android:id="@+id/rentalPhotoImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@color/black"
+                    tools:src="@drawable/ic_add_photo"
+                    android:contentDescription="Rental photo"/>
 
-            <TextView
-                android:id="@+id/rentalRoomsTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/text_light_gray"
-                android:textSize="14sp"
-                tools:text="3 Rooms"/>
+                <ProgressBar
+                    android:id="@+id/rentalImageProgressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#424242"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"/>
+                <TextView
+                    android:id="@+id/rentalPropertyTypeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/rounded_profile_pic"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="Apartment"/>
+            </FrameLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_person"
-                    app:tint="@color/text_light_gray"/>
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/landlordNameTextView"
+                    android:id="@+id/rentalPriceTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:textColor="@color/primary_color_accent"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="UGX 500,000 / month"/>
+
+                <TextView
+                    android:id="@+id/rentalLocationTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:textColor="@color/text_light_gray"
-                    tools:text="John Doe (Landlord)"/>
+                    android:textSize="14sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Kampala, Central"/>
+
+                <TextView
+                    android:id="@+id/rentalRoomsTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_light_gray"
+                    android:textSize="12sp"
+                    tools:text="3 Rooms"/>
 
                 <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#424242"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"/>
 
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_phone"
-                    app:tint="@color/text_light_gray"/>
-
-                <TextView
-                    android:id="@+id/landlordPhoneTextView"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textColor="@color/text_light_gray"
-                    tools:text="077-XXX-XXXX"/>
-            </LinearLayout>
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/messageSellerButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_gravity="end"
-                android:text="Message Seller"
-                android:textColor="@color/black"
-                android:backgroundTint="@color/primary_color_accent"
-                android:drawableLeft="@drawable/ic_mail"
-                android:drawableTint="@color/black"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"/>
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_person"
+                        app:tint="@color/text_light_gray"
+                        android:contentDescription="Landlord Icon"/>
+
+                    <TextView
+                        android:id="@+id/landlordNameTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/text_light_gray"
+                        android:textSize="12sp"
+                        tools:text="John Doe (Landlord)"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="@color/text_light_gray"
+                        android:contentDescription="Phone Icon"/>
+
+                    <TextView
+                        android:id="@+id/landlordPhoneTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:textColor="@color/text_light_gray"
+                        android:textSize="12sp"
+                        tools:text="077-XXX-XXXX"/>
+                </LinearLayout>
+
+            </LinearLayout>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/messageSellerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_gravity="end"
+            android:text="Message Seller"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/primary_color_accent"
+            android:drawableLeft="@drawable/ic_mail"
+            android:drawableTint="@color/black"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"/>
 
         <LinearLayout
             android:id="@+id/editDeleteLayout"
