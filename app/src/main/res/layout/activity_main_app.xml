@@ -21,6 +21,7 @@
         app:menu="@menu/bottom_nav_menu"
         android:background="@color/form_background_dark"
         app:itemIconTint="@color/primary_color_accent"
-        app:itemTextColor="@color/text_light_gray" />
+        app:itemTextColor="@color/text_light_gray"
+        app:labelVisibilityMode="labeled" />
 
 </RelativeLayout>
