@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +33,7 @@ class MyAdsAdapter(
         val photoImageView: ImageView = view.findViewById(R.id.adPhotoImageView)
         val progressBar: ProgressBar = view.findViewById(R.id.imageProgressBar)
         val titleTextView: TextView = view.findViewById(R.id.adTitleTextView)
+        val categoryTextView: TextView = view.findViewById(R.id.adCategoryTextView)
         val adTypeTextView: TextView = view.findViewById(R.id.adTypeTextView)
         val descriptionTextView: TextView = view.findViewById(R.id.adDescriptionTextView)
         val priceTextView: TextView = view.findViewById(R.id.adPriceTextView)
@@ -57,6 +58,7 @@ class MyAdsAdapter(
 
         // --- Bind data ---
         holder.titleTextView.text = ad.title
+        holder.categoryTextView.text = "Category: ${ad.category}"
         holder.descriptionTextView.text = ad.description
         holder.priceTextView.text = "UGX ${ad.price ?: "0"}"
         holder.priceTypeTextView.text = ad.priceType ?: ""

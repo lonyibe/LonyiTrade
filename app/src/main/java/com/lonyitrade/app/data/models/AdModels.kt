@@ -11,7 +11,7 @@ data class Ad(
     @SerializedName("advert_type") val type: String?,
     val title: String,
     val description: String,
-    val category: String?,
+    val category: String,
     val price: String?,
     @SerializedName("price_type") val priceType: String?,
     val district: String?,

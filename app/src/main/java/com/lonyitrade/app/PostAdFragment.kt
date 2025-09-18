@@ -39,6 +39,7 @@ class PostAdFragment : Fragment() {
     // Sell/Buy Form Fields
     private lateinit var tradeTypeRadioGroup: RadioGroup
     private lateinit var titleEditText: EditText
+    private lateinit var categorySpinner: Spinner
     private lateinit var descriptionEditText: EditText
     private lateinit var priceEditText: EditText
     private lateinit var priceTypeRadioGroup: RadioGroup
@@ -89,7 +90,7 @@ class PostAdFragment : Fragment() {
         sessionManager = SessionManager(requireContext())
         initializeViews(view)
         setupListeners()
-        setupPropertyTypeSpinner()
+        setupSpinners()
     }
 
     private fun initializeViews(view: View) {
@@ -102,6 +103,7 @@ class PostAdFragment : Fragment() {
         // Sell/Buy Form
         tradeTypeRadioGroup = view.findViewById(R.id.tradeTypeRadioGroup)
         titleEditText = view.findViewById(R.id.titleEditText)
+        categorySpinner = view.findViewById(R.id.categorySpinner)
         descriptionEditText = view.findViewById(R.id.descriptionEditText)
         priceEditText = view.findViewById(R.id.priceEditText)
         priceTypeRadioGroup = view.findViewById(R.id.priceTypeRadioGroup)
@@ -146,11 +148,18 @@ class PostAdFragment : Fragment() {
         addRentalPhotoButton.setOnClickListener { pickRentalImages.launch("image/*") }
     }
 
-    private fun setupPropertyTypeSpinner() {
+    private fun setupSpinners() {
+        // Setup for Ad Category Spinner
+        val categories = resources.getStringArray(R.array.categories)
+        val categoryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        categorySpinner.adapter = categoryAdapter
+
+        // Setup for Rental Property Type Spinner
         val propertyTypes = arrayOf("House", "Apartment", "Studio", "Condo", "Duplex", "Hostel", "Other")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, propertyTypes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        propertyTypeSpinner.adapter = adapter
+        val propertyTypeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, propertyTypes)
+        propertyTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        propertyTypeSpinner.adapter = propertyTypeAdapter
     }
 
     private fun handlePostListing() {
@@ -183,15 +192,16 @@ class PostAdFragment : Fragment() {
         val description = descriptionEditText.text.toString()
         val price = priceEditText.text.toString().toDoubleOrNull()
         val district = districtEditText.text.toString()
+        val category = categorySpinner.selectedItem.toString()
         val priceType = view?.findViewById<RadioButton>(priceTypeRadioGroup.checkedRadioButtonId)?.text.toString()
         val condition = view?.findViewById<RadioButton>(sellConditionRadioGroup.checkedRadioButtonId)?.text.toString()
         val adType = if (view?.findViewById<RadioButton>(R.id.tradeTypeSellItem)?.isChecked == true) "for_sale" else "wanted"
 
-        if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty()) {
+        if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty() || category.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields for the item", Toast.LENGTH_SHORT).show()
             return null
         }
-        return AdRequest(title, description, "Unspecified", adType, price, priceType, district, condition)
+        return AdRequest(title, description, category, adType, price, priceType, district, condition)
     }
 
     private fun postAd(token: String, adRequest: AdRequest) {

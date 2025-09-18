@@ -23,11 +23,11 @@ import com.lonyitrade.app.data.models.Ad
 class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?, private val onMessageSellerClick: (Ad) -> Unit) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
     class AdViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // Existing views
         val imageContainer: FrameLayout = view.findViewById(R.id.adImageContainer)
         val photoImageView: ImageView = view.findViewById(R.id.adPhotoImageView)
         val progressBar: ProgressBar = view.findViewById(R.id.imageProgressBar)
         val titleTextView: TextView = view.findViewById(R.id.adTitleTextView)
+        val categoryTextView: TextView = view.findViewById(R.id.adCategoryTextView)
         val adTypeTextView: TextView = view.findViewById(R.id.adTypeTextView)
         val descriptionTextView: TextView = view.findViewById(R.id.adDescriptionTextView)
         val priceTextView: TextView = view.findViewById(R.id.adPriceTextView)
@@ -99,6 +99,7 @@ class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?
 
         // Set Ad Details
         holder.titleTextView.text = ad.title
+        holder.categoryTextView.text = "Category: ${ad.category}"
         holder.descriptionTextView.text = ad.description
         holder.priceTextView.text = "UGX ${ad.price ?: "0"}"
         holder.priceTypeTextView.text = ad.priceType ?: ""

@@ -56,7 +56,8 @@ interface ApiService {
         @Query("district") district: String?,
         @Query("min_price") minPrice: String?,
         @Query("max_price") maxPrice: String?,
-        @Query("type") type: String?
+        @Query("type") type: String?,
+        @Query("category") category: String?
     ): Response<List<Ad>>
 
 

@@ -2,11 +2,13 @@ package com.lonyitrade.app
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.lonyitrade.app.api.ApiClient
@@ -30,6 +32,7 @@ class EditAdActivity : AppCompatActivity() {
     private lateinit var districtEditText: EditText
     private lateinit var priceTypeRadioGroup: RadioGroup
     private lateinit var conditionRadioGroup: RadioGroup
+    private lateinit var categorySpinner: Spinner
     private lateinit var updateButton: Button
     private lateinit var updateProgressBar: ProgressBar
 
@@ -45,6 +48,7 @@ class EditAdActivity : AppCompatActivity() {
         }
 
         initializeViews()
+        setupCategorySpinner()
         populateFields()
 
         updateButton.setOnClickListener {
@@ -59,8 +63,16 @@ class EditAdActivity : AppCompatActivity() {
         districtEditText = findViewById(R.id.editDistrictEditText)
         priceTypeRadioGroup = findViewById(R.id.editPriceTypeRadioGroup)
         conditionRadioGroup = findViewById(R.id.editConditionRadioGroup)
+        categorySpinner = findViewById(R.id.editCategorySpinner)
         updateButton = findViewById(R.id.updateAdButton)
         updateProgressBar = findViewById(R.id.updateAdProgressBar)
+    }
+
+    private fun setupCategorySpinner() {
+        val categories = resources.getStringArray(R.array.categories)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        categorySpinner.adapter = adapter
     }
 
     private fun populateFields() {
@@ -72,6 +84,13 @@ class EditAdActivity : AppCompatActivity() {
         // Select the correct radio buttons
         selectRadioButton(priceTypeRadioGroup, ad.priceType)
         selectRadioButton(conditionRadioGroup, ad.condition)
+
+        // Select the correct category in the spinner
+        val categories = resources.getStringArray(R.array.categories)
+        val categoryIndex = categories.indexOf(ad.category)
+        if (categoryIndex != -1) {
+            categorySpinner.setSelection(categoryIndex)
+        }
     }
 
     private fun selectRadioButton(radioGroup: RadioGroup, value: String?) {
@@ -91,15 +110,16 @@ class EditAdActivity : AppCompatActivity() {
         val district = districtEditText.text.toString()
         val priceType = (findViewById<RadioButton>(priceTypeRadioGroup.checkedRadioButtonId))?.text.toString()
         val condition = (findViewById<RadioButton>(conditionRadioGroup.checkedRadioButtonId))?.text.toString()
+        val category = categorySpinner.selectedItem.toString()
         val token = sessionManager.fetchAuthToken()
 
-        if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty() || token == null) {
+        if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty() || category.isEmpty() || token == null) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
 
         showLoading(true)
-        val adRequest = AdRequest(title, description, ad.category ?: "Unspecified", ad.type ?: "for_sale", price, priceType, district, condition)
+        val adRequest = AdRequest(title, description, category, ad.type ?: "for_sale", price, priceType, district, condition)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {

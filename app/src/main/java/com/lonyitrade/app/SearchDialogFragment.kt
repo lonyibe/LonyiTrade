@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -25,6 +27,7 @@ class SearchDialogFragment : DialogFragment() {
     private lateinit var listingTypeRadioGroup: RadioGroup
     private lateinit var adSearchOptions: View
     private lateinit var adSearchTypeRadioGroup: RadioGroup
+    private lateinit var adCategorySpinner: Spinner
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +48,9 @@ class SearchDialogFragment : DialogFragment() {
         listingTypeRadioGroup = view.findViewById(R.id.listingTypeRadioGroup)
         adSearchOptions = view.findViewById(R.id.adSearchOptions)
         adSearchTypeRadioGroup = view.findViewById(R.id.adSearchTypeRadioGroup)
+        adCategorySpinner = view.findViewById(R.id.adCategorySpinner)
+
+        setupCategorySpinner()
 
         // Set up the listener for the listing type radio group
         listingTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
@@ -67,12 +73,20 @@ class SearchDialogFragment : DialogFragment() {
         }
     }
 
+    private fun setupCategorySpinner() {
+        val categories = resources.getStringArray(R.array.categories)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adCategorySpinner.adapter = adapter
+    }
+
     private fun performSearch(query: String, district: String, minPrice: String, maxPrice: String, listingType: Int, adType: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 if (listingType == R.id.listingTypeAd) {
                     val type = if (adType == R.id.adSearchBuy) "for_sale" else "wanted"
-                    val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, type)
+                    val category = adCategorySpinner.selectedItem?.toString()
+                    val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, type, category)
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             response.body()?.let {
