@@ -62,11 +62,16 @@ interface ApiService {
     @GET("api/rentals")
     suspend fun getRentals(): Response<List<Rental>>
 
-    // New endpoint to get user's rentals
     @GET("api/rentals/my")
     suspend fun getMyRentals(@Header("Authorization") token: String): Response<List<Rental>>
 
     @Multipart
     @POST("api/rentals/{id}/upload-photo")
     suspend fun uploadRentalPhotos(@Header("Authorization") token: String, @Path("id") rentalId: String, @Part photos: List<MultipartBody.Part>): Response<Unit>
+
+    @PUT("api/rentals/{id}")
+    suspend fun updateRental(@Header("Authorization") token: String, @Path("id") rentalId: String, @Body rentalRequest: RentalRequest): Response<Rental>
+
+    @DELETE("api/rentals/{id}")
+    suspend fun deleteRental(@Header("Authorization") token: String, @Path("id") rentalId: String): Response<Unit>
 }

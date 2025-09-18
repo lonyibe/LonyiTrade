@@ -1,8 +1,11 @@
 package com.lonyitrade.app.data.models
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 // Model for rental data received from the server
+@Parcelize
 data class Rental(
     val id: String?,
     @SerializedName("user_id") val userId: String?,
@@ -21,7 +24,7 @@ data class Rental(
     @SerializedName("landlord_whatsapp") val landlordWhatsapp: String?,
     @SerializedName("landlord_type") val landlordType: String?,
     val photos: List<String>?
-)
+) : Parcelable
 
 // Model for sending new rental data to the server
 data class RentalRequest(
