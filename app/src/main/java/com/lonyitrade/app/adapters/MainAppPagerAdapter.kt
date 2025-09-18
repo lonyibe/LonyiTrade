@@ -1,3 +1,5 @@
+// File: C:/Users/Lonyibe/Desktop/LonyiTrade/app/src/main/java/com/lonyitrade/app/adapters/MainAppPagerAdapter.kt
+
 package com.lonyitrade.app.adapters
 
 import androidx.fragment.app.Fragment
