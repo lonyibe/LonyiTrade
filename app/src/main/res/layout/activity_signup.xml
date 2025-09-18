@@ -32,7 +32,8 @@
             android:src="@drawable/ic_profile_placeholder"
             android:scaleType="centerCrop"
             android:background="@drawable/rounded_profile_pic"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:contentDescription="Profile Picture"/>
 
         <Button
             android:id="@+id/uploadPicButton"
@@ -47,13 +48,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxBackgroundColor="@color/form_background_dark"
-            app:hintTextColor="@color/text_light_gray">
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/nameEditText"
@@ -72,13 +71,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxBackgroundColor="@color/form_background_dark"
-            app:hintTextColor="@color/text_light_gray">
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phoneNumberEditText"
@@ -97,13 +94,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxBackgroundColor="@color/form_background_dark"
-            app:hintTextColor="@color/text_light_gray">
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/districtEditText"
@@ -122,13 +117,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:boxBackgroundColor="@color/form_background_dark"
-            app:hintTextColor="@color/text_light_gray"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/text_light_gray">
 

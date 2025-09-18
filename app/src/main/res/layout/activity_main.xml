@@ -34,7 +34,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/logo"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop"
+                    android:contentDescription="App Logo"/>
             </androidx.cardview.widget.CardView>
         </androidx.cardview.widget.CardView>
 
@@ -60,13 +61,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxBackgroundColor="@color/form_background_dark"
-            app:hintTextColor="@color/text_light_gray">
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailEditText"
@@ -85,13 +84,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            style="@style/Widget.Material3.TextInputLayout.FilledBox"
+            style="@style/Widget.App.TextInputLayout"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:boxBackgroundColor="@color/form_background_dark"
-            app:hintTextColor="@color/text_light_gray"
             app:passwordToggleEnabled="true"
             app:passwordToggleTint="@color/text_light_gray">
 

@@ -22,4 +22,9 @@
         <item name="android:textSize">@dimen/bottom_nav_text_size</item>
     </style>
 
+    <style name="Widget.App.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">@color/white</item>
+        <item name="hintTextColor">@color/black</item>
+    </style>
+
 </resources>
