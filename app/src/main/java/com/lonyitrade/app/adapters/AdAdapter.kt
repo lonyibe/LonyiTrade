@@ -1,12 +1,12 @@
 package com.lonyitrade.app.adapters
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.lonyitrade.app.R
 import com.lonyitrade.app.data.models.Ad
 
@@ -29,23 +29,26 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
     override fun onBindViewHolder(holder: AdViewHolder, position: Int) {
         val ad = adList[position]
 
-        // Display the first image if available, otherwise show a placeholder
-        if (ad.photos.isNotEmpty()) {
-            holder.photoImageView.setImageURI(Uri.parse(ad.photos.first()))
+        if (!ad.photos.isNullOrEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(ad.photos.first())
+                .placeholder(R.drawable.ic_add_photo) // Show placeholder while loading
+                .error(R.drawable.ic_add_photo) // Show placeholder if an error occurs
+                .into(holder.photoImageView)
         } else {
-            holder.photoImageView.setImageResource(R.drawable.ic_add_photo) // Use a placeholder drawable
+            holder.photoImageView.setImageResource(R.drawable.ic_add_photo)
         }
 
         holder.titleTextView.text = ad.title
         holder.descriptionTextView.text = ad.description
 
-        if (ad.type == "sell") {
+        if (ad.type == "for_sale") {
             holder.priceTextView.text = "UGX ${ad.price}"
         } else {
-            holder.priceTextView.text = "Budget: UGX ${ad.budget}"
+            holder.priceTextView.text = "Budget: UGX ${ad.price}"
         }
 
-        holder.conditionTextView.text = "Condition: ${ad.condition}"
+        holder.conditionTextView.text = "Condition: N/A"
         holder.locationTextView.text = ad.district
     }
 

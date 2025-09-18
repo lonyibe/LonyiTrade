@@ -11,12 +11,19 @@ import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.Switch
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
+import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.data.models.AdRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
 
 class PostAdFragment : Fragment() {
 
@@ -30,7 +37,6 @@ class PostAdFragment : Fragment() {
     private lateinit var titleEditText: EditText
     private lateinit var descriptionEditText: EditText
     private lateinit var priceEditText: EditText
-    private lateinit var priceTypeRadioGroup: RadioGroup
     private lateinit var sellConditionRadioGroup: RadioGroup
     private lateinit var sellDistrictEditText: EditText
 
@@ -44,8 +50,13 @@ class PostAdFragment : Fragment() {
     private lateinit var buyContactPhoneEditText: EditText
     private lateinit var buyWhatsappSwitch: Switch
 
+    // Re-added the ActivityResultLauncher to handle image selection
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
+            // Take a persistent URI permission so the app can access the image later
+            val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
+
             selectedPhotoUri = uri
             view?.findViewById<ImageView>(R.id.photo1ImageView)?.setImageURI(uri)
             Toast.makeText(requireContext(), "Photo uploaded!", Toast.LENGTH_SHORT).show()
@@ -73,7 +84,6 @@ class PostAdFragment : Fragment() {
         titleEditText = view.findViewById(R.id.titleEditText)
         descriptionEditText = view.findViewById(R.id.descriptionEditText)
         priceEditText = view.findViewById(R.id.priceEditText)
-        priceTypeRadioGroup = view.findViewById(R.id.priceTypeRadioGroup)
         sellConditionRadioGroup = view.findViewById(R.id.conditionRadioGroup)
         sellDistrictEditText = view.findViewById(R.id.districtEditText)
 
@@ -87,14 +97,9 @@ class PostAdFragment : Fragment() {
         buyWhatsappSwitch = view.findViewById(R.id.buyWhatsappSwitch)
 
         val postAdButton = view.findViewById<Button>(R.id.postAdButton)
-
         val photo1ImageView = view.findViewById<ImageView>(R.id.photo1ImageView)
-        val photo2ImageView = view.findViewById<ImageView>(R.id.photo2ImageView)
-        val photo3ImageView = view.findViewById<ImageView>(R.id.photo3ImageView)
-        val photo4ImageView = view.findViewById<ImageView>(R.id.photo4ImageView)
 
-
-        // Handle photo upload button click
+        // Set the click listener to trigger the image picker
         photo1ImageView.setOnClickListener {
             pickImage.launch("image/*")
         }
@@ -113,42 +118,50 @@ class PostAdFragment : Fragment() {
         }
 
         postAdButton.setOnClickListener {
+            val token = sessionManager.fetchAuthToken()
+            if (token.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "Please log in to post an ad", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             if (sellFormLayout.visibility == View.VISIBLE) {
                 val title = titleEditText.text.toString()
                 val description = descriptionEditText.text.toString()
-                val price = priceEditText.text.toString()
+                val price = priceEditText.text.toString().toDoubleOrNull()
                 val district = sellDistrictEditText.text.toString()
-                val conditionId = sellConditionRadioGroup.checkedRadioButtonId
-                val condition = when(conditionId) {
-                    R.id.conditionNew -> "New"
-                    R.id.conditionUsed -> "Used"
-                    R.id.conditionRefurbished -> "Refurbished"
-                    else -> "N/A"
+                // Your backend expects a category, so we will use a hardcoded value for now.
+                val category = "Unspecified"
+
+                if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
                 }
 
-                val newAd = Ad("sell", title, description, price, null, condition, district, sessionManager.getPhoneNumber(), false, if (selectedPhotoUri != null) listOf(selectedPhotoUri.toString()) else emptyList())
-                sharedViewModel.addAd(newAd)
+                val newAdRequest = AdRequest(title, description, category, "for_sale", price, district)
 
-                Toast.makeText(requireContext(), "Selling ad posted: Title - $title, District - $district", Toast.LENGTH_SHORT).show()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val response = ApiClient.apiService.postAdvert("Bearer $token", newAdRequest)
+                        withContext(Dispatchers.Main) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(requireContext(), "Selling ad posted successfully!", Toast.LENGTH_SHORT).show()
+                                // Optionally, refresh the home feed or navigate back
+                                // requireActivity().supportFragmentManager.popBackStack()
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to post ad: ${response.code()}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
             } else if (buyFormLayout.visibility == View.VISIBLE) {
-                val itemName = itemTitleEditText.text.toString()
-                val itemDescription = itemDescriptionEditText.text.toString()
-                val budget = budgetEditText.text.toString()
-                val district = buyDistrictEditText.text.toString()
-                val contactPhone = buyContactPhoneEditText.text.toString()
-                val showOnWhatsapp = buyWhatsappSwitch.isChecked
-                val conditionId = buyConditionRadioGroup.checkedRadioButtonId
-                val condition = when(conditionId) {
-                    R.id.buy_conditionNew -> "New"
-                    R.id.buy_conditionUsed -> "Used"
-                    R.id.buy_conditionRefurbished -> "Refurbished"
-                    else -> "N/A"
-                }
-
-                val newAd = Ad("buy", itemName, itemDescription, null, budget, condition, district, contactPhone, showOnWhatsapp, emptyList())
-                sharedViewModel.addAd(newAd)
-
-                Toast.makeText(requireContext(), "Buying request posted: Item - $itemName, Budget - $budget, District - $district, Contact: $contactPhone (WhatsApp: $showOnWhatsapp)", Toast.LENGTH_SHORT).show()
+                // The backend does not have a separate endpoint for "buy" requests,
+                // so we will not post a "buy" ad to the server for now.
+                Toast.makeText(requireContext(), "Buying requests are not yet supported on the server.", Toast.LENGTH_LONG).show()
             }
         }
     }

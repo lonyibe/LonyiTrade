@@ -9,9 +9,7 @@ class SharedViewModel : ViewModel() {
     private val _adList = MutableLiveData<MutableList<Ad>>(mutableListOf())
     val adList: LiveData<MutableList<Ad>> = _adList
 
-    fun addAd(ad: Ad) {
-        val currentList = _adList.value ?: mutableListOf()
-        currentList.add(ad)
-        _adList.value = currentList
+    fun setAdList(adList: MutableList<Ad>) {
+        _adList.value = adList
     }
 }

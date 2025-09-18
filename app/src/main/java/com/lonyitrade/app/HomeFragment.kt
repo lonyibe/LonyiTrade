@@ -4,12 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.AdAdapter
 import com.lonyitrade.app.viewmodels.SharedViewModel
+import com.lonyitrade.app.api.ApiClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
 
@@ -30,12 +36,33 @@ class HomeFragment : Fragment() {
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        adAdapter = AdAdapter(sharedViewModel.adList.value ?: mutableListOf())
-        adsRecyclerView.adapter = adAdapter
+        fetchAdverts()
 
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
             adAdapter = AdAdapter(updatedList)
             adsRecyclerView.adapter = adAdapter
+        }
+    }
+
+    private fun fetchAdverts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = ApiClient.apiService.getAdverts()
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val fetchedAds = response.body()
+                        if (fetchedAds != null) {
+                            sharedViewModel.setAdList(fetchedAds.toMutableList())
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to fetch ads: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 }

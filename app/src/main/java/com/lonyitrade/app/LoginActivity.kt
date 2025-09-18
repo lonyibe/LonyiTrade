@@ -48,11 +48,14 @@ class LoginActivity : AppCompatActivity() {
                                 if (token != null) {
                                     // Save the token to maintain the session
                                     sessionManager.saveAuthToken(token)
+                                    sessionManager.saveUserData("user_name_here", phoneNumber) // You might need to adjust this part
 
                                     Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
                                     val intent = Intent(this@LoginActivity, MainAppActivity::class.java)
                                     startActivity(intent)
                                     finish()
+                                } else {
+                                    Toast.makeText(this@LoginActivity, "Login failed: Token not received", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(this@LoginActivity, "Login failed: Invalid credentials", Toast.LENGTH_SHORT).show()
