@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,6 +28,7 @@ class HomeFragment : Fragment() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var adsRecyclerView: RecyclerView
     private lateinit var noAdsTextView: TextView
+    private lateinit var categoryContainer: LinearLayout
     private lateinit var adAdapter: AdAdapter
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var sessionManager: SessionManager
@@ -44,6 +47,7 @@ class HomeFragment : Fragment() {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
         noAdsTextView = view.findViewById(R.id.noAdsTextView)
+        categoryContainer = view.findViewById(R.id.categoryContainer)
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
@@ -66,14 +70,45 @@ class HomeFragment : Fragment() {
         swipeRefreshLayout.setOnRefreshListener {
             fetchAllAdverts()
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
+        setupCategories()
         fetchAllAdverts()
     }
 
-    fun fetchAllAdverts() {
+    private fun setupCategories() {
+        val categories = resources.getStringArray(R.array.categories)
+        val context = requireContext()
+        val horizontalMargin = 8 // dp
+        val verticalPadding = 6 // dp
+        val horizontalPadding = 12 // dp
+
+        val horizontalMarginPx = (horizontalMargin * resources.displayMetrics.density + 0.5f).toInt()
+        val verticalPaddingPx = (verticalPadding * resources.displayMetrics.density + 0.5f).toInt()
+        val horizontalPaddingPx = (horizontalPadding * resources.displayMetrics.density + 0.5f).toInt()
+
+        for (category in categories) {
+            val textView = TextView(context).apply {
+                text = category
+                setPadding(horizontalPaddingPx, verticalPaddingPx, horizontalPaddingPx, verticalPaddingPx)
+                setTextColor(ContextCompat.getColor(context, R.color.black))
+                background = ContextCompat.getDrawable(context, R.drawable.rounded_bubble_background)
+                setOnClickListener {
+                    Toast.makeText(context, "Searching for: $category", Toast.LENGTH_SHORT).show()
+                    fetchAdvertsByCategory(category)
+                }
+            }
+
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = horizontalMarginPx
+            }
+            categoryContainer.addView(textView, layoutParams)
+        }
+    }
+
+    private fun fetchAllAdverts() {
         // Show the refresh spinner
         if (!swipeRefreshLayout.isRefreshing) {
             swipeRefreshLayout.isRefreshing = true
@@ -94,6 +129,32 @@ class HomeFragment : Fragment() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     swipeRefreshLayout.isRefreshing = false // Stop the spinner
+                    Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun fetchAdvertsByCategory(category: String) {
+        if (!swipeRefreshLayout.isRefreshing) {
+            swipeRefreshLayout.isRefreshing = true
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = ApiClient.apiService.searchAdverts(category, null, null, null, null)
+                withContext(Dispatchers.Main) {
+                    swipeRefreshLayout.isRefreshing = false
+                    if (response.isSuccessful) {
+                        val fetchedAds = response.body()
+                        sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to fetch ads for category: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    swipeRefreshLayout.isRefreshing = false
                     Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
