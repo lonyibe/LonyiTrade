@@ -5,11 +5,10 @@ import com.lonyitrade.app.data.models.AdRequest
 import com.lonyitrade.app.data.models.AuthResponse
 import com.lonyitrade.app.data.models.LoginRequest
 import com.lonyitrade.app.data.models.RegisterRequest
-import com.lonyitrade.app.data.models.TokenResponse
-import com.lonyitrade.app.data.models.UserProfile
-// We will create these models in the next step
 import com.lonyitrade.app.data.models.Rental
 import com.lonyitrade.app.data.models.RentalRequest
+import com.lonyitrade.app.data.models.TokenResponse
+import com.lonyitrade.app.data.models.UserProfile
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -62,6 +61,10 @@ interface ApiService {
 
     @GET("api/rentals")
     suspend fun getRentals(): Response<List<Rental>>
+
+    // New endpoint to get user's rentals
+    @GET("api/rentals/my")
+    suspend fun getMyRentals(@Header("Authorization") token: String): Response<List<Rental>>
 
     @Multipart
     @POST("api/rentals/{id}/upload-photo")
