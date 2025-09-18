@@ -18,8 +18,10 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
         val titleTextView: TextView = view.findViewById(R.id.adTitleTextView)
         val descriptionTextView: TextView = view.findViewById(R.id.adDescriptionTextView)
         val priceTextView: TextView = view.findViewById(R.id.adPriceTextView)
+        val priceTypeTextView: TextView = view.findViewById(R.id.adPriceTypeTextView)
         val conditionTextView: TextView = view.findViewById(R.id.adConditionTextView)
         val locationTextView: TextView = view.findViewById(R.id.adLocationTextView)
+        val phoneNumberTextView: TextView = view.findViewById(R.id.adPhoneNumberTextView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdViewHolder {
@@ -32,7 +34,6 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
 
         if (!ad.photos.isNullOrEmpty() && ad.photos.first() != null) {
             val imagePath = ad.photos.first()
-            // Corrected image URL construction
             val imageUrl = if (imagePath.startsWith("http")) {
                 imagePath
             } else {
@@ -41,7 +42,7 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
             Glide.with(holder.itemView.context)
                 .load(imageUrl)
                 .placeholder(R.drawable.ic_add_photo)
-                .error(R.drawable.ic_add_photo) // Shows an error icon if the image fails to load
+                .error(R.drawable.ic_add_photo)
                 .into(holder.photoImageView)
         } else {
             holder.photoImageView.setImageResource(R.drawable.ic_add_photo)
@@ -49,16 +50,11 @@ class AdAdapter(private val adList: List<Ad>) : RecyclerView.Adapter<AdAdapter.A
 
         holder.titleTextView.text = ad.title
         holder.descriptionTextView.text = ad.description
-
-        if (ad.type == "for_sale") {
-            holder.priceTextView.text = "UGX ${ad.price}"
-        } else {
-            holder.priceTextView.text = "Budget: UGX ${ad.price}"
-        }
-
-        // You can update this to show the actual condition if it's available in your Ad model
-        holder.conditionTextView.text = "Condition: N/A"
+        holder.priceTextView.text = "UGX ${ad.price}"
+        holder.priceTypeTextView.text = ad.priceType ?: ""
+        holder.conditionTextView.text = "Condition: ${ad.condition ?: "N/A"}"
         holder.locationTextView.text = ad.district
+        holder.phoneNumberTextView.text = ad.sellerPhoneNumber ?: "N/A"
     }
 
     override fun getItemCount() = adList.size

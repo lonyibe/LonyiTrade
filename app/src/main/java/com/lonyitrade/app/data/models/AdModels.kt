@@ -2,7 +2,6 @@ package com.lonyitrade.app.data.models
 
 import com.google.gson.annotations.SerializedName
 
-// Model for the data received from the /api/adverts GET endpoint
 data class Ad(
     val id: String?,
     @SerializedName("user_id") val userId: String?,
@@ -11,17 +10,21 @@ data class Ad(
     val description: String,
     val category: String?,
     val price: String?,
+    @SerializedName("price_type") val priceType: String?,
     val district: String?,
+    val condition: String?,
+    @SerializedName("seller_phone_number") val sellerPhoneNumber: String?,
     @SerializedName("created_at") val createdAt: String?,
-    val photos: List<String>? // New field for image URLs
+    val photos: List<String>?
 )
 
-// Model for sending data to the /api/adverts POST endpoint
 data class AdRequest(
     val title: String,
     val description: String,
     val category: String,
     @SerializedName("advert_type") val advertType: String,
     val price: Double,
-    val district: String
+    @SerializedName("price_type") val priceType: String,
+    val district: String,
+    val condition: String
 )

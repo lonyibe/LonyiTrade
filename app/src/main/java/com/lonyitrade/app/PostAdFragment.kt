@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Switch
 import android.widget.Toast
@@ -43,6 +44,7 @@ class PostAdFragment : Fragment() {
     private lateinit var titleEditText: EditText
     private lateinit var descriptionEditText: EditText
     private lateinit var priceEditText: EditText
+    private lateinit var priceTypeRadioGroup: RadioGroup // Added this
     private lateinit var sellConditionRadioGroup: RadioGroup
     private lateinit var sellDistrictEditText: EditText
 
@@ -56,10 +58,8 @@ class PostAdFragment : Fragment() {
     private lateinit var buyContactPhoneEditText: EditText
     private lateinit var buyWhatsappSwitch: Switch
 
-    // Re-added the ActivityResultLauncher to handle image selection
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
-            // Take a persistent URI permission so the app can access the image later
             val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
             requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
 
@@ -81,7 +81,7 @@ class PostAdFragment : Fragment() {
 
         sessionManager = SessionManager(requireContext())
 
-        // Initialize view variables for both forms
+        // Initialize view variables
         val tradeTypeRadioGroup = view.findViewById<RadioGroup>(R.id.tradeTypeRadioGroup)
         sellFormLayout = view.findViewById(R.id.sell_form_layout)
         buyFormLayout = view.findViewById(R.id.buy_form_layout)
@@ -90,6 +90,7 @@ class PostAdFragment : Fragment() {
         titleEditText = view.findViewById(R.id.titleEditText)
         descriptionEditText = view.findViewById(R.id.descriptionEditText)
         priceEditText = view.findViewById(R.id.priceEditText)
+        priceTypeRadioGroup = view.findViewById(R.id.priceTypeRadioGroup) // Initialized
         sellConditionRadioGroup = view.findViewById(R.id.conditionRadioGroup)
         sellDistrictEditText = view.findViewById(R.id.districtEditText)
 
@@ -105,7 +106,6 @@ class PostAdFragment : Fragment() {
         val postAdButton = view.findViewById<Button>(R.id.postAdButton)
         val photo1ImageView = view.findViewById<ImageView>(R.id.photo1ImageView)
 
-        // Set the click listener to trigger the image picker
         photo1ImageView.setOnClickListener {
             pickImage.launch("image/*")
         }
@@ -135,36 +135,38 @@ class PostAdFragment : Fragment() {
                 val description = descriptionEditText.text.toString()
                 val price = priceEditText.text.toString().toDoubleOrNull()
                 val district = sellDistrictEditText.text.toString()
-                // Your backend expects a category, so we will use a hardcoded value for now.
                 val category = "Unspecified"
+
+                // Get selected price type
+                val selectedPriceTypeId = priceTypeRadioGroup.checkedRadioButtonId
+                val priceType = view.findViewById<RadioButton>(selectedPriceTypeId).text.toString()
+
+                // Get selected condition
+                val selectedConditionId = sellConditionRadioGroup.checkedRadioButtonId
+                val condition = view.findViewById<RadioButton>(selectedConditionId).text.toString()
 
                 if (title.isEmpty() || description.isEmpty() || price == null || district.isEmpty()) {
                     Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                // Create the AdRequest first, this will be sent as a separate body part
-                val newAdRequest = AdRequest(title, description, category, "for_sale", price, district)
+                val newAdRequest = AdRequest(title, description, category, "for_sale", price, priceType, district, condition)
 
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        // Post the ad data first
                         val response = ApiClient.apiService.postAdvert("Bearer $token", newAdRequest)
 
                         withContext(Dispatchers.Main) {
                             if (response.isSuccessful) {
                                 val postedAd = response.body()
                                 if (postedAd != null && selectedPhotoUri != null) {
-                                    // If ad is posted successfully and a photo is selected, upload the photo
                                     uploadPhotoForAd(postedAd.id!!, selectedPhotoUri!!)
                                 } else {
-                                    Toast.makeText(requireContext(), "Selling ad posted successfully!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Ad posted successfully!", Toast.LENGTH_SHORT).show()
                                 }
                             } else if (response.code() == 401) {
-                                // Handle unauthorized access by logging the user out
                                 sessionManager.logoutUser()
                                 Toast.makeText(requireContext(), "Your session has expired. Please log in again.", Toast.LENGTH_LONG).show()
-                                // Finish the current activity (MainAppActivity)
                                 requireActivity().finish()
                             } else {
                                 Toast.makeText(requireContext(), "Failed to post ad: ${response.code()}", Toast.LENGTH_LONG).show()
@@ -176,11 +178,6 @@ class PostAdFragment : Fragment() {
                         }
                     }
                 }
-
-            } else if (buyFormLayout.visibility == View.VISIBLE) {
-                // The backend does not have a separate endpoint for "buy" requests,
-                // so we will not post a "buy" ad to the server for now.
-                Toast.makeText(requireContext(), "Buying requests are not yet supported on the server.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -188,20 +185,16 @@ class PostAdFragment : Fragment() {
     private fun uploadPhotoForAd(adId: String, photoUri: Uri) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Get the temporary file from the URI
                 val file = getTempFileFromUri(photoUri)
-
                 if (file == null) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), "Failed to create temporary file for upload.", Toast.LENGTH_LONG).show()
                     }
                     return@launch
                 }
-
                 val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
                 val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
                 val token = sessionManager.fetchAuthToken()
-
                 if (token.isNullOrEmpty()) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(requireContext(), "Session expired. Please log in again.", Toast.LENGTH_LONG).show()
@@ -210,13 +203,10 @@ class PostAdFragment : Fragment() {
                     }
                     return@launch
                 }
-
                 val response = ApiClient.apiService.uploadAdPhoto("Bearer $token", adId, photoPart)
-
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         Toast.makeText(requireContext(), "Ad posted and photo uploaded successfully!", Toast.LENGTH_SHORT).show()
-                        // Delete the temporary file after successful upload
                         file.delete()
                     } else {
                         Toast.makeText(requireContext(), "Failed to upload photo: ${response.code()}", Toast.LENGTH_LONG).show()
@@ -230,7 +220,6 @@ class PostAdFragment : Fragment() {
         }
     }
 
-    // Helper function to create a temporary file from a content URI
     private fun getTempFileFromUri(uri: Uri): File? {
         return try {
             val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
