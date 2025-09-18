@@ -32,15 +32,16 @@ class MainAppActivity : AppCompatActivity() {
         }.commit()
 
         bottomNavigationView.setOnItemSelectedListener { item ->
-            val selectedFragment = when (item.itemId) {
-                R.id.nav_home -> homeFragment
-                R.id.nav_post_ad -> postAdFragment
-                R.id.nav_messages -> messagesFragment
-                R.id.nav_my_account -> myAccountFragment
-                else -> homeFragment
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    // When Home is clicked, refresh the ads and show the fragment
+                    homeFragment.fetchAllAdverts()
+                    showFragment(homeFragment)
+                }
+                R.id.nav_post_ad -> showFragment(postAdFragment)
+                R.id.nav_messages -> showFragment(messagesFragment)
+                R.id.nav_my_account -> showFragment(myAccountFragment)
             }
-            supportFragmentManager.beginTransaction().hide(activeFragment).show(selectedFragment).commit()
-            activeFragment = selectedFragment
             true
         }
 
@@ -51,5 +52,11 @@ class MainAppActivity : AppCompatActivity() {
         searchIcon.setOnClickListener {
             SearchDialogFragment().show(supportFragmentManager, "SearchDialog")
         }
+    }
+
+    // Helper function to handle showing/hiding fragments
+    private fun showFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction().hide(activeFragment).show(fragment).commit()
+        activeFragment = fragment
     }
 }

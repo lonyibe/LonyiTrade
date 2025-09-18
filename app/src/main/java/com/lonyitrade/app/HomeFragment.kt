@@ -44,10 +44,12 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        fetchAdverts()
+        // We fetch ads here initially when the fragment becomes visible
+        fetchAllAdverts()
     }
 
-    private fun fetchAdverts() {
+    // This function can now be called from MainAppActivity
+    fun fetchAllAdverts() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = ApiClient.apiService.getAdverts()
