@@ -2,9 +2,11 @@ package com.lonyitrade.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +22,8 @@ import kotlinx.coroutines.withContext
 class SignupActivity : AppCompatActivity() {
 
     private lateinit var profilePicImageView: ImageView
+    private lateinit var signupButton: Button
+    private lateinit var signupProgressBar: ProgressBar
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
@@ -35,24 +39,20 @@ class SignupActivity : AppCompatActivity() {
         profilePicImageView = findViewById(R.id.profilePicImageView)
         val uploadPicButton = findViewById<Button>(R.id.uploadPicButton)
         val loginTextView = findViewById<TextView>(R.id.loginTextView)
-        val signupButton = findViewById<Button>(R.id.signupButton)
+        signupButton = findViewById(R.id.signupButton)
+        signupProgressBar = findViewById(R.id.signupProgressBar)
 
-        // Corrected variable names to match the XML IDs
         val nameEditText = findViewById<EditText>(R.id.nameEditText)
         val phoneNumberEditText = findViewById<EditText>(R.id.phoneNumberEditText)
         val districtEditText = findViewById<EditText>(R.id.districtEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-
-        // Removed findViewById for 'confirmPasswordEditText' as it does not exist in the layout
 
         uploadPicButton.setOnClickListener {
             pickImage.launch("image/*")
         }
 
         loginTextView.setOnClickListener {
-            // Updated to reference LoginActivity
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
@@ -65,16 +65,17 @@ class SignupActivity : AppCompatActivity() {
             if (fullName.isEmpty() || phoneNumber.isEmpty() || district.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
+                showLoading(true)
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val request = RegisterRequest(fullName, phoneNumber, password, district)
                         val response = ApiClient.apiService.registerUser(request)
 
                         withContext(Dispatchers.Main) {
+                            showLoading(false)
                             if (response.isSuccessful) {
                                 Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this@SignupActivity, MainAppActivity::class.java)
-                                startActivity(intent)
+                                startActivity(Intent(this@SignupActivity, LoginActivity::class.java)) // Go to Login after signup
                                 finish()
                             } else {
                                 Toast.makeText(this@SignupActivity, "Registration failed: User may already exist", Toast.LENGTH_LONG).show()
@@ -82,11 +83,24 @@ class SignupActivity : AppCompatActivity() {
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
+                            showLoading(false)
                             Toast.makeText(this@SignupActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            signupButton.text = ""
+            signupProgressBar.visibility = View.VISIBLE
+            signupButton.isEnabled = false
+        } else {
+            signupButton.text = "Sign Up"
+            signupProgressBar.visibility = View.GONE
+            signupButton.isEnabled = true
         }
     }
 }

@@ -2,8 +2,10 @@ package com.lonyitrade.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,8 @@ import kotlinx.coroutines.withContext
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
+    private lateinit var loginButton: Button
+    private lateinit var loginProgressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,36 +29,34 @@ class LoginActivity : AppCompatActivity() {
 
         sessionManager = SessionManager(this)
 
-        // Fix: Changed variable name to phoneNumberEditText to match backend expectations
         val phoneNumberEditText = findViewById<EditText>(R.id.emailEditText)
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
+        loginButton = findViewById(R.id.loginButton)
+        loginProgressBar = findViewById(R.id.loginProgressBar)
         val signupTextView = findViewById<TextView>(R.id.signupTextView)
 
         loginButton.setOnClickListener {
-            // Fix: Use the value from the correct EditText, which is named emailEditText but should contain a phone number
             val phoneNumber = phoneNumberEditText.text.toString()
             val password = passwordEditText.text.toString()
 
             if (phoneNumber.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
+                showLoading(true)
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val request = LoginRequest(phoneNumber, password)
                         val response = ApiClient.apiService.loginUser(request)
 
                         withContext(Dispatchers.Main) {
+                            showLoading(false)
                             if (response.isSuccessful) {
                                 val token = response.body()?.token
                                 if (token != null) {
-                                    // Save the token to maintain the session
                                     sessionManager.saveAuthToken(token)
-                                    sessionManager.saveUserData("user_name_here", phoneNumber) // You might need to adjust this part
-
+                                    sessionManager.saveUserData("user_name_here", phoneNumber)
                                     Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this@LoginActivity, MainAppActivity::class.java)
-                                    startActivity(intent)
+                                    startActivity(Intent(this@LoginActivity, MainAppActivity::class.java))
                                     finish()
                                 } else {
                                     Toast.makeText(this@LoginActivity, "Login failed: Token not received", Toast.LENGTH_SHORT).show()
@@ -65,6 +67,7 @@ class LoginActivity : AppCompatActivity() {
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
+                            showLoading(false)
                             Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                         }
                     }
@@ -73,8 +76,19 @@ class LoginActivity : AppCompatActivity() {
         }
 
         signupTextView.setOnClickListener {
-            val intent = Intent(this, SignupActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SignupActivity::class.java))
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            loginButton.text = ""
+            loginProgressBar.visibility = View.VISIBLE
+            loginButton.isEnabled = false
+        } else {
+            loginButton.text = "Login"
+            loginProgressBar.visibility = View.GONE
+            loginButton.isEnabled = true
         }
     }
 }
