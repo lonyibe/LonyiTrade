@@ -84,7 +84,7 @@
                 android:hint="Phone Number"
                 android:inputType="phone"
                 android:paddingTop="20dp"
-                android:drawableStart="@drawable/ic_email"
+                android:drawableStart="@drawable/ic_phone"
                 android:drawableTint="@color/text_light_gray"
                 android:drawablePadding="12dp"
                 android:textColor="@color/text_light_gray" />

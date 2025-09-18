@@ -61,7 +61,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Title"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray" />
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -81,7 +82,8 @@
                         android:gravity="top"
                         android:hint="Description"
                         android:inputType="textMultiLine"
-                        android:textColor="@color/text_light_gray" />
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -121,7 +123,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Price"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/text_light_gray" />
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <RadioGroup
@@ -246,7 +249,8 @@
                         android:layout_height="wrap_content"
                         android:hint="District"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray" />
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

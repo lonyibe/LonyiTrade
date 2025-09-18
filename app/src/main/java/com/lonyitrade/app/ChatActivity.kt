@@ -154,13 +154,17 @@ class ChatActivity : AppCompatActivity() {
 
     private fun sendMessage(content: String, receiverId: String) {
         val advertId = ad.id ?: return
-        val message = Message("temp_id", myUserId, receiverId, advertId, content, "")
+        val message = Message(
+            id = "temp_id",
+            senderId = myUserId,
+            receiverId = receiverId,
+            advertId = advertId,
+            content = content,
+            createdAt = ""
+        )
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // The Message data class needs an advertId and the postMessage API expects it in the body.
-                // The current implementation of ApiService.postMessage takes a Message object.
-                // It looks like the Message data class needs to be updated to make the advertId nullable.
                 val response = ApiClient.apiService.postMessage("Bearer $myUserId", message)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {

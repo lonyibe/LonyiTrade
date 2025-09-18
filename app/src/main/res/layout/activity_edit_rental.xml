@@ -65,7 +65,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Number of Rooms"
                         android:inputType="number"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -84,7 +85,8 @@
                         android:gravity="top"
                         android:hint="Short Description"
                         android:inputType="textMultiLine"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -102,7 +104,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Rules/Restrictions (e.g., No pets)"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -141,7 +144,8 @@
                         android:layout_height="wrap_content"
                         android:hint="City/Town"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -159,7 +163,8 @@
                         android:layout_height="wrap_content"
                         android:hint="District"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -177,7 +182,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Specific Location (e.g., Near the market)"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -215,7 +221,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Monthly Rent"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <RadioGroup
                     android:id="@+id/editRentalPriceTypeRadioGroup"
@@ -299,7 +306,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Full Name"
                         android:inputType="textPersonName"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -316,7 +324,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Phone Number"
                         android:inputType="phone"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -333,7 +342,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Email Address"
                         android:inputType="textEmailAddress"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -350,7 +360,8 @@
                         android:layout_height="wrap_content"
                         android:hint="WhatsApp Number (Optional)"
                         android:inputType="phone"
-                        android:textColor="@color/text_light_gray"/>
+                        android:textColor="@color/text_light_gray"
+                        android:textColorHint="@color/text_light_gray"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

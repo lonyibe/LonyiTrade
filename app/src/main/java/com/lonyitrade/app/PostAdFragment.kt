@@ -201,7 +201,6 @@ class PostAdFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ad = response.body()
-                        // **THIS IS THE FIX**: This block will now correctly call the photo upload
                         if (ad?.id != null && itemPhotoUri != null) {
                             uploadAdPhoto(token, ad.id, itemPhotoUri!!)
                         } else {

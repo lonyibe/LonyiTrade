@@ -1,12 +1,12 @@
 package com.lonyitrade.app
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.viewmodels.SharedViewModel
@@ -16,9 +16,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SearchActivity : AppCompatActivity() {
+    private val sharedViewModel: SharedViewModel by viewModels()
 
-    // You will need to pass data back to a fragment, so a ViewModel or another method is needed.
-    // For now, we'll use a placeholder to show the concept.
     private lateinit var listingTypeRadioGroup: RadioGroup
     private lateinit var adSearchOptions: View
     private lateinit var adSearchTypeRadioGroup: RadioGroup
@@ -61,10 +60,10 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun performSearch() {
-        val query = searchQueryEditText.text.toString()
-        val district = searchDistrictEditText.text.toString()
-        val minPrice = searchMinPriceEditText.text.toString()
-        val maxPrice = searchMaxPriceEditText.text.toString()
+        val query = searchQueryEditText.text.toString().ifEmpty { null }
+        val district = searchDistrictEditText.text.toString().ifEmpty { null }
+        val minPrice = searchMinPriceEditText.text.toString().ifEmpty { null }
+        val maxPrice = searchMaxPriceEditText.text.toString().ifEmpty { null }
 
         val selectedListingType = listingTypeRadioGroup.checkedRadioButtonId
         val selectedAdType = adSearchTypeRadioGroup.checkedRadioButtonId
@@ -76,9 +75,9 @@ class SearchActivity : AppCompatActivity() {
                     val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, type)
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
-                            val resultIntent = Intent()
-                            // Pass results back to the calling activity/fragment
-                            // This part of the logic needs to be handled by the receiving fragment
+                            response.body()?.let {
+                                sharedViewModel.setAdList(it.toMutableList())
+                            }
                             Toast.makeText(this@SearchActivity, "Ad search successful!", Toast.LENGTH_SHORT).show()
                             finish()
                         } else {
