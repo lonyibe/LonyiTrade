@@ -23,6 +23,7 @@ import com.lonyitrade.app.data.models.Ad
 class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?, private val onMessageSellerClick: (Ad) -> Unit) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
     class AdViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        // Existing views
         val imageContainer: FrameLayout = view.findViewById(R.id.adImageContainer)
         val photoImageView: ImageView = view.findViewById(R.id.adPhotoImageView)
         val progressBar: ProgressBar = view.findViewById(R.id.imageProgressBar)
