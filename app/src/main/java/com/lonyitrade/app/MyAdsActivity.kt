@@ -27,10 +27,9 @@ class MyAdsActivity : AppCompatActivity() {
     private lateinit var adapter: MyAdsAdapter
     private var adList: MutableList<Ad> = mutableListOf()
 
-    // This launcher will refresh the list when you return from the EditAdActivity
     private val editAdLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            fetchMyAds() // Refresh the ads list
+            fetchMyAds()
         }
     }
 
@@ -55,8 +54,8 @@ class MyAdsActivity : AppCompatActivity() {
                 intent.putExtra("AD_EXTRA", ad)
                 editAdLauncher.launch(intent)
             },
-            onDeleteClick = { ad, position ->
-                showDeleteConfirmationDialog(ad, position)
+            onDeleteClick = { ad, _ -> // We will ignore the position passed by the adapter
+                showDeleteConfirmationDialog(ad) // Pass only the ad object
             }
         )
         myAdsRecyclerView.adapter = adapter
@@ -86,18 +85,20 @@ class MyAdsActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDeleteConfirmationDialog(ad: Ad, position: Int) {
+    // This function no longer needs the position
+    private fun showDeleteConfirmationDialog(ad: Ad) {
         AlertDialog.Builder(this)
             .setTitle("Delete Ad")
             .setMessage("Are you sure you want to delete this ad? This action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                deleteAd(ad, position)
+                deleteAd(ad)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun deleteAd(ad: Ad, position: Int) {
+    // This function now finds the correct position before deleting
+    private fun deleteAd(ad: Ad) {
         val token = sessionManager.fetchAuthToken()
         if (token != null && ad.id != null) {
             CoroutineScope(Dispatchers.IO).launch {
@@ -106,7 +107,13 @@ class MyAdsActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             Toast.makeText(this@MyAdsActivity, "Ad deleted successfully", Toast.LENGTH_SHORT).show()
-                            adapter.removeItem(position)
+
+                            // Find the ad's current position in the list
+                            val currentPosition = adList.indexOf(ad)
+                            if (currentPosition != -1) {
+                                adapter.removeItem(currentPosition)
+                            }
+
                             updateEmptyView()
                         } else {
                             Toast.makeText(this@MyAdsActivity, "Failed to delete ad", Toast.LENGTH_SHORT).show()
