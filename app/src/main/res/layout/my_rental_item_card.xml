@@ -1,5 +1,4 @@
-// File: my_rental_item_card.xml
-    <?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -90,7 +89,7 @@
                 <TextView
                     android:id="@+id/rentalRoomsTextView"
                     android:layout_width="match_parent"
-                    android-layout_height="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textColor="?attr/colorOnPrimary"
                     android:textSize="12sp"
