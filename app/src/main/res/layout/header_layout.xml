@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background_dark">
+    android:background="?attr/colorPrimary">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -19,12 +19,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/add_listing_icon"
-                android:background="@color/background_dark"
-                app:tabIndicatorColor="@color/primary_color_accent"
+                android:background="?attr/colorPrimary"
+                app:tabIndicatorColor="?attr/colorSecondary"
                 app:tabIndicatorHeight="2dp"
                 app:tabMode="fixed"
                 app:tabGravity="fill"
-                app:tabTextColor="@color/text_light_gray">
+                app:tabTextColor="?attr/colorOnPrimary">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_search"
-                app:tint="@color/primary_color_accent" />
+                app:tint="?attr/colorSecondary" />
 
             <ImageView
                 android:id="@+id/add_listing_icon"
@@ -62,7 +62,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/ic_add"
-                app:tint="@color/primary_color_accent" />
+                app:tint="?attr/colorSecondary" />
 
         </RelativeLayout>
 

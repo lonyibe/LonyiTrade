@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     tools:context=".SearchActivity">
 
     <LinearLayout
@@ -19,7 +19,7 @@
             android:text="Search LonyiTrade"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/text_light_gray"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
 
@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="I am looking for a..."
-            android:textColor="@color/text_light_gray"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />
 
@@ -43,8 +43,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ad"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent"
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary"
                 android:checked="true"
                 android:layout_marginEnd="16dp"/>
 
@@ -53,8 +53,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Rental"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent"/>
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary"/>
         </RadioGroup>
 
         <LinearLayout
@@ -68,7 +68,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="I want to..."
-                android:textColor="@color/text_light_gray"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="16sp"
                 android:layout_marginBottom="8dp" />
 
@@ -84,8 +84,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Buy"
-                    android:textColor="@color/text_light_gray"
-                    android:buttonTint="@color/primary_color_accent"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:buttonTint="?attr/colorSecondary"
                     android:checked="true"
                     android:layout_marginEnd="16dp"/>
 
@@ -94,15 +94,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sell"
-                    android:textColor="@color/text_light_gray"
-                    android:buttonTint="@color/primary_color_accent"/>
+                    android:textColor="?attr/colorOnPrimary"
+                    android:buttonTint="?attr/colorSecondary"/>
             </RadioGroup>
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android-layout_height="wrap_content"
                 android:text="Category"
-                android:textColor="@color/text_light_gray"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="14sp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"/>
@@ -119,53 +119,53 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark"
+            app:boxBackgroundColor="?attr/colorSecondary"
             android:layout_marginBottom="8dp">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/search_query"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Search by keyword..."
-                android:textColor="@color/text_light_gray"
-                android:textColorHint="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary"
+                android:textColorHint="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark"
+            app:boxBackgroundColor="?attr/colorSecondary"
             android:layout_marginBottom="8dp">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/search_district"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="District"
-                android:textColor="@color/text_light_gray"
-                android:textColorHint="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary"
+                android:textColorHint="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark"
+            app:boxBackgroundColor="?attr/colorSecondary"
             android:layout_marginBottom="8dp">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/search_min_price"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android-layout_height="wrap_content"
                 android:hint="Min Price"
                 android:inputType="numberDecimal"
-                android:textColor="@color/text_light_gray"
-                android:textColorHint="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary"
+                android:textColorHint="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark"
+            app:boxBackgroundColor="?attr/colorSecondary"
             android:layout_marginBottom="8dp">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/search_max_price"
@@ -173,8 +173,8 @@
                 android:layout_height="wrap_content"
                 android:hint="Max Price"
                 android:inputType="numberDecimal"
-                android:textColor="@color/text_light_gray"
-                android:textColorHint="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary"
+                android:textColorHint="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -183,8 +183,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Search"
-            android:textColor="@color/black"
-            android:backgroundTint="@color/primary_color_accent" />
+            android:textColor="?attr/colorOnSecondary"
+            android:backgroundTint="?attr/colorSecondary" />
 
     </LinearLayout>
 </ScrollView>

@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_message_sent"
         android:padding="12dp"
-        android:textColor="@android:color/white"
+        android:textColor="?attr/colorOnSecondary"
         android:textSize="16sp"
         tools:text="This is a message I sent." />
 
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="12sp"
-        android:textColor="@color/text_light_gray"
+        android:textColor="?attr/colorOnPrimary"
         tools:text="10:30 AM" />
 
 </LinearLayout>

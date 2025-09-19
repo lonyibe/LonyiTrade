@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     android:fitsSystemWindows="true"
     tools:context=".MainAppActivity">
 
@@ -25,9 +25,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/background_dark"
-        app:itemIconTint="@color/primary_color_accent"
-        app:itemTextColor="@color/text_light_gray"
+        android:background="?attr/colorPrimary"
+        app:itemIconTint="?attr/colorSecondary"
+        app:itemTextColor="?attr/colorOnPrimary"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 

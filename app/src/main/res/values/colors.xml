@@ -8,9 +8,22 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="background_dark">#212121</color>
-    <color name="text_light_gray">#EEEEEE</color>
-    <color name="form_background_dark">#424242</color>
+    <color name="dark_background">#212121</color>
+    <color name="dark_form_background">#424242</color>
+    <color name="dark_text_primary">#EEEEEE</color>
+    <color name="dark_text_secondary">#9E9E9E</color>
+    <color name="dark_button_background">#424242</color>
+    <color name="dark_button_text">#EEEEEE</color>
+
+    <color name="light_background">#F5F5F5</color>
+    <color name="light_form_background">#FFFFFF</color>
+    <color name="light_text_primary">#212121</color>
+    <color name="light_text_secondary">#757575</color>
+    <color name="light_button_background">#E0E0E0</color>
+    <color name="light_button_text">#212121</color>
+    <color name="light_category_bubble_background">#E0E0E0</color>
+
     <color name="primary_color_accent">#03DAC6</color>
-    <color name="category_bubble_background">#FFFFFF</color>
+    <color name="error_red">#D32F2F</color>
+    <color name="color_on_primary">#000000</color>
 </resources>

@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     tools:context=".MyAdsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background_dark">
+        android:background="?attr/colorPrimary">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
                 android:layout_marginStart="8dp"
                 android:contentDescription="Back"
                 android:src="@drawable/ic_arrow_back"
-                app:tint="@color/text_light_gray" />
+                app:tint="?attr/colorOnPrimary" />
 
             <TextView
                 android:layout_width="0dp"
@@ -35,7 +35,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="16dp"
                 android:text="My Listings"
-                android:textColor="@color/text_light_gray"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -46,7 +46,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
 
@@ -54,9 +54,9 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/form_background_dark"
-                app:tabTextColor="@color/text_light_gray"
-                app:tabIndicatorColor="@color/primary_color_accent"
+                android:background="?attr/colorSecondary"
+                app:tabTextColor="?attr/colorOnPrimary"
+                app:tabIndicatorColor="?attr/colorSecondary"
                 app:tabGravity="fill"
                 app:tabMode="fixed"/>
         </com.google.android.material.card.MaterialCardView>

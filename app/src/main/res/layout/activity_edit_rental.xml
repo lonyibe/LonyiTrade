@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     tools:context=".EditRentalActivity">
 
     <LinearLayout
@@ -19,14 +19,14 @@
             android:text="Edit Your Rental"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/text_light_gray"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             android:layout_marginBottom="16dp">
             <LinearLayout
@@ -40,14 +40,14 @@
                     android:text="Property Details"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <Spinner
                     android:id="@+id/editPropertyTypeSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/background_dark"
+                    android:background="?attr/colorPrimary"
                     android:padding="12dp"/>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -65,8 +65,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Number of Rooms"
                         android:inputType="number"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -85,8 +85,8 @@
                         android:gravity="top"
                         android:hint="Short Description"
                         android:inputType="textMultiLine"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -104,8 +104,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Rules/Restrictions (e.g., No pets)"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -113,7 +113,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             android:layout_marginBottom="16dp">
             <LinearLayout
@@ -127,7 +127,7 @@
                     android:text="Location"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -144,8 +144,8 @@
                         android:layout_height="wrap_content"
                         android:hint="City/Town"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -163,8 +163,8 @@
                         android:layout_height="wrap_content"
                         android:hint="District"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -182,8 +182,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Specific Location (e.g., Near the market)"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -191,7 +191,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             android:layout_marginBottom="16dp">
             <LinearLayout
@@ -205,7 +205,7 @@
                     android:text="Rent Details"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -221,8 +221,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Monthly Rent"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <RadioGroup
                     android:id="@+id/editRentalPriceTypeRadioGroup"
@@ -235,16 +235,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Fixed"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary"
                         android:checked="true"/>
                     <RadioButton
                         android:id="@+id/editRentalPriceNegotiable"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Negotiable"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary"
                         android:layout_marginStart="16dp"/>
                 </RadioGroup>
             </LinearLayout>
@@ -253,7 +253,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             android:layout_marginBottom="16dp">
             <LinearLayout
@@ -267,7 +267,7 @@
                     android:text="Contact Information"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
                 <RadioGroup
                     android:id="@+id/editLandlordTypeRadioGroup"
@@ -280,16 +280,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="I am the Landlord"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary"
                         android:checked="true"/>
                     <RadioButton
                         android:id="@+id/editLandlordTypeAgent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="I am an Agent"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary"
                         android:layout_marginStart="16dp"/>
                 </RadioGroup>
                 <com.google.android.material.textfield.TextInputLayout
@@ -306,8 +306,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Full Name"
                         android:inputType="textPersonName"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -324,8 +324,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Phone Number"
                         android:inputType="phone"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -342,8 +342,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Email Address"
                         android:inputType="textEmailAddress"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -360,8 +360,8 @@
                         android:layout_height="wrap_content"
                         android:hint="WhatsApp Number (Optional)"
                         android:inputType="phone"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -375,8 +375,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Update Rental"
-                android:textColor="@color/black"
-                android:backgroundTint="@color/primary_color_accent"
+                android:textColor="?attr/colorOnSecondary"
+                android:backgroundTint="?attr/colorSecondary"
                 android:padding="16dp"
                 app:cornerRadius="12dp" />
             <ProgressBar
@@ -385,7 +385,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="gone"
-                android:indeterminateTint="@color/black"/>
+                android:indeterminateTint="?attr/colorOnSecondary"/>
         </FrameLayout>
 
     </LinearLayout>
