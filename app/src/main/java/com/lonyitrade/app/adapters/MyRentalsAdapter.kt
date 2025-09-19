@@ -1,3 +1,4 @@
+// File: MyRentalsAdapter.kt
 package com.lonyitrade.app.adapters
 
 import android.graphics.drawable.Drawable
@@ -35,7 +36,6 @@ class MyRentalsAdapter(
         val landlordNameTextView: TextView = view.findViewById(R.id.landlordNameTextView)
         val landlordPhoneTextView: TextView = view.findViewById(R.id.landlordPhoneTextView)
 
-        // New views for buttons
         val editDeleteLayout: LinearLayout = view.findViewById(R.id.editDeleteLayout)
         val editButton: Button = view.findViewById(R.id.editButton)
         val deleteButton: Button = view.findViewById(R.id.deleteButton)
@@ -49,22 +49,18 @@ class MyRentalsAdapter(
     override fun onBindViewHolder(holder: RentalViewHolder, position: Int) {
         val rental = rentalList[position]
 
-        // --- Bind data ---
-        holder.propertyTypeTextView.text = rental.propertyType
+        holder.propertyTypeTextView.text = rental.propertyType ?: "N/A"
         holder.priceTextView.text = "UGX ${rental.monthlyRent ?: 0} / month"
-        holder.locationTextView.text = "${rental.city}, ${rental.district}"
+        holder.locationTextView.text = "${rental.city ?: "N/A"}, ${rental.district ?: "N/A"}"
         holder.roomsTextView.text = "${rental.rooms ?: 0} Rooms"
-        holder.landlordNameTextView.text = "${rental.landlordName} (${rental.landlordType})"
-        holder.landlordPhoneTextView.text = rental.landlordPhone
+        holder.landlordNameTextView.text = "${rental.landlordName ?: "N/A"} (${rental.landlordType ?: "N/A"})"
+        holder.landlordPhoneTextView.text = rental.landlordPhone ?: "N/A"
 
-        // --- Show Edit/Delete buttons ---
         holder.editDeleteLayout.visibility = View.VISIBLE
 
-        // --- Set click listeners ---
         holder.editButton.setOnClickListener { onEditClick(rental) }
         holder.deleteButton.setOnClickListener { onDeleteClick(rental, position) }
 
-        // Load Image
         holder.progressBar.visibility = View.VISIBLE
         if (!rental.photos.isNullOrEmpty() && rental.photos.first() != null) {
             val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + rental.photos.first()!!.trimStart('/')

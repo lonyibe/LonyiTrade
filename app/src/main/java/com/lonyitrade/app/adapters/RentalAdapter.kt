@@ -1,3 +1,4 @@
+// File: RentalAdapter.kt
 package com.lonyitrade.app.adapters
 
 import android.graphics.drawable.Drawable
@@ -41,35 +42,30 @@ class RentalAdapter(private val rentalList: List<Rental>, private val currentUse
     override fun onBindViewHolder(holder: RentalViewHolder, position: Int) {
         val rental = rentalList[position]
 
-        // --- THIS IS THE CORRECTED PART ---
-        // Dynamically set the button text based on landlord type
-        val landlordTypeString = rental.landlordType ?: ""
+        val landlordTypeString = rental.landlordType ?: "N/A"
         val buttonText = when {
             landlordTypeString.contains("Landlord", ignoreCase = true) -> "Message Landlord"
             landlordTypeString.contains("Agent", ignoreCase = true) -> "Message Agent"
-            else -> "Message Contact" // Fallback option
+            else -> "Message Contact"
         }
         holder.messageSellerButton.text = buttonText
 
-        // Hide message button if the rental belongs to the current user
         if (rental.userId == currentUserId) {
             holder.messageSellerButton.visibility = View.GONE
         } else {
             holder.messageSellerButton.visibility = View.VISIBLE
             holder.messageSellerButton.setOnClickListener {
-                Toast.makeText(holder.itemView.context, "Opening chat with ${rental.landlordName}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(holder.itemView.context, "Opening chat with ${rental.landlordName ?: "N/A"}", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Set Text Data
-        holder.propertyTypeTextView.text = rental.propertyType
+        holder.propertyTypeTextView.text = rental.propertyType ?: "N/A"
         holder.priceTextView.text = "UGX ${rental.monthlyRent ?: 0} / month"
-        holder.locationTextView.text = "${rental.city}, ${rental.district}"
+        holder.locationTextView.text = "${rental.city ?: "N/A"}, ${rental.district ?: "N/A"}"
         holder.roomsTextView.text = "${rental.rooms ?: 0} Rooms"
-        holder.landlordNameTextView.text = "${rental.landlordName} ($landlordTypeString)"
-        holder.landlordPhoneTextView.text = rental.landlordPhone
+        holder.landlordNameTextView.text = "${rental.landlordName ?: "N/A"} ($landlordTypeString)"
+        holder.landlordPhoneTextView.text = rental.landlordPhone ?: "N/A"
 
-        // Load Image
         holder.progressBar.visibility = View.VISIBLE
         if (!rental.photos.isNullOrEmpty() && rental.photos.first() != null) {
             val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + rental.photos.first()!!.trimStart('/')
