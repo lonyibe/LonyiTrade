@@ -27,18 +27,12 @@
                 app:tabTextColor="?attr/colorOnPrimary">
 
                 <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Top" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Latest" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Trending" />
 
             </com.google.android.material.tabs.TabLayout>
