@@ -2,10 +2,12 @@ package com.lonyitrade.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.tabs.TabLayout
 import com.lonyitrade.app.adapters.MainAppPagerAdapter
 import com.lonyitrade.app.data.models.Ad
 
@@ -13,6 +15,9 @@ class MainAppActivity : AppCompatActivity() {
 
     private lateinit var viewPager: ViewPager2
     private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var headerTabLayout: TabLayout
+    private lateinit var searchIcon: ImageView // Reference for the search icon
+    private lateinit var addListingIcon: ImageView // Reference for the add icon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,8 +25,9 @@ class MainAppActivity : AppCompatActivity() {
 
         viewPager = findViewById(R.id.main_view_pager)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
-        val searchIcon = findViewById<ImageView>(R.id.search_icon)
-        val addListingIcon = findViewById<ImageView>(R.id.add_listing_icon) // NEW LINE
+        headerTabLayout = findViewById(R.id.header_tab_layout)
+        searchIcon = findViewById(R.id.search_icon)
+        addListingIcon = findViewById(R.id.add_listing_icon)
 
         // Set up the adapter for ViewPager2
         viewPager.adapter = MainAppPagerAdapter(this)
@@ -29,11 +35,22 @@ class MainAppActivity : AppCompatActivity() {
         // This change will ensure a smoother transition between Fragments
         viewPager.offscreenPageLimit = 4
 
-        // Set up swipe navigation
+        // Set up swipe navigation and control header visibility
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 bottomNavigationView.menu.getItem(position).isChecked = true
+
+                // Show header elements only for the Home screen (position 0)
+                if (position == 0) {
+                    headerTabLayout.visibility = View.VISIBLE
+                    searchIcon.visibility = View.VISIBLE
+                    addListingIcon.visibility = View.VISIBLE
+                } else {
+                    headerTabLayout.visibility = View.GONE
+                    searchIcon.visibility = View.GONE
+                    addListingIcon.visibility = View.GONE
+                }
             }
         })
 
@@ -49,9 +66,12 @@ class MainAppActivity : AppCompatActivity() {
             true
         }
 
-        // Set the default page
+        // Set the default page and ensure correct header visibility on startup
         if (savedInstanceState == null) {
             viewPager.currentItem = 0
+            headerTabLayout.visibility = View.VISIBLE
+            searchIcon.visibility = View.VISIBLE
+            addListingIcon.visibility = View.VISIBLE
         }
 
         searchIcon.setOnClickListener {
@@ -59,7 +79,6 @@ class MainAppActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // NEW: Set up click listener for the new plus icon
         addListingIcon.setOnClickListener {
             val dialog = JobOptionsDialogFragment()
             dialog.show(supportFragmentManager, "JobOptionsDialogFragment")
