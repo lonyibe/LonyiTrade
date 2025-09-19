@@ -89,8 +89,13 @@ class SearchDialogFragment : DialogFragment() {
                     val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, type, category)
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
-                            response.body()?.let {
-                                sharedViewModel.setAdList(it.toMutableList())
+                            val ads = response.body()
+                            if (ads.isNullOrEmpty()) {
+                                // Inform the user that no ads were found
+                                Toast.makeText(context, "No ads found matching your criteria.", Toast.LENGTH_LONG).show()
+                                sharedViewModel.setAdList(mutableListOf())
+                            } else {
+                                sharedViewModel.setAdList(ads.toMutableList())
                             }
                             dismiss() // Close the dialog
                         } else {
