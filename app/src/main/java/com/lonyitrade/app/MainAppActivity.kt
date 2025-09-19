@@ -65,6 +65,16 @@ class MainAppActivity : AppCompatActivity() {
             true
         }
 
+        // --- THIS IS THE NEW PART ---
+        bottomNavigationView.setOnItemReselectedListener { item ->
+            if (item.itemId == R.id.nav_home) {
+                val currentFragment = supportFragmentManager.findFragmentByTag("f${viewPager.currentItem}")
+                if (currentFragment is HomeFragment) {
+                    currentFragment.resetToHomePage()
+                }
+            }
+        }
+
         headerTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val currentFragment = supportFragmentManager.findFragmentByTag("f${viewPager.currentItem}")
@@ -94,10 +104,8 @@ class MainAppActivity : AppCompatActivity() {
 
         searchIcon.setOnClickListener {
             val intent = if (viewPager.currentItem == 1) {
-                // If on the Rentals tab (position 1), open SearchRentalActivity
                 Intent(this, SearchRentalActivity::class.java)
             } else {
-                // Otherwise, open SearchActivity for ads
                 Intent(this, SearchActivity::class.java)
             }
             startActivity(intent)
