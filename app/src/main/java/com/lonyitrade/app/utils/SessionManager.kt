@@ -12,26 +12,23 @@ class SessionManager(context: Context) {
         const val AUTH_TOKEN = "auth_token"
         const val FULL_NAME = "full_name"
         const val PHONE_NUMBER = "phone_number"
+        const val LAST_USED_PHONE_NUMBER = "last_used_phone_number"
     }
 
-    // This method saves the authentication token
     fun saveAuthToken(token: String) {
         val editor = prefs.edit()
         editor.putString(AUTH_TOKEN, token)
         editor.apply()
     }
 
-    // This method retrieves the authentication token
     fun fetchAuthToken(): String? {
         return prefs.getString(AUTH_TOKEN, null)
     }
 
-    // This method checks if the user is logged in
     fun isLoggedIn(): Boolean {
         return fetchAuthToken() != null
     }
 
-    // You can also add methods to save and retrieve other user data
     fun saveUserData(fullName: String, phoneNumber: String) {
         val editor = prefs.edit()
         editor.putString(FULL_NAME, fullName)
@@ -47,10 +44,21 @@ class SessionManager(context: Context) {
         return prefs.getString(PHONE_NUMBER, null)
     }
 
-    // This method logs the user out by clearing all saved preferences.
+    fun saveLastUsedPhoneNumber(phoneNumber: String) {
+        val editor = prefs.edit()
+        editor.putString(LAST_USED_PHONE_NUMBER, phoneNumber)
+        editor.apply()
+    }
+
+    fun getLastUsedPhoneNumber(): String? {
+        return prefs.getString(LAST_USED_PHONE_NUMBER, null)
+    }
+
     fun logoutUser() {
         val editor = prefs.edit()
-        editor.clear()
+        editor.remove(AUTH_TOKEN)
+        editor.remove(FULL_NAME)
+        editor.remove(PHONE_NUMBER)
         editor.apply()
     }
 }

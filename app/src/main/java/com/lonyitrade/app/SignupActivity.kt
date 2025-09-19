@@ -13,7 +13,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.data.models.LoginRequest
 import com.lonyitrade.app.data.models.RegisterRequest
+import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +26,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import com.lonyitrade.app.utils.SessionManager
 
 class SignupActivity : AppCompatActivity() {
 
@@ -87,13 +88,9 @@ class SignupActivity : AppCompatActivity() {
                         withContext(Dispatchers.Main) {
                             if (response.isSuccessful) {
                                 val userProfile = response.body()
-                                if (userProfile != null && profilePictureUri != null) {
-                                    uploadProfilePicture(userProfile.id, profilePictureUri!!)
-                                } else {
-                                    showLoading(false)
-                                    Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                    startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
-                                    finish()
+                                if (userProfile != null) {
+                                    // Automatically log in to get a token
+                                    loginAndProceed(userProfile.id!!, phoneNumber, password)
                                 }
                             } else {
                                 showLoading(false)
@@ -111,40 +108,75 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
+    private fun loginAndProceed(userId: String, phoneNumber: String, password: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val loginRequest = LoginRequest(phoneNumber, password)
+                val loginResponse = ApiClient.apiService.loginUser(loginRequest)
+
+                withContext(Dispatchers.Main) {
+                    if (loginResponse.isSuccessful) {
+                        val token = loginResponse.body()?.token
+                        if (token != null) {
+                            sessionManager.saveAuthToken(token)
+                            if (profilePictureUri != null) {
+                                uploadProfilePicture(userId, profilePictureUri!!)
+                            } else {
+                                Toast.makeText(this@SignupActivity, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                                navigateToMainApp()
+                            }
+                        } else {
+                            showLoading(false)
+                            Toast.makeText(this@SignupActivity, "Login after signup failed.", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        showLoading(false)
+                        Toast.makeText(this@SignupActivity, "Login after signup failed.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showLoading(false)
+                    Toast.makeText(this@SignupActivity, "Network error during login: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
     private fun uploadProfilePicture(userId: String, photoUri: Uri) {
         getTempFileFromUri(photoUri)?.let { file ->
             val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
             val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
-            val token = sessionManager.fetchAuthToken() // Assuming you can get the token here
+            val token = sessionManager.fetchAuthToken()
+
+            if (token == null) {
+                showLoading(false)
+                Toast.makeText(this@SignupActivity, "Authentication error. Please log in.", Toast.LENGTH_LONG).show()
+                return
+            }
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    // Check for token validity or handle it appropriately
-                    if (token != null) {
-                        ApiClient.apiService.uploadProfilePicture("Bearer $token", userId, photoPart)
-                        withContext(Dispatchers.Main) {
-                            showLoading(false)
-                            Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
-                            finish()
-                        }
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            showLoading(false)
-                            Toast.makeText(this@SignupActivity, "Authentication error. Please log in.", Toast.LENGTH_LONG).show()
-                        }
+                    ApiClient.apiService.uploadProfilePicture("Bearer $token", userId, photoPart)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@SignupActivity, "Account created successfully!", Toast.LENGTH_SHORT).show()
+                        navigateToMainApp()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        showLoading(false)
                         Toast.makeText(this@SignupActivity, "Photo upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                        // Proceed to LoginActivity even if photo upload fails
-                        startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
-                        finish()
+                        navigateToMainApp()
                     }
                 }
             }
         }
+    }
+
+    private fun navigateToMainApp() {
+        val intent = Intent(this@SignupActivity, MainAppActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun showLoading(isLoading: Boolean) {
