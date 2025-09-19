@@ -1,6 +1,7 @@
 package com.lonyitrade.app
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -11,30 +12,42 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import android.net.Uri
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.RegisterRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import com.lonyitrade.app.utils.SessionManager
 
 class SignupActivity : AppCompatActivity() {
 
     private lateinit var profilePicImageView: ImageView
     private lateinit var signupButton: Button
     private lateinit var signupProgressBar: ProgressBar
+    private lateinit var sessionManager: SessionManager
+
+    private var profilePictureUri: Uri? = null
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri != null) {
             profilePicImageView.setImageURI(uri)
-            Toast.makeText(this, "Photo uploaded!", Toast.LENGTH_SHORT).show()
+            profilePictureUri = uri
+            Toast.makeText(this, "Photo selected!", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+
+        sessionManager = SessionManager(this)
 
         profilePicImageView = findViewById(R.id.profilePicImageView)
         val uploadPicButton = findViewById<Button>(R.id.uploadPicButton)
@@ -72,12 +85,18 @@ class SignupActivity : AppCompatActivity() {
                         val response = ApiClient.apiService.registerUser(request)
 
                         withContext(Dispatchers.Main) {
-                            showLoading(false)
                             if (response.isSuccessful) {
-                                Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                startActivity(Intent(this@SignupActivity, LoginActivity::class.java)) // Go to Login after signup
-                                finish()
+                                val userProfile = response.body()
+                                if (userProfile != null && profilePictureUri != null) {
+                                    uploadProfilePicture(userProfile.id, profilePictureUri!!)
+                                } else {
+                                    showLoading(false)
+                                    Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
+                                    startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+                                    finish()
+                                }
                             } else {
+                                showLoading(false)
                                 Toast.makeText(this@SignupActivity, "Registration failed: User may already exist", Toast.LENGTH_LONG).show()
                             }
                         }
@@ -86,6 +105,42 @@ class SignupActivity : AppCompatActivity() {
                             showLoading(false)
                             Toast.makeText(this@SignupActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun uploadProfilePicture(userId: String, photoUri: Uri) {
+        getTempFileFromUri(photoUri)?.let { file ->
+            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+            val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+            val token = sessionManager.fetchAuthToken() // Assuming you can get the token here
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    // Check for token validity or handle it appropriately
+                    if (token != null) {
+                        ApiClient.apiService.uploadProfilePicture("Bearer $token", userId, photoPart)
+                        withContext(Dispatchers.Main) {
+                            showLoading(false)
+                            Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+                            finish()
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            showLoading(false)
+                            Toast.makeText(this@SignupActivity, "Authentication error. Please log in.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        showLoading(false)
+                        Toast.makeText(this@SignupActivity, "Photo upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        // Proceed to LoginActivity even if photo upload fails
+                        startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+                        finish()
                     }
                 }
             }
@@ -101,6 +156,18 @@ class SignupActivity : AppCompatActivity() {
             signupButton.text = "Sign Up"
             signupProgressBar.visibility = View.GONE
             signupButton.isEnabled = true
+        }
+    }
+
+    private fun getTempFileFromUri(uri: Uri): File? {
+        return try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            val file = File(cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+            val outputStream = FileOutputStream(file)
+            inputStream?.copyTo(outputStream)
+            file
+        } catch (e: Exception) {
+            null
         }
     }
 }

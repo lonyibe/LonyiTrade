@@ -66,8 +66,7 @@ class MyAccountFragment : Fragment(R.layout.fragment_my_account) {
                             phoneNumberTextView.text = userProfile?.phoneNumber ?: "N/A"
                             districtTextView.text = userProfile?.district ?: "N/A"
 
-                            // Note: Profile picture upload is not yet implemented in signup.
-                            // When it is, this part will load the user's actual image.
+                            // NEW: Load the profile picture using Glide
                             userProfile?.profilePictureUrl?.let {
                                 Glide.with(requireContext())
                                     .load(ApiClient.BASE_URL.trimEnd('/') + it)

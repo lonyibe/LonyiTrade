@@ -29,6 +29,15 @@ interface ApiService {
     @GET("api/users/{id}")
     suspend fun getUserById(@Header("Authorization") token: String, @Path("id") userId: String): Response<UserProfile>
 
+    // NEW: Endpoint for uploading user profile picture
+    @Multipart
+    @POST("api/users/{id}/upload-profile-picture")
+    suspend fun uploadProfilePicture(
+        @Header("Authorization") token: String,
+        @Path("id") userId: String,
+        @Part photo: MultipartBody.Part
+    ): Response<UserProfile>
+
 
     // --- Adverts ---
     @GET("api/adverts")
