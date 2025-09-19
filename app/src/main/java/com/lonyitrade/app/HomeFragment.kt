@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.lonyitrade.app.adapters.AdAdapter
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.api.ApiService
 import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
@@ -130,6 +129,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+    // This method will now be public to be called by MainAppActivity
     fun fetchAllAdverts(category: String? = null) {
         if (!swipeRefreshLayout.isRefreshing) {
             swipeRefreshLayout.isRefreshing = true
@@ -145,20 +145,39 @@ class HomeFragment : Fragment() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false
+                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
                     if (response.isSuccessful) {
                         val fetchedAds = response.body()
                         sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
+
+                        // Check if the filtered/unfiltered list is empty
+                        if (fetchedAds.isNullOrEmpty()) {
+                            adsRecyclerView.visibility = View.GONE
+                            noAdsTextView.visibility = View.VISIBLE
+                        } else {
+                            adsRecyclerView.visibility = View.VISIBLE
+                            noAdsTextView.visibility = View.GONE
+                        }
+
                     } else {
                         Toast.makeText(requireContext(), "Failed to fetch ads: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false
+                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
                     Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    // Public method to be called from MainAppActivity to reset the view
+    fun resetToAllAds() {
+        if (selectedCategory != null) {
+            selectedCategory = null
+            fetchAllAdverts(null)
+            Toast.makeText(requireContext(), "Showing all ads", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -58,5 +58,13 @@
             android:name=".ChatActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ApplyForJobActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HireEmployeeActivity"
+            android:exported="false" />
+
     </application>
 </manifest>

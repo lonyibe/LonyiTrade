@@ -21,6 +21,7 @@ class MainAppActivity : AppCompatActivity() {
         viewPager = findViewById(R.id.main_view_pager)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
         val searchIcon = findViewById<ImageView>(R.id.search_icon)
+        val addListingIcon = findViewById<ImageView>(R.id.add_listing_icon) // NEW LINE
 
         // Set up the adapter for ViewPager2
         viewPager.adapter = MainAppPagerAdapter(this)
@@ -56,6 +57,12 @@ class MainAppActivity : AppCompatActivity() {
         searchIcon.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
+        }
+
+        // NEW: Set up click listener for the new plus icon
+        addListingIcon.setOnClickListener {
+            val dialog = JobOptionsDialogFragment()
+            dialog.show(supportFragmentManager, "JobOptionsDialogFragment")
         }
     }
 
