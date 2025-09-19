@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,6 +38,7 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var searchFormLayout: LinearLayout
     private lateinit var collapsedSearchIcon: ImageView
     private lateinit var searchButton: Button
+    private lateinit var backButton: ImageView
 
     private var currentSearchType: String = "ads"
 
@@ -60,6 +62,25 @@ class SearchActivity : AppCompatActivity() {
         collapsedSearchIcon.setOnClickListener {
             expandSearchForm()
         }
+
+        backButton.setOnClickListener {
+            if (searchFormLayout.visibility == View.GONE) {
+                expandSearchForm()
+            } else {
+                finish()
+            }
+        }
+
+        // Handle the system back button press
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (searchFormLayout.visibility == View.GONE) {
+                    expandSearchForm()
+                } else {
+                    finish()
+                }
+            }
+        })
     }
 
     private fun initializeViews() {
@@ -73,6 +94,7 @@ class SearchActivity : AppCompatActivity() {
         searchFormLayout = findViewById(R.id.searchFormLayout)
         collapsedSearchIcon = findViewById(R.id.collapsedSearchIcon)
         searchButton = findViewById(R.id.search_button)
+        backButton = findViewById(R.id.backButton)
     }
 
     private fun setupRecyclerView() {
@@ -147,17 +169,18 @@ class SearchActivity : AppCompatActivity() {
                 searchFormLayout.visibility = View.GONE
                 searchButton.visibility = View.GONE
                 collapsedSearchIcon.visibility = View.VISIBLE
+                backButton.visibility = View.VISIBLE
             }
             .start()
     }
 
     private fun expandSearchForm() {
-        // Clear previous results before showing the form again
         searchResultsRecyclerView.visibility = View.GONE
         noResultsTextView.visibility = View.GONE
-        searchResultsRecyclerView.adapter = null // Clear the adapter
+        searchResultsRecyclerView.adapter = null
 
         collapsedSearchIcon.visibility = View.GONE
+        backButton.visibility = View.GONE
         searchFormLayout.visibility = View.VISIBLE
         searchButton.visibility = View.VISIBLE
         searchFormLayout.animate()
