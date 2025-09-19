@@ -39,15 +39,10 @@ class MainAppActivity : AppCompatActivity() {
 
                 // Position 0: Home, Position 1: Rentals
                 when (position) {
-                    0 -> { // Home Screen
+                    0, 1 -> { // Home and Rentals Screen
                         headerTabLayout.visibility = View.VISIBLE
                         searchIcon.visibility = View.VISIBLE
-                        addListingIcon.visibility = View.VISIBLE
-                    }
-                    1 -> { // Rentals Screen
-                        headerTabLayout.visibility = View.GONE
-                        searchIcon.visibility = View.VISIBLE
-                        addListingIcon.visibility = View.GONE
+                        addListingIcon.visibility = if (position == 0) View.VISIBLE else View.GONE
                     }
                     else -> { // All other screens
                         headerTabLayout.visibility = View.GONE
