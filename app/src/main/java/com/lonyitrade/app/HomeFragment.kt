@@ -113,8 +113,6 @@ class HomeFragment : Fragment() {
             fetchAllAdverts()
         }
 
-        fetchAllAdverts()
-
         view.findViewById<HorizontalScrollView>(R.id.categoryScrollView).setOnTouchListener { v, event ->
             v.parent.requestDisallowInterceptTouchEvent(true)
             when (event.action) {
@@ -124,6 +122,12 @@ class HomeFragment : Fragment() {
             }
             v.onTouchEvent(event)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Fetch the latest ads every time the fragment becomes visible
+        fetchAllAdverts()
     }
 
     // NEW: Register the receiver when the fragment is started

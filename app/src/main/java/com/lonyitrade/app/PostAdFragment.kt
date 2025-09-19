@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.AdRequest
 import com.lonyitrade.app.data.models.RentalRequest
@@ -186,6 +187,11 @@ class PostAdFragment : Fragment() {
         }
     }
 
+    private fun navigateToHome() {
+        // Navigate back to the home fragment after posting
+        activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.selectedItemId = R.id.nav_home
+    }
+
     // --- Ad Logic ---
     private fun createAdRequest(): AdRequest? {
         val title = titleEditText.text.toString()
@@ -216,6 +222,7 @@ class PostAdFragment : Fragment() {
                         } else {
                             showLoading(false)
                             Toast.makeText(requireContext(), "Ad posted successfully!", Toast.LENGTH_SHORT).show()
+                            navigateToHome()
                         }
                     } else {
                         showLoading(false)
@@ -241,6 +248,7 @@ class PostAdFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Ad and photo posted successfully!", Toast.LENGTH_SHORT).show()
+                        navigateToHome()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -292,6 +300,7 @@ class PostAdFragment : Fragment() {
                         } else {
                             showLoading(false)
                             Toast.makeText(requireContext(), "Rental posted successfully!", Toast.LENGTH_SHORT).show()
+                            navigateToHome()
                         }
                     } else {
                         showLoading(false)
@@ -322,6 +331,7 @@ class PostAdFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Rental and photos posted successfully!", Toast.LENGTH_SHORT).show()
+                        navigateToHome()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
