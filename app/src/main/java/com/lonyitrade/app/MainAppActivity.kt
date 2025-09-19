@@ -61,7 +61,6 @@ class MainAppActivity : AppCompatActivity() {
                 R.id.nav_my_account -> 4
                 else -> 0
             }
-            // Set smoothScroll to false to prevent intermediate page scrolling
             viewPager.setCurrentItem(position, false)
             true
         }
@@ -94,8 +93,13 @@ class MainAppActivity : AppCompatActivity() {
         }
 
         searchIcon.setOnClickListener {
-            val intent = Intent(this, SearchActivity::class.java)
-            intent.putExtra("searchType", if (viewPager.currentItem == 1) "rentals" else "ads")
+            val intent = if (viewPager.currentItem == 1) {
+                // If on the Rentals tab (position 1), open SearchRentalActivity
+                Intent(this, SearchRentalActivity::class.java)
+            } else {
+                // Otherwise, open SearchActivity for ads
+                Intent(this, SearchActivity::class.java)
+            }
             startActivity(intent)
         }
 
