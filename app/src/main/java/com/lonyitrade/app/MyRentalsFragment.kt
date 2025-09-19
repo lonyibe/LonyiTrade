@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.MyRentalsAdapter
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Rental
+import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +29,7 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
     private lateinit var sessionManager: SessionManager
     private lateinit var adapter: MyRentalsAdapter
     private var rentalList: MutableList<Rental> = mutableListOf()
+    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference for the network error layout
 
     private val editRentalLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -40,6 +43,7 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
         sessionManager = SessionManager(requireContext())
         myRentalsRecyclerView = view.findViewById(R.id.myRentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView)
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
         myRentalsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         setupAdapter()
@@ -63,6 +67,13 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
     }
 
     private fun fetchMyRentals() {
+        if (!NetworkUtils.isInternetAvailable(requireContext())) {
+            showNetworkError()
+            return
+        }
+
+        hideNetworkError()
+
         val token = sessionManager.fetchAuthToken() ?: return
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -80,12 +91,20 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
                     }
                 }
             } catch (e: Exception) {
-                // Handle error
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                    showNetworkError()
+                }
             }
         }
     }
 
     private fun showDeleteConfirmationDialog(rental: Rental) {
+        if (!NetworkUtils.isInternetAvailable(requireContext())) {
+            Toast.makeText(context, "No internet connection. Cannot delete rental.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Rental")
             .setMessage("Are you sure you want to delete this rental listing?")
@@ -115,7 +134,9 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
                     }
                 }
             } catch (e: Exception) {
-                // Handle error
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -128,5 +149,15 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
             myRentalsRecyclerView.visibility = View.VISIBLE
             noRentalsTextView.visibility = View.GONE
         }
+    }
+
+    private fun showNetworkError() {
+        myRentalsRecyclerView.visibility = View.GONE
+        noRentalsTextView.visibility = View.GONE
+        networkErrorLayout.visibility = View.VISIBLE
+    }
+
+    private fun hideNetworkError() {
+        networkErrorLayout.visibility = View.GONE
     }
 }

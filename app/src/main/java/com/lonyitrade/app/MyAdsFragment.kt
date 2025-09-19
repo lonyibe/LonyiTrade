@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.MyAdsAdapter
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Ad
+import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +29,7 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
     private lateinit var sessionManager: SessionManager
     private lateinit var adapter: MyAdsAdapter
     private var adList: MutableList<Ad> = mutableListOf()
+    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference to the network error layout
 
     private val editAdLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -40,6 +43,7 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
         sessionManager = SessionManager(requireContext())
         myAdsRecyclerView = view.findViewById(R.id.myAdsRecyclerView)
         noAdsTextView = view.findViewById(R.id.noAdsTextView)
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
         myAdsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         setupAdapter()
@@ -63,6 +67,13 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
     }
 
     private fun fetchMyAds() {
+        if (!NetworkUtils.isInternetAvailable(requireContext())) {
+            showNetworkError()
+            return
+        }
+
+        hideNetworkError()
+
         val token = sessionManager.fetchAuthToken() ?: return
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -79,12 +90,20 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
                     }
                 }
             } catch (e: Exception) {
-                // Handle error
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                    showNetworkError()
+                }
             }
         }
     }
 
     private fun showDeleteConfirmationDialog(ad: Ad) {
+        if (!NetworkUtils.isInternetAvailable(requireContext())) {
+            Toast.makeText(context, "No internet connection. Cannot delete ad.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Ad")
             .setMessage("Are you sure you want to delete this ad?")
@@ -114,7 +133,9 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
                     }
                 }
             } catch (e: Exception) {
-                // Handle error
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -127,5 +148,15 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
             myAdsRecyclerView.visibility = View.VISIBLE
             noAdsTextView.visibility = View.GONE
         }
+    }
+
+    private fun showNetworkError() {
+        myAdsRecyclerView.visibility = View.GONE
+        noAdsTextView.visibility = View.GONE
+        networkErrorLayout.visibility = View.VISIBLE
+    }
+
+    private fun hideNetworkError() {
+        networkErrorLayout.visibility = View.GONE
     }
 }

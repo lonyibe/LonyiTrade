@@ -57,4 +57,7 @@
             tools:visibility="visible"/>
 
     </FrameLayout>
+
+    <include layout="@layout/network_error_layout" />
+
 </LinearLayout>

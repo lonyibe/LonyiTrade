@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.lonyitrade.app.adapters.AdAdapter
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.api.ApiService
 import com.lonyitrade.app.data.models.Ad
+import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +37,7 @@ class HomeFragment : Fragment() {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var sessionManager: SessionManager
     private lateinit var categoryContainer: LinearLayout
+    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference for the network error layout
     private var selectedCategory: String? = null
 
     override fun onCreateView(
@@ -69,6 +72,7 @@ class HomeFragment : Fragment() {
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
         noAdsTextView = view.findViewById(R.id.noAdsTextView)
         categoryContainer = view.findViewById(R.id.categoryContainer)
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
         setupCategoryBubbles()
@@ -129,15 +133,20 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // This method will now be public to be called by MainAppActivity
     fun fetchAllAdverts(category: String? = null) {
+        if (!NetworkUtils.isInternetAvailable(requireContext())) {
+            showNetworkError()
+            return
+        }
+
+        hideNetworkError()
+
         if (!swipeRefreshLayout.isRefreshing) {
             swipeRefreshLayout.isRefreshing = true
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Correctly pass the category to the 'category' parameter, not 'q'
                 val response = if (category != null) {
                     ApiClient.apiService.searchAdverts(query = null, category = category, district = null, minPrice = null, maxPrice = null, type = "for_sale")
                 } else {
@@ -145,39 +154,37 @@ class HomeFragment : Fragment() {
                 }
 
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
+                    swipeRefreshLayout.isRefreshing = false
                     if (response.isSuccessful) {
                         val fetchedAds = response.body()
                         sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
-
-                        // Check if the filtered/unfiltered list is empty
-                        if (fetchedAds.isNullOrEmpty()) {
-                            adsRecyclerView.visibility = View.GONE
-                            noAdsTextView.visibility = View.VISIBLE
-                        } else {
-                            adsRecyclerView.visibility = View.VISIBLE
-                            noAdsTextView.visibility = View.GONE
-                        }
-
                     } else {
                         Toast.makeText(requireContext(), "Failed to fetch ads: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
+                    swipeRefreshLayout.isRefreshing = false
                     Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                    showNetworkError()
                 }
             }
         }
     }
 
-    // Public method to be called from MainAppActivity to reset the view
-    fun resetToAllAds() {
-        if (selectedCategory != null) {
-            selectedCategory = null
-            fetchAllAdverts(null)
-            Toast.makeText(requireContext(), "Showing all ads", Toast.LENGTH_SHORT).show()
-        }
+    private fun showNetworkError() {
+        // Hide regular content and show the network error layout
+        adsRecyclerView.visibility = View.GONE
+        noAdsTextView.visibility = View.GONE
+        networkErrorLayout.visibility = View.VISIBLE
+        // Disable swipe refresh so the user cannot try to refresh while offline
+        swipeRefreshLayout.isEnabled = false
+    }
+
+    private fun hideNetworkError() {
+        // Hide the network error layout and show regular content views
+        networkErrorLayout.visibility = View.GONE
+        // Enable swipe refresh again
+        swipeRefreshLayout.isEnabled = true
     }
 }
