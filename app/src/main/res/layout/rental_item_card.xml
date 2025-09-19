@@ -155,17 +155,20 @@
 
         <Button
             android:id="@+id/messageSellerButton"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_gravity="end"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/primary_color_accent"
+            android:drawableStart="@drawable/ic_mail"
+            android:drawableTint="@color/black"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:text="Message Seller"
             android:textColor="@color/black"
-            android:backgroundTint="@color/primary_color_accent"
-            android:drawableLeft="@drawable/ic_mail"
-            android:drawableTint="@color/black"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"/>
+            android:textSize="10sp"
+            app:cornerRadius="5dp" />
 
         <LinearLayout
             android:id="@+id/editDeleteLayout"
