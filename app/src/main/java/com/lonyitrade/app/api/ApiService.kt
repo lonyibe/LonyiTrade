@@ -41,7 +41,7 @@ interface ApiService {
 
     // --- Adverts ---
     @GET("api/adverts")
-    suspend fun getAdverts(): Response<List<Ad>>
+    suspend fun getAdverts(@Query("sort_by") sortBy: String? = null): Response<List<Ad>>
 
     @GET("api/adverts/my")
     suspend fun getMyAdverts(@Header("Authorization") token: String): Response<List<Ad>>
@@ -75,7 +75,7 @@ interface ApiService {
     suspend fun postRental(@Header("Authorization") token: String, @Body rentalRequest: RentalRequest): Response<Rental>
 
     @GET("api/rentals")
-    suspend fun getRentals(): Response<List<Rental>>
+    suspend fun getRentals(@Query("sort_by") sortBy: String? = null): Response<List<Rental>>
 
     @GET("api/rentals/my")
     suspend fun getMyRentals(@Header("Authorization") token: String): Response<List<Rental>>

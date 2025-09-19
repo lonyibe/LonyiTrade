@@ -41,8 +41,8 @@ class HomeFragment : Fragment() {
     private lateinit var categoryContainer: LinearLayout
     private lateinit var networkErrorLayout: LinearLayout
     private var selectedCategory: String? = null
+    private var currentSortBy: String = "latest" // Default sort
 
-    // NEW: NetworkChangeReceiver instance
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     override fun onAttach(context: Context) {
@@ -66,7 +66,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -81,14 +80,9 @@ class HomeFragment : Fragment() {
         networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        // NEW: Initialize the receiver. The lambda will be executed when the network becomes available.
         networkChangeReceiver = NetworkChangeReceiver(
-            onNetworkAvailable = {
-                fetchAllAdverts()
-            },
-            onNetworkLost = {
-                showNetworkError()
-            }
+            onNetworkAvailable = { fetchAllAdverts() },
+            onNetworkLost = { showNetworkError() }
         )
 
         setupCategoryBubbles()
@@ -110,15 +104,13 @@ class HomeFragment : Fragment() {
         }
 
         swipeRefreshLayout.setOnRefreshListener {
-            fetchAllAdverts()
+            fetchAllAdverts(category = selectedCategory, sortBy = currentSortBy)
         }
 
         view.findViewById<HorizontalScrollView>(R.id.categoryScrollView).setOnTouchListener { v, event ->
             v.parent.requestDisallowInterceptTouchEvent(true)
             when (event.action) {
-                MotionEvent.ACTION_UP -> {
-                    v.parent.requestDisallowInterceptTouchEvent(false)
-                }
+                MotionEvent.ACTION_UP -> v.parent.requestDisallowInterceptTouchEvent(false)
             }
             v.onTouchEvent(event)
         }
@@ -126,17 +118,14 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Fetch the latest ads every time the fragment becomes visible
-        fetchAllAdverts()
+        fetchAllAdverts(sortBy = currentSortBy)
     }
 
-    // NEW: Register the receiver when the fragment is started
     override fun onStart() {
         super.onStart()
         requireContext().registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
     }
 
-    // NEW: Unregister the receiver when the fragment is stopped
     override fun onStop() {
         super.onStop()
         requireContext().unregisterReceiver(networkChangeReceiver)
@@ -152,14 +141,15 @@ class HomeFragment : Fragment() {
             categoryTextView.text = category
             categoryView.setOnClickListener {
                 selectedCategory = category
-                fetchAllAdverts(category)
+                fetchAllAdverts(category, currentSortBy)
                 Toast.makeText(context, "Searching for ads in $category...", Toast.LENGTH_SHORT).show()
             }
             categoryContainer.addView(categoryView)
         }
     }
 
-    fun fetchAllAdverts(category: String? = null) {
+    fun fetchAllAdverts(category: String? = null, sortBy: String = "latest") {
+        currentSortBy = sortBy
         if (!NetworkUtils.isInternetAvailable(requireContext())) {
             showNetworkError()
             return
@@ -176,7 +166,7 @@ class HomeFragment : Fragment() {
                 val response = if (category != null) {
                     ApiClient.apiService.searchAdverts(query = null, category = category, district = null, minPrice = null, maxPrice = null, type = "for_sale")
                 } else {
-                    ApiClient.apiService.getAdverts()
+                    ApiClient.apiService.getAdverts(sortBy)
                 }
 
                 withContext(Dispatchers.Main) {

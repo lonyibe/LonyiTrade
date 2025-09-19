@@ -37,6 +37,7 @@ class RentalsFragment : Fragment() {
     private lateinit var networkErrorLayout: LinearLayout
     private lateinit var categoryContainer: LinearLayout
     private var selectedCategory: String? = null
+    private var currentSortBy: String = "latest" // Default sort
 
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
@@ -66,7 +67,7 @@ class RentalsFragment : Fragment() {
         setupCategoryBubbles()
 
         swipeRefreshLayout.setOnRefreshListener {
-            fetchRentals(selectedCategory)
+            fetchRentals(selectedCategory, currentSortBy)
         }
 
         view.findViewById<HorizontalScrollView>(R.id.categoryScrollView).setOnTouchListener { v, event ->
@@ -76,8 +77,6 @@ class RentalsFragment : Fragment() {
             }
             v.onTouchEvent(event)
         }
-
-        fetchRentals()
     }
 
     override fun onStart() {
@@ -92,7 +91,7 @@ class RentalsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        fetchRentals()
+        fetchRentals(sortBy = currentSortBy)
     }
 
     private fun setupCategoryBubbles() {
@@ -105,14 +104,15 @@ class RentalsFragment : Fragment() {
             categoryTextView.text = category
             categoryView.setOnClickListener {
                 selectedCategory = category
-                fetchRentals(category)
+                fetchRentals(category, currentSortBy)
                 Toast.makeText(context, "Searching for rentals in $category...", Toast.LENGTH_SHORT).show()
             }
             categoryContainer.addView(categoryView)
         }
     }
 
-    private fun fetchRentals(category: String? = null) {
+    fun fetchRentals(category: String? = null, sortBy: String = "latest") {
+        currentSortBy = sortBy
         if (!NetworkUtils.isInternetAvailable(requireContext())) {
             showNetworkError()
             return
@@ -126,10 +126,7 @@ class RentalsFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // NOTE: The backend does not currently support filtering rentals by category.
-                // This will fetch all rentals and then filter them on the client-side.
-                // For a production app, you would add a query parameter to the backend API call.
-                val response = ApiClient.apiService.getRentals()
+                val response = ApiClient.apiService.getRentals(sortBy)
                 withContext(Dispatchers.Main) {
                     swipeRefreshLayout.isRefreshing = false
                     if (response.isSuccessful) {

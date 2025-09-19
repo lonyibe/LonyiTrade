@@ -37,7 +37,6 @@ class MainAppActivity : AppCompatActivity() {
                 super.onPageSelected(position)
                 bottomNavigationView.menu.getItem(position).isChecked = true
 
-                // Position 0: Home, Position 1: Rentals
                 when (position) {
                     0, 1 -> { // Home and Rentals Screen
                         headerTabLayout.visibility = View.VISIBLE
@@ -65,6 +64,26 @@ class MainAppActivity : AppCompatActivity() {
             true
         }
 
+        headerTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val currentFragment = supportFragmentManager.findFragmentByTag("f${viewPager.currentItem}")
+                val sortBy = when (tab?.position) {
+                    0 -> "top"
+                    1 -> "latest"
+                    2 -> "trending"
+                    else -> "latest"
+                }
+
+                if (currentFragment is HomeFragment) {
+                    currentFragment.fetchAllAdverts(sortBy = sortBy)
+                } else if (currentFragment is RentalsFragment) {
+                    currentFragment.fetchRentals(sortBy = sortBy)
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+
         if (savedInstanceState == null) {
             viewPager.currentItem = 0
             headerTabLayout.visibility = View.VISIBLE
@@ -74,18 +93,12 @@ class MainAppActivity : AppCompatActivity() {
 
         searchIcon.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
-            // Pass the current screen type to the search activity
-            if (viewPager.currentItem == 1) { // 1 is the position for RentalsFragment
-                intent.putExtra("searchType", "rentals")
-            } else {
-                intent.putExtra("searchType", "ads")
-            }
+            intent.putExtra("searchType", if (viewPager.currentItem == 1) "rentals" else "ads")
             startActivity(intent)
         }
 
         addListingIcon.setOnClickListener {
-            val dialog = JobOptionsDialogFragment()
-            dialog.show(supportFragmentManager, "JobOptionsDialogFragment")
+            JobOptionsDialogFragment().show(supportFragmentManager, "JobOptionsDialogFragment")
         }
     }
 
