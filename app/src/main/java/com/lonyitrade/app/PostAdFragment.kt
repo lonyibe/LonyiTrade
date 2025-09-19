@@ -46,8 +46,6 @@ class PostAdFragment : Fragment() {
     private lateinit var priceTypeRadioGroup: RadioGroup
     private lateinit var sellConditionRadioGroup: RadioGroup
     private lateinit var districtEditText: EditText
-    private lateinit var photo1ImageView: ImageView
-
 
     // Rental Form Fields
     private lateinit var propertyTypeSpinner: Spinner
@@ -94,7 +92,6 @@ class PostAdFragment : Fragment() {
         initializeViews(view)
         setupListeners()
         setupSpinners()
-        clearForm()
     }
 
     private fun initializeViews(view: View) {
@@ -113,8 +110,6 @@ class PostAdFragment : Fragment() {
         priceTypeRadioGroup = view.findViewById(R.id.priceTypeRadioGroup)
         sellConditionRadioGroup = view.findViewById(R.id.conditionRadioGroup)
         districtEditText = view.findViewById(R.id.districtEditText)
-        photo1ImageView = view.findViewById(R.id.photo1ImageView)
-
 
         // Rental Form
         propertyTypeSpinner = view.findViewById(R.id.propertyTypeSpinner)
@@ -197,11 +192,6 @@ class PostAdFragment : Fragment() {
         activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.selectedItemId = R.id.nav_home
     }
 
-    private fun navigateToRentals() {
-        // Navigate back to the rentals fragment after posting
-        activity?.findViewById<BottomNavigationView>(R.id.bottom_navigation)?.selectedItemId = R.id.nav_rentals
-    }
-
     // --- Ad Logic ---
     private fun createAdRequest(): AdRequest? {
         val title = titleEditText.text.toString()
@@ -232,7 +222,6 @@ class PostAdFragment : Fragment() {
                         } else {
                             showLoading(false)
                             Toast.makeText(requireContext(), "Ad posted successfully!", Toast.LENGTH_SHORT).show()
-                            clearForm()
                             navigateToHome()
                         }
                     } else {
@@ -259,7 +248,6 @@ class PostAdFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Ad and photo posted successfully!", Toast.LENGTH_SHORT).show()
-                        clearForm()
                         navigateToHome()
                     }
                 } catch (e: Exception) {
@@ -312,8 +300,7 @@ class PostAdFragment : Fragment() {
                         } else {
                             showLoading(false)
                             Toast.makeText(requireContext(), "Rental posted successfully!", Toast.LENGTH_SHORT).show()
-                            clearForm()
-                            navigateToRentals()
+                            navigateToHome()
                         }
                     } else {
                         showLoading(false)
@@ -344,8 +331,7 @@ class PostAdFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Rental and photos posted successfully!", Toast.LENGTH_SHORT).show()
-                        clearForm()
-                        navigateToRentals()
+                        navigateToHome()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -358,7 +344,7 @@ class PostAdFragment : Fragment() {
     }
 
     private fun displayRentalImages() {
-        rentalImageContainer.removeViews(1, rentalImageContainer.childCount - 1)
+        rentalImageContainer.removeViews(0, rentalImageContainer.childCount - 1)
         rentalPhotoUris.forEach { uri ->
             val imageView = ImageView(requireContext()).apply {
                 layoutParams = ViewGroup.LayoutParams(160, 160)
@@ -369,39 +355,6 @@ class PostAdFragment : Fragment() {
             rentalImageContainer.addView(imageView, 0)
         }
     }
-
-    private fun clearForm() {
-        // Clear Sell/Buy form
-        titleEditText.text.clear()
-        descriptionEditText.text.clear()
-        priceEditText.text.clear()
-        districtEditText.text.clear()
-        categorySpinner.setSelection(0)
-        priceTypeRadioGroup.check(R.id.priceTypeFixed)
-        sellConditionRadioGroup.check(R.id.conditionNew)
-        photo1ImageView.setImageResource(R.drawable.ic_add_photo)
-        itemPhotoUri = null
-
-
-        // Clear Rental form
-        propertyTypeSpinner.setSelection(0)
-        rentalRoomsEditText.text.clear()
-        rentalDescriptionEditText.text.clear()
-        rentalRulesEditText.text.clear()
-        rentalCityEditText.text.clear()
-        rentalDistrictEditText.text.clear()
-        rentalLocationDescEditText.text.clear()
-        rentalRentEditText.text.clear()
-        landlordNameEditText.text.clear()
-        landlordPhoneEditText.text.clear()
-        landlordEmailEditText.text.clear()
-        landlordWhatsappEditText.text.clear()
-        rentalPriceTypeRadioGroup.check(R.id.rentalPriceFixed)
-        landlordTypeRadioGroup.check(R.id.landlordTypeLandlord)
-        rentalPhotoUris.clear()
-        displayRentalImages()
-    }
-
 
     // --- Utility Functions ---
     private fun showLoading(isLoading: Boolean) {

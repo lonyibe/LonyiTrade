@@ -35,9 +35,6 @@ class LoginActivity : AppCompatActivity() {
         loginProgressBar = findViewById(R.id.loginProgressBar)
         val signupTextView = findViewById<TextView>(R.id.signupTextView)
 
-        // Pre-fill phone number if available
-        phoneNumberEditText.setText(sessionManager.getLastUsedPhoneNumber())
-
         loginButton.setOnClickListener {
             val phoneNumber = phoneNumberEditText.text.toString()
             val password = passwordEditText.text.toString()
@@ -57,11 +54,9 @@ class LoginActivity : AppCompatActivity() {
                                 val token = response.body()?.token
                                 if (token != null) {
                                     sessionManager.saveAuthToken(token)
-                                    sessionManager.saveLastUsedPhoneNumber(phoneNumber) // Save phone number
+                                    sessionManager.saveUserData("user_name_here", phoneNumber)
                                     Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this@LoginActivity, MainAppActivity::class.java)
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
+                                    startActivity(Intent(this@LoginActivity, MainAppActivity::class.java))
                                     finish()
                                 } else {
                                     Toast.makeText(this@LoginActivity, "Login failed: Token not received", Toast.LENGTH_SHORT).show()
