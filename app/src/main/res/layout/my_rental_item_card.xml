@@ -88,5 +88,13 @@
 
                 <TextView
                     android:id="@+id/rentalRoomsTextView"
-                ...
-                [content of this file has been truncated]
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:textSize="12sp"
+                    tools:text="3 Rooms"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
