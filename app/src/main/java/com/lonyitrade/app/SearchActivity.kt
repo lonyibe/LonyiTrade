@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +33,11 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var noResultsTextView: TextView
     private lateinit var sessionManager: SessionManager
 
+    // New UI elements for animation
+    private lateinit var searchFormLayout: LinearLayout
+    private lateinit var collapsedSearchIcon: ImageView
+    private lateinit var searchButton: Button
+
     private var currentSearchType: String = "ads"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,16 +46,19 @@ class SearchActivity : AppCompatActivity() {
 
         sessionManager = SessionManager(this)
 
-        // Determine if this is a search for 'ads' or 'rentals' from the intent
         currentSearchType = intent.getStringExtra("searchType") ?: "ads"
 
         initializeViews()
         configureUiForSearchType()
         setupRecyclerView()
 
-        val searchButton = findViewById<Button>(R.id.search_button)
         searchButton.setOnClickListener {
             performSearch()
+            collapseSearchForm()
+        }
+
+        collapsedSearchIcon.setOnClickListener {
+            expandSearchForm()
         }
     }
 
@@ -58,6 +68,11 @@ class SearchActivity : AppCompatActivity() {
         searchTitle = findViewById(R.id.search_title)
         searchResultsRecyclerView = findViewById(R.id.searchResultsRecyclerView)
         noResultsTextView = findViewById(R.id.noResultsTextView)
+
+        // Animation views
+        searchFormLayout = findViewById(R.id.searchFormLayout)
+        collapsedSearchIcon = findViewById(R.id.collapsedSearchIcon)
+        searchButton = findViewById(R.id.search_button)
     }
 
     private fun setupRecyclerView() {
@@ -66,15 +81,11 @@ class SearchActivity : AppCompatActivity() {
 
     private fun configureUiForSearchType() {
         if (currentSearchType == "rentals") {
-            // This is a rental search.
             searchTitle.text = "Search Rentals"
-            // Hide the Ad-specific UI elements.
             listingTypeCard.visibility = View.GONE
             adSearchOptionsCard.visibility = View.GONE
         } else {
-            // This is an ad search.
             searchTitle.text = "Search Ads"
-            // Make sure the Ad-specific UI elements are visible.
             listingTypeCard.visibility = View.VISIBLE
             adSearchOptionsCard.visibility = View.VISIBLE
         }
@@ -86,7 +97,7 @@ class SearchActivity : AppCompatActivity() {
         val minPrice = findViewById<EditText>(R.id.search_min_price).text.toString()
         val maxPrice = findViewById<EditText>(R.id.search_max_price).text.toString()
 
-        Toast.makeText(this, "Searching for $currentSearchType...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Searching...", Toast.LENGTH_SHORT).show()
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -105,8 +116,7 @@ class SearchActivity : AppCompatActivity() {
                         }
                     }
                 } else { // Rentals
-                    // Note: The rentals search in ApiService is not yet implemented with all parameters
-                    val response = ApiClient.apiService.getRentals() // Simplified for now
+                    val response = ApiClient.apiService.getRentals()
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             val rentals = response.body()
@@ -129,10 +139,37 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun collapseSearchForm() {
+        searchFormLayout.animate()
+            .alpha(0f)
+            .setDuration(300)
+            .withEndAction {
+                searchFormLayout.visibility = View.GONE
+                searchButton.visibility = View.GONE
+                collapsedSearchIcon.visibility = View.VISIBLE
+            }
+            .start()
+    }
+
+    private fun expandSearchForm() {
+        // Clear previous results before showing the form again
+        searchResultsRecyclerView.visibility = View.GONE
+        noResultsTextView.visibility = View.GONE
+        searchResultsRecyclerView.adapter = null // Clear the adapter
+
+        collapsedSearchIcon.visibility = View.GONE
+        searchFormLayout.visibility = View.VISIBLE
+        searchButton.visibility = View.VISIBLE
+        searchFormLayout.animate()
+            .alpha(1f)
+            .setDuration(300)
+            .start()
+    }
+
     private fun showAdResults(ads: List<Ad>) {
         searchResultsRecyclerView.visibility = View.VISIBLE
         noResultsTextView.visibility = View.GONE
-        val adAdapter = AdAdapter(ads, sessionManager.fetchAuthToken()) { /* Handle message click if needed */ }
+        val adAdapter = AdAdapter(ads, sessionManager.fetchAuthToken()) { /* Handle message click */ }
         searchResultsRecyclerView.adapter = adAdapter
     }
 

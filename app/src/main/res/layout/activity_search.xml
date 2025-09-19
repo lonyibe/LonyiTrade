@@ -13,240 +13,273 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/search_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search LonyiTrade"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_light_gray"
-            android:layout_marginBottom="24dp"
-            android:layout_gravity="center_horizontal" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/listingTypeCard"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:layout_marginBottom="24dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/search_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_centerInParent="true"
+                android:text="Search LonyiTrade"
+                android:textColor="@color/text_light_gray"
+                android:textSize="28sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="I am looking for a..."
-                    android:textColor="@color/text_light_gray"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+            <ImageView
+                android:id="@+id/collapsedSearchIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_search"
+                android:visibility="gone"
+                app:tint="@color/primary_color_accent"
+                tools:visibility="visible" />
+        </RelativeLayout>
 
-                <RadioGroup
-                    android:id="@+id/listingTypeRadioGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/listingTypeAd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ad"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"
-                        android:checked="true"
-                        android:layout_marginEnd="16dp"/>
-
-                    <RadioButton
-                        android:id="@+id/listingTypeRental"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rental"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"/>
-                </RadioGroup>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/adSearchOptionsCard"
+        <LinearLayout
+            android:id="@+id/searchFormLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:orientation="vertical"
+            android:visibility="visible">
 
-            <LinearLayout
-                android:id="@+id/adSearchOptions"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/listingTypeCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible"
-                android:padding="16dp">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/form_background_dark"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                tools:visibility="visible">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="I want to..."
-                    android:textColor="@color/text_light_gray"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
-
-                <RadioGroup
-                    android:id="@+id/adSearchTypeRadioGroup"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <RadioButton
-                        android:id="@+id/adSearchBuy"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Buy"
+                        android:layout_marginBottom="8dp"
+                        android:text="I am looking for a..."
                         android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"
-                        android:checked="true"
-                        android:layout_marginEnd="16dp"/>
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                    <RadioButton
-                        android:id="@+id/adSearchSell"
-                        android:layout_width="wrap_content"
+                    <RadioGroup
+                        android:id="@+id/listingTypeRadioGroup"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Sell"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"/>
-                </RadioGroup>
+                        android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Category"
-                    android:textColor="@color/text_light_gray"
-                    android:textSize="14sp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"/>
-                <Spinner
-                    android:id="@+id/adCategorySpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_edittext"
-                    android:padding="12dp"
-                    android:entries="@array/categories"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        <RadioButton
+                            android:id="@+id/listingTypeAd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="16dp"
+                            android:buttonTint="@color/primary_color_accent"
+                            android:checked="true"
+                            android:text="Ad"
+                            android:textColor="@color/text_light_gray" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+                        <RadioButton
+                            android:id="@+id/listingTypeRental"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/primary_color_accent"
+                            android:text="Rental"
+                            android:textColor="@color/text_light_gray" />
+                    </RadioGroup>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/adSearchOptionsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/form_background_dark"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                tools:visibility="visible">
 
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
+                    android:id="@+id/adSearchOptions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/Widget.App.TextInputLayout"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    android:layout_marginBottom="8dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/search_query"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="I want to..."
+                        android:textColor="@color/text_light_gray"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/adSearchTypeRadioGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Search by keyword..."
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputLayout
+                        <RadioButton
+                            android:id="@+id/adSearchBuy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="16dp"
+                            android:buttonTint="@color/primary_color_accent"
+                            android:checked="true"
+                            android:text="Buy"
+                            android:textColor="@color/text_light_gray" />
+
+                        <RadioButton
+                            android:id="@+id/adSearchSell"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/primary_color_accent"
+                            android:text="Sell"
+                            android:textColor="@color/text_light_gray" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Category"
+                        android:textColor="@color/text_light_gray"
+                        android:textSize="14sp" />
+
+                    <Spinner
+                        android:id="@+id/adCategorySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_edittext"
+                        android:entries="@array/categories"
+                        android:padding="12dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/form_background_dark"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/Widget.App.TextInputLayout"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    android:layout_marginBottom="8dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/search_district"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="District"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray" />
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/Widget.App.TextInputLayout"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    android:layout_marginBottom="8dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/search_min_price"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.App.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Min Price"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginBottom="8dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/Widget.App.TextInputLayout"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    android:layout_marginBottom="8dp">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/search_max_price"
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/search_query"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Search by keyword..."
+                            android:textColor="@color/text_light_gray"
+                            android:textColorHint="@color/text_light_gray" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.App.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Max Price"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        android:layout_marginBottom="8dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/search_district"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="District"
+                            android:textColor="@color/text_light_gray"
+                            android:textColorHint="@color/text_light_gray" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.App.TextInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/search_min_price"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Min Price"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/text_light_gray"
+                            android:textColorHint="@color/text_light_gray" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.App.TextInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/search_max_price"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Max Price"
+                            android:inputType="numberDecimal"
+                            android:textColor="@color/text_light_gray"
+                            android:textColorHint="@color/text_light_gray" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
 
         <Button
             android:id="@+id/search_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Search"
-            android:textColor="@color/black"
             android:backgroundTint="@color/primary_color_accent"
             android:padding="16dp"
+            android:text="Search"
+            android:textColor="@color/black"
             app:cornerRadius="12dp" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -254,6 +287,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:nestedScrollingEnabled="false"
             android:visibility="gone"
             tools:listitem="@layout/ad_item_card"
             tools:visibility="visible" />
@@ -262,13 +296,13 @@
             android:id="@+id/noResultsTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
             android:text="No results found"
             android:textColor="@color/text_light_gray"
             android:textSize="18sp"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
             android:visibility="gone"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </LinearLayout>
 </ScrollView>
