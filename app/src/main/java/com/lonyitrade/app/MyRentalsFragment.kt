@@ -1,7 +1,10 @@
 package com.lonyitrade.app
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.MyRentalsAdapter
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Rental
+import com.lonyitrade.app.utils.NetworkChangeReceiver
 import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -29,11 +33,13 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
     private lateinit var sessionManager: SessionManager
     private lateinit var adapter: MyRentalsAdapter
     private var rentalList: MutableList<Rental> = mutableListOf()
-    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference for the network error layout
+    private lateinit var networkErrorLayout: LinearLayout
+
+    private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     private val editRentalLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            fetchMyRentals() // Refresh the rentals list
+            fetchMyRentals()
         }
     }
 
@@ -43,11 +49,31 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
         sessionManager = SessionManager(requireContext())
         myRentalsRecyclerView = view.findViewById(R.id.myRentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView)
-        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         myRentalsRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Corrected initialization with both callbacks
+        networkChangeReceiver = NetworkChangeReceiver(
+            onNetworkAvailable = {
+                fetchMyRentals()
+            },
+            onNetworkLost = {
+                showNetworkError()
+            }
+        )
 
         setupAdapter()
         fetchMyRentals()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        requireContext().registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        requireContext().unregisterReceiver(networkChangeReceiver)
     }
 
     private fun setupAdapter() {

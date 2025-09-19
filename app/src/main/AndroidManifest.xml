@@ -67,5 +67,13 @@
             android:name=".HireEmployeeActivity"
             android:exported="false" />
 
+        <receiver
+            android:name=".utils.NetworkChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>

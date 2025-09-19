@@ -1,7 +1,10 @@
 package com.lonyitrade.app
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -15,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.MyAdsAdapter
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Ad
+import com.lonyitrade.app.utils.NetworkChangeReceiver
 import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +33,10 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
     private lateinit var sessionManager: SessionManager
     private lateinit var adapter: MyAdsAdapter
     private var adList: MutableList<Ad> = mutableListOf()
-    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference to the network error layout
+    private lateinit var networkErrorLayout: LinearLayout
+
+    // NEW: NetworkChangeReceiver instance
+    private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     private val editAdLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -43,11 +50,33 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
         sessionManager = SessionManager(requireContext())
         myAdsRecyclerView = view.findViewById(R.id.myAdsRecyclerView)
         noAdsTextView = view.findViewById(R.id.noAdsTextView)
-        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         myAdsRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        // NEW: Initialize the receiver with both onNetworkAvailable and onNetworkLost callbacks
+        networkChangeReceiver = NetworkChangeReceiver(
+            onNetworkAvailable = {
+                fetchMyAds()
+            },
+            onNetworkLost = {
+                showNetworkError()
+            }
+        )
 
         setupAdapter()
         fetchMyAds()
+    }
+
+    // NEW: Register the receiver when the fragment is started
+    override fun onStart() {
+        super.onStart()
+        requireContext().registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    // NEW: Unregister the receiver when the fragment is stopped
+    override fun onStop() {
+        super.onStop()
+        requireContext().unregisterReceiver(networkChangeReceiver)
     }
 
     private fun setupAdapter() {

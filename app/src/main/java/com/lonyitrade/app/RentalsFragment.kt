@@ -1,5 +1,8 @@
 package com.lonyitrade.app
 
+import android.content.Context
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.lonyitrade.app.adapters.RentalAdapter
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.data.models.Rental
+import com.lonyitrade.app.utils.NetworkChangeReceiver
 import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -27,8 +32,9 @@ class RentalsFragment : Fragment() {
     private lateinit var noRentalsTextView: TextView
     private lateinit var rentalAdapter: RentalAdapter
     private lateinit var sessionManager: SessionManager
-    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference for the network error layout
+    private lateinit var networkErrorLayout: LinearLayout
 
+    private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,15 +50,34 @@ class RentalsFragment : Fragment() {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         rentalsRecyclerView = view.findViewById(R.id.rentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView)
-        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         rentalsRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Set up the refresh listener
+        // Corrected initialization with both callbacks
+        networkChangeReceiver = NetworkChangeReceiver(
+            onNetworkAvailable = {
+                fetchRentals()
+            },
+            onNetworkLost = {
+                showNetworkError()
+            }
+        )
+
         swipeRefreshLayout.setOnRefreshListener {
             fetchRentals()
         }
 
         fetchRentals()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        requireContext().registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        requireContext().unregisterReceiver(networkChangeReceiver)
     }
 
     private fun fetchRentals() {
@@ -63,7 +88,6 @@ class RentalsFragment : Fragment() {
 
         hideNetworkError()
 
-        // Show the refresh spinner
         if (!swipeRefreshLayout.isRefreshing) {
             swipeRefreshLayout.isRefreshing = true
         }
@@ -72,14 +96,13 @@ class RentalsFragment : Fragment() {
             try {
                 val response = ApiClient.apiService.getRentals()
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
+                    swipeRefreshLayout.isRefreshing = false
                     if (response.isSuccessful) {
                         val rentals = response.body() ?: emptyList()
                         val currentUserId = sessionManager.fetchAuthToken()
                         rentalAdapter = RentalAdapter(rentals, currentUserId)
                         rentalsRecyclerView.adapter = rentalAdapter
 
-                        // Check if the list is empty
                         if (rentals.isEmpty()) {
                             rentalsRecyclerView.visibility = View.GONE
                             noRentalsTextView.visibility = View.VISIBLE
@@ -93,7 +116,7 @@ class RentalsFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false // Stop the spinner
+                    swipeRefreshLayout.isRefreshing = false
                     Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
                     showNetworkError()
                 }
@@ -102,18 +125,14 @@ class RentalsFragment : Fragment() {
     }
 
     private fun showNetworkError() {
-        // Hide regular content and show the network error layout
         rentalsRecyclerView.visibility = View.GONE
         noRentalsTextView.visibility = View.GONE
         networkErrorLayout.visibility = View.VISIBLE
-        // Disable swipe refresh so the user cannot try to refresh while offline
         swipeRefreshLayout.isEnabled = false
     }
 
     private fun hideNetworkError() {
-        // Hide the network error layout and show regular content views
         networkErrorLayout.visibility = View.GONE
-        // Enable swipe refresh again
         swipeRefreshLayout.isEnabled = true
     }
 }

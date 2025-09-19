@@ -1,6 +1,8 @@
 package com.lonyitrade.app
 
 import android.content.Context
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -18,8 +20,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.lonyitrade.app.adapters.AdAdapter
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.api.ApiService
 import com.lonyitrade.app.data.models.Ad
+import com.lonyitrade.app.utils.NetworkChangeReceiver
 import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
@@ -37,15 +39,11 @@ class HomeFragment : Fragment() {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var sessionManager: SessionManager
     private lateinit var categoryContainer: LinearLayout
-    private lateinit var networkErrorLayout: LinearLayout // NEW: Reference for the network error layout
+    private lateinit var networkErrorLayout: LinearLayout
     private var selectedCategory: String? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
-    }
+    // NEW: NetworkChangeReceiver instance
+    private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -64,6 +62,14 @@ class HomeFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -72,8 +78,18 @@ class HomeFragment : Fragment() {
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
         noAdsTextView = view.findViewById(R.id.noAdsTextView)
         categoryContainer = view.findViewById(R.id.categoryContainer)
-        networkErrorLayout = view.findViewById(R.id.networkErrorLayout) // NEW: Initialize the network error layout
+        networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         adsRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        // NEW: Initialize the receiver. The lambda will be executed when the network becomes available.
+        networkChangeReceiver = NetworkChangeReceiver(
+            onNetworkAvailable = {
+                fetchAllAdverts()
+            },
+            onNetworkLost = {
+                showNetworkError()
+            }
+        )
 
         setupCategoryBubbles()
 
@@ -93,15 +109,12 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Set up the refresh listener
         swipeRefreshLayout.setOnRefreshListener {
             fetchAllAdverts()
         }
 
-        // Initial load of all adverts
         fetchAllAdverts()
 
-        // FIX: Prevent ViewPager2 from intercepting horizontal scrolls on the category bar
         view.findViewById<HorizontalScrollView>(R.id.categoryScrollView).setOnTouchListener { v, event ->
             v.parent.requestDisallowInterceptTouchEvent(true)
             when (event.action) {
@@ -113,10 +126,20 @@ class HomeFragment : Fragment() {
         }
     }
 
+    // NEW: Register the receiver when the fragment is started
+    override fun onStart() {
+        super.onStart()
+        requireContext().registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+    }
+
+    // NEW: Unregister the receiver when the fragment is stopped
+    override fun onStop() {
+        super.onStop()
+        requireContext().unregisterReceiver(networkChangeReceiver)
+    }
+
     private fun setupCategoryBubbles() {
         val categories = resources.getStringArray(R.array.categories)
-
-        // Clear existing views to prevent duplicates
         categoryContainer.removeAllViews()
 
         for (category in categories) {
@@ -124,7 +147,6 @@ class HomeFragment : Fragment() {
             val categoryTextView = categoryView.findViewById<TextView>(R.id.categoryTextView)
             categoryTextView.text = category
             categoryView.setOnClickListener {
-                // When a category is clicked, fetch ads for that specific category
                 selectedCategory = category
                 fetchAllAdverts(category)
                 Toast.makeText(context, "Searching for ads in $category...", Toast.LENGTH_SHORT).show()
@@ -173,18 +195,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun showNetworkError() {
-        // Hide regular content and show the network error layout
         adsRecyclerView.visibility = View.GONE
         noAdsTextView.visibility = View.GONE
         networkErrorLayout.visibility = View.VISIBLE
-        // Disable swipe refresh so the user cannot try to refresh while offline
         swipeRefreshLayout.isEnabled = false
     }
 
     private fun hideNetworkError() {
-        // Hide the network error layout and show regular content views
         networkErrorLayout.visibility = View.GONE
-        // Enable swipe refresh again
         swipeRefreshLayout.isEnabled = true
     }
 }
