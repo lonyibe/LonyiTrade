@@ -16,8 +16,8 @@ class MainAppActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var headerTabLayout: TabLayout
-    private lateinit var searchIcon: ImageView // Reference for the search icon
-    private lateinit var addListingIcon: ImageView // Reference for the add icon
+    private lateinit var searchIcon: ImageView
+    private lateinit var addListingIcon: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,44 +29,47 @@ class MainAppActivity : AppCompatActivity() {
         searchIcon = findViewById(R.id.search_icon)
         addListingIcon = findViewById(R.id.add_listing_icon)
 
-        // Set up the adapter for ViewPager2
         viewPager.adapter = MainAppPagerAdapter(this)
-
-        // This change will ensure a smoother transition between Fragments
         viewPager.offscreenPageLimit = 4
 
-        // Set up swipe navigation and control header visibility
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 bottomNavigationView.menu.getItem(position).isChecked = true
 
-                // Show header elements only for the Home screen (position 0)
-                if (position == 0) {
-                    headerTabLayout.visibility = View.VISIBLE
-                    searchIcon.visibility = View.VISIBLE
-                    addListingIcon.visibility = View.VISIBLE
-                } else {
-                    headerTabLayout.visibility = View.GONE
-                    searchIcon.visibility = View.GONE
-                    addListingIcon.visibility = View.GONE
+                // Position 0: Home, Position 1: Rentals
+                when (position) {
+                    0 -> { // Home Screen
+                        headerTabLayout.visibility = View.VISIBLE
+                        searchIcon.visibility = View.VISIBLE
+                        addListingIcon.visibility = View.VISIBLE
+                    }
+                    1 -> { // Rentals Screen
+                        headerTabLayout.visibility = View.GONE
+                        searchIcon.visibility = View.VISIBLE
+                        addListingIcon.visibility = View.GONE
+                    }
+                    else -> { // All other screens
+                        headerTabLayout.visibility = View.GONE
+                        searchIcon.visibility = View.GONE
+                        addListingIcon.visibility = View.GONE
+                    }
                 }
             }
         })
 
-        // Set up BottomNavigationView to change pages
         bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> viewPager.currentItem = 0
-                R.id.nav_rentals -> viewPager.currentItem = 1
-                R.id.nav_post_ad -> viewPager.currentItem = 2
-                R.id.nav_messages -> viewPager.currentItem = 3
-                R.id.nav_my_account -> viewPager.currentItem = 4
+            viewPager.currentItem = when (item.itemId) {
+                R.id.nav_home -> 0
+                R.id.nav_rentals -> 1
+                R.id.nav_post_ad -> 2
+                R.id.nav_messages -> 3
+                R.id.nav_my_account -> 4
+                else -> 0
             }
             true
         }
 
-        // Set the default page and ensure correct header visibility on startup
         if (savedInstanceState == null) {
             viewPager.currentItem = 0
             headerTabLayout.visibility = View.VISIBLE
@@ -76,6 +79,12 @@ class MainAppActivity : AppCompatActivity() {
 
         searchIcon.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
+            // Pass the current screen type to the search activity
+            if (viewPager.currentItem == 1) { // 1 is the position for RentalsFragment
+                intent.putExtra("searchType", "rentals")
+            } else {
+                intent.putExtra("searchType", "ads")
+            }
             startActivity(intent)
         }
 
@@ -85,7 +94,6 @@ class MainAppActivity : AppCompatActivity() {
         }
     }
 
-    // Function to open the chat activity
     fun openChatActivity(ad: Ad) {
         val intent = Intent(this, ChatActivity::class.java).apply {
             putExtra("AD_EXTRA", ad)

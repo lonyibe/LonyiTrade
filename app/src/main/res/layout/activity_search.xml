@@ -14,6 +14,7 @@
         android:padding="16dp">
 
         <TextView
+            android:id="@+id/search_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search LonyiTrade"
@@ -24,12 +25,15 @@
             android:layout_gravity="center_horizontal" />
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/listingTypeCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="@color/form_background_dark"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -80,7 +84,9 @@
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="@color/form_background_dark"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <LinearLayout
                 android:id="@+id/adSearchOptions"

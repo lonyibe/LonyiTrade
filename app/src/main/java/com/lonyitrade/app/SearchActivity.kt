@@ -2,118 +2,58 @@ package com.lonyitrade.app
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.viewmodels.SharedViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.google.android.material.card.MaterialCardView
 
 class SearchActivity : AppCompatActivity() {
-    private val sharedViewModel: SharedViewModel by viewModels()
 
-    private lateinit var listingTypeRadioGroup: RadioGroup
-    private lateinit var adSearchOptions: View
-    private lateinit var adSearchTypeRadioGroup: RadioGroup
-    private lateinit var searchQueryEditText: EditText
-    private lateinit var searchDistrictEditText: EditText
-    private lateinit var searchMinPriceEditText: EditText
-    private lateinit var searchMaxPriceEditText: EditText
-    private lateinit var searchButton: Button
-    private lateinit var adCategorySpinner: Spinner
+    // --- UI Elements ---
+    private lateinit var listingTypeCard: MaterialCardView
+    private lateinit var adSearchOptionsCard: MaterialCardView
+    private lateinit var searchTitle: TextView
+
+    private var currentSearchType: String = "ads"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
+        // Determine if this is a search for 'ads' or 'rentals' from the intent
+        currentSearchType = intent.getStringExtra("searchType") ?: "ads"
+
         initializeViews()
-        setupListeners()
-        setupCategorySpinner()
+        configureUiForSearchType()
+
+        val searchButton = findViewById<Button>(R.id.search_button)
+        searchButton.setOnClickListener {
+            // This is a placeholder for your search logic.
+            Toast.makeText(this, "Searching for $currentSearchType...", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun initializeViews() {
-        listingTypeRadioGroup = findViewById(R.id.listingTypeRadioGroup)
-        adSearchOptions = findViewById(R.id.adSearchOptions)
-        adSearchTypeRadioGroup = findViewById(R.id.adSearchTypeRadioGroup)
-        searchQueryEditText = findViewById(R.id.search_query)
-        searchDistrictEditText = findViewById(R.id.search_district)
-        searchMinPriceEditText = findViewById(R.id.search_min_price)
-        searchMaxPriceEditText = findViewById(R.id.search_max_price)
-        searchButton = findViewById(R.id.search_button)
-        adCategorySpinner = findViewById(R.id.adCategorySpinner)
+        listingTypeCard = findViewById(R.id.listingTypeCard)
+        adSearchOptionsCard = findViewById(R.id.adSearchOptionsCard)
+        searchTitle = findViewById(R.id.search_title)
     }
 
-    private fun setupListeners() {
-        listingTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.listingTypeAd -> adSearchOptions.visibility = View.VISIBLE
-                R.id.listingTypeRental -> adSearchOptions.visibility = View.GONE
-            }
-        }
-
-        searchButton.setOnClickListener {
-            performSearch()
-        }
-    }
-
-    private fun setupCategorySpinner() {
-        val categories = resources.getStringArray(R.array.categories)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        adCategorySpinner.adapter = adapter
-    }
-
-    private fun performSearch() {
-        val query = searchQueryEditText.text.toString().ifEmpty { null }
-        val district = searchDistrictEditText.text.toString().ifEmpty { null }
-        val minPrice = searchMinPriceEditText.text.toString().ifEmpty { null }
-        val maxPrice = searchMaxPriceEditText.text.toString().ifEmpty { null }
-
-        val selectedListingType = listingTypeRadioGroup.checkedRadioButtonId
-        val selectedAdType = adSearchTypeRadioGroup.checkedRadioButtonId
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                if (selectedListingType == R.id.listingTypeAd) {
-                    val type = if (selectedAdType == R.id.adSearchBuy) "for_sale" else "wanted"
-                    val category = adCategorySpinner.selectedItem?.toString()
-                    val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, type, category)
-
-                    withContext(Dispatchers.Main) {
-                        if (response.isSuccessful) {
-                            response.body()?.let {
-                                sharedViewModel.setAdList(it.toMutableList())
-                            }
-                            Toast.makeText(this@SearchActivity, "Ad search successful!", Toast.LENGTH_SHORT).show()
-                            finish()
-                        } else {
-                            Toast.makeText(this@SearchActivity, "Failed to search for ads", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else if (selectedListingType == R.id.listingTypeRental) {
-                    val response = ApiClient.apiService.getRentals()
-                    withContext(Dispatchers.Main) {
-                        if (response.isSuccessful) {
-                            Toast.makeText(this@SearchActivity, "Rental search logic to be implemented", Toast.LENGTH_SHORT).show()
-                            finish()
-                        } else {
-                            Toast.makeText(this@SearchActivity, "Failed to search for rentals", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@SearchActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
+    private fun configureUiForSearchType() {
+        if (currentSearchType == "rentals") {
+            // This is a rental search.
+            searchTitle.text = "Search Rentals"
+            // Hide the Ad-specific UI elements.
+            listingTypeCard.visibility = View.GONE
+            adSearchOptionsCard.visibility = View.GONE
+        } else {
+            // This is an ad search.
+            searchTitle.text = "Search Ads"
+            // Make sure the Ad-specific UI elements are visible.
+            listingTypeCard.visibility = View.VISIBLE
+            adSearchOptionsCard.visibility = View.VISIBLE
         }
     }
 }

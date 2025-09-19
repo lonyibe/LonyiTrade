@@ -5,8 +5,10 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -33,6 +35,8 @@ class RentalsFragment : Fragment() {
     private lateinit var rentalAdapter: RentalAdapter
     private lateinit var sessionManager: SessionManager
     private lateinit var networkErrorLayout: LinearLayout
+    private lateinit var categoryContainer: LinearLayout
+    private var selectedCategory: String? = null
 
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
@@ -51,20 +55,26 @@ class RentalsFragment : Fragment() {
         rentalsRecyclerView = view.findViewById(R.id.rentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView)
         networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
+        categoryContainer = view.findViewById(R.id.categoryContainer)
         rentalsRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Corrected initialization with both callbacks
         networkChangeReceiver = NetworkChangeReceiver(
-            onNetworkAvailable = {
-                fetchRentals()
-            },
-            onNetworkLost = {
-                showNetworkError()
-            }
+            onNetworkAvailable = { fetchRentals() },
+            onNetworkLost = { showNetworkError() }
         )
 
+        setupCategoryBubbles()
+
         swipeRefreshLayout.setOnRefreshListener {
-            fetchRentals()
+            fetchRentals(selectedCategory)
+        }
+
+        view.findViewById<HorizontalScrollView>(R.id.categoryScrollView).setOnTouchListener { v, event ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            when (event.action) {
+                MotionEvent.ACTION_UP -> v.parent.requestDisallowInterceptTouchEvent(false)
+            }
+            v.onTouchEvent(event)
         }
 
         fetchRentals()
@@ -80,7 +90,29 @@ class RentalsFragment : Fragment() {
         requireContext().unregisterReceiver(networkChangeReceiver)
     }
 
-    private fun fetchRentals() {
+    override fun onResume() {
+        super.onResume()
+        fetchRentals()
+    }
+
+    private fun setupCategoryBubbles() {
+        val categories = arrayOf("House", "Apartment", "Studio", "Condo", "Duplex", "Hostel", "Other")
+        categoryContainer.removeAllViews()
+
+        for (category in categories) {
+            val categoryView = LayoutInflater.from(context).inflate(R.layout.category_bubble, categoryContainer, false)
+            val categoryTextView = categoryView.findViewById<TextView>(R.id.categoryTextView)
+            categoryTextView.text = category
+            categoryView.setOnClickListener {
+                selectedCategory = category
+                fetchRentals(category)
+                Toast.makeText(context, "Searching for rentals in $category...", Toast.LENGTH_SHORT).show()
+            }
+            categoryContainer.addView(categoryView)
+        }
+    }
+
+    private fun fetchRentals(category: String? = null) {
         if (!NetworkUtils.isInternetAvailable(requireContext())) {
             showNetworkError()
             return
@@ -94,11 +126,18 @@ class RentalsFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // NOTE: The backend does not currently support filtering rentals by category.
+                // This will fetch all rentals and then filter them on the client-side.
+                // For a production app, you would add a query parameter to the backend API call.
                 val response = ApiClient.apiService.getRentals()
                 withContext(Dispatchers.Main) {
                     swipeRefreshLayout.isRefreshing = false
                     if (response.isSuccessful) {
-                        val rentals = response.body() ?: emptyList()
+                        var rentals = response.body() ?: emptyList()
+                        if (category != null) {
+                            rentals = rentals.filter { it.propertyType.equals(category, ignoreCase = true) }
+                        }
+
                         val currentUserId = sessionManager.fetchAuthToken()
                         rentalAdapter = RentalAdapter(rentals, currentUserId)
                         rentalsRecyclerView.adapter = rentalAdapter
