@@ -41,13 +41,23 @@ class RentalAdapter(private val rentalList: List<Rental>, private val currentUse
     override fun onBindViewHolder(holder: RentalViewHolder, position: Int) {
         val rental = rentalList[position]
 
+        // --- THIS IS THE CORRECTED PART ---
+        // Dynamically set the button text based on landlord type
+        val landlordTypeString = rental.landlordType ?: ""
+        val buttonText = when {
+            landlordTypeString.contains("Landlord", ignoreCase = true) -> "Message Landlord"
+            landlordTypeString.contains("Agent", ignoreCase = true) -> "Message Agent"
+            else -> "Message Contact" // Fallback option
+        }
+        holder.messageSellerButton.text = buttonText
+
         // Hide message button if the rental belongs to the current user
         if (rental.userId == currentUserId) {
             holder.messageSellerButton.visibility = View.GONE
         } else {
             holder.messageSellerButton.visibility = View.VISIBLE
             holder.messageSellerButton.setOnClickListener {
-                Toast.makeText(holder.itemView.context, "Messaging ${rental.landlordName}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(holder.itemView.context, "Opening chat with ${rental.landlordName}", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -56,7 +66,7 @@ class RentalAdapter(private val rentalList: List<Rental>, private val currentUse
         holder.priceTextView.text = "UGX ${rental.monthlyRent ?: 0} / month"
         holder.locationTextView.text = "${rental.city}, ${rental.district}"
         holder.roomsTextView.text = "${rental.rooms ?: 0} Rooms"
-        holder.landlordNameTextView.text = "${rental.landlordName} (${rental.landlordType})"
+        holder.landlordNameTextView.text = "${rental.landlordName} ($landlordTypeString)"
         holder.landlordPhoneTextView.text = rental.landlordPhone
 
         // Load Image

@@ -71,8 +71,6 @@
                     android:textColor="@color/primary_color_accent"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:maxLines="1"
-                    android:ellipsize="end"
                     tools:text="UGX 500,000 / month"/>
 
                 <TextView
@@ -165,7 +163,7 @@
             android:drawableTint="@color/black"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:text="Message Seller"
+            android:text="Message Landlord/Agent"
             android:textColor="@color/black"
             android:textSize="10sp"
             app:cornerRadius="5dp" />
