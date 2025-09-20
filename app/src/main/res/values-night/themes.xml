@@ -6,6 +6,7 @@
         <item name="colorOnPrimary">@color/instagram_white</item>
         <item name="colorSecondary">@color/instagram_gray_medium</item>
         <item name="colorOnSecondary">@color/instagram_white</item>
+        <item name="primary_color_accent">@color/primary_color_accent</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/instagram_black</item>
         <item name="android:navigationBarColor">@color/instagram_black</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
