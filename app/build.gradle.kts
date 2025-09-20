@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-parcelize")
+    id("kotlin-parcelize") // Add this line
 }
 
 android {
@@ -17,7 +17,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnit4"
     }
-
 
     buildTypes {
         release {
@@ -47,6 +46,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    implementation("com.google.android.material:material:1.12.0")
+
     // Added to support fragments and activityViewModels
     implementation("androidx.fragment:fragment-ktx:1.6.2")
 
@@ -61,7 +62,6 @@ dependencies {
     // Add this line for Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
-    // The SwipeRefreshLayout is included in the material dependency above,
-    // so this separate line is not needed and was causing the conflict.
-    // implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0") // REMOVE THIS LINE
+    // New dependency for pull-to-refresh
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }
