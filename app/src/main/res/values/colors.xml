@@ -8,9 +8,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="background_dark">#212121</color>
-    <color name="text_light_gray">#EEEEEE</color>
-    <color name="form_background_dark">#424242</color>
-    <color name="primary_color_accent">#03DAC6</color>
-    <color name="category_bubble_background">#FFFFFF</color>
+    <color name="background_light">#F8F9FA</color>
+    <color name="text_dark">#212121</color>
+    <color name="form_background_light">#FFFFFF</color>
+    <color name="primary_color_accent">#075E54</color>
+    <color name="secondary_color_light">#ECE5DD</color>
+    <color name="chat_sent_background">#DCF8C6</color>
+    <color name="chat_received_background">#FFFFFF</color>
 </resources>

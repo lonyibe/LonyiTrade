@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_dark">#212121</color>
+    <color name="text_light_gray">#EEEEEE</color>
+    <color name="form_background_dark">#424242</color>
+    <color name="primary_color_accent">#03DAC6</color>
+</resources>

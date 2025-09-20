@@ -12,7 +12,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:src="@drawable/ic_no_internet"
-        app:tint="@color/text_light_gray"
+        app:tint="?attr/colorOnPrimary"
         android:contentDescription="No internet connection icon" />
 
     <TextView
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="No Internet Connection"
-        android:textColor="@color/text_light_gray"
+        android:textColor="?attr/colorOnPrimary"
         android:textSize="24sp"
         android:textStyle="bold" />
 
@@ -30,6 +30,6 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="Please check your network settings and try again."
-        android:textColor="@color/text_light_gray"
+        android:textColor="?attr/colorOnPrimary"
         android:textSize="16sp" />
 </LinearLayout>
