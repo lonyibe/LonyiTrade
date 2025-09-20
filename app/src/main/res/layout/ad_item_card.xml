@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    app:cardBackgroundColor="@color/form_background_dark"
+    app:cardBackgroundColor="?attr/colorPrimary"
     app:cardCornerRadius="8dp"
     app:cardElevation="3dp">
 
@@ -51,7 +51,7 @@
                     android:paddingTop="4dp"
                     android:paddingEnd="8dp"
                     android:paddingBottom="4dp"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSecondary"
                     android:textSize="8sp"
                     android:textStyle="bold"
                     tools:text="For Sale" />
@@ -72,7 +72,7 @@
                 android:layout_marginBottom="3dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/primary_color_accent"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="Ad Title Here" />
@@ -82,7 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
-                android:textColor="@color/text_light_gray"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="10sp"
                 tools:text="Category: Electronics &amp; Gadgets"/>
 
@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:textColor="@color/text_light_gray"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="10sp"
                 tools:text="This is a short description of the item being sold or bought." />
 
@@ -107,7 +107,7 @@
                     android:id="@+id/adPriceTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/primary_color_accent"
+                    android:textColor="?attr/colorSecondary"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     tools:text="UGX 250,000" />
@@ -117,7 +117,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="9sp"
                     tools:text="Negotiable" />
 
@@ -130,7 +130,7 @@
                     android:id="@+id/adConditionTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="9sp"
                     tools:text="Condition: Used" />
             </LinearLayout>
@@ -140,7 +140,7 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:background="#424242" />
+                android:background="?attr/colorOnPrimary"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -153,7 +153,7 @@
                     android:layout_height="12dp"
                     android:contentDescription="Location Icon"
                     android:src="@drawable/ic_place"
-                    app:tint="@color/text_light_gray" />
+                    app:tint="?attr/colorOnPrimary" />
 
                 <TextView
                     android:id="@+id/adLocationTextView"
@@ -161,7 +161,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:layout_weight="1"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="9sp"
                     tools:text="Arua" />
 
@@ -170,14 +170,14 @@
                     android:layout_height="12dp"
                     android:contentDescription="Phone Icon"
                     android:src="@drawable/ic_phone"
-                    app:tint="@color/text_light_gray" />
+                    app:tint="?attr/colorOnPrimary" />
 
                 <TextView
                     android:id="@+id/adPhoneNumberTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="9sp"
                     tools:text="077-XXX-XXXX" />
             </LinearLayout>
@@ -187,19 +187,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="@color/primary_color_accent"
+                android:backgroundTint="?attr/colorSecondary"
                 android:drawableStart="@drawable/ic_mail"
-                android:drawableTint="@color/black"
+                android:drawableTint="?attr/colorOnSecondary"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="Message Seller"
-                android:textColor="@color/black"
+                android:textColor="?attr/colorOnSecondary"
                 android:textSize="10sp"
                 app:cornerRadius="5dp" />
 
         </LinearLayout>
 
-        <!-- Edit/Delete Layout for MyAdsFragment -->
         <LinearLayout
             android:id="@+id/editDeleteLayout"
             android:layout_width="match_parent"
@@ -217,9 +216,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/primary_color_accent"
+                android:backgroundTint="?attr/colorSecondary"
                 android:text="Edit"
-                android:textColor="@color/black"
+                android:textColor="?attr/colorOnSecondary"
                 android:textSize="10sp"
                 app:cornerRadius="5dp" />
 
@@ -229,9 +228,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:layout_weight="1"
-                android:backgroundTint="#D32F2F"
+                android:backgroundTint="@color/error_red"
                 android:text="Delete"
-                android:textColor="@color/black"
+                android:textColor="?attr/colorOnSecondary"
                 android:textSize="10sp"
                 app:cornerRadius="5dp" />
         </LinearLayout>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     tools:context=".EditAdActivity">
 
     <LinearLayout
@@ -19,7 +19,7 @@
             android:text="Edit Your Ad"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/text_light_gray"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
 
@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp">
             <LinearLayout
@@ -42,7 +42,7 @@
                     android:text="Ad Details"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -61,8 +61,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Title"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -82,8 +82,8 @@
                         android:gravity="top"
                         android:hint="Description"
                         android:inputType="textMultiLine"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:text="Category"
                     android:textSize="14sp"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="8dp"/>
                 <Spinner
@@ -108,7 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp">
             <LinearLayout
@@ -122,7 +122,7 @@
                     android:text="Price Details"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -139,8 +139,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Price"
                         android:inputType="numberDecimal"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <RadioGroup
@@ -154,24 +154,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Fixed"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary"/>
                     <RadioButton
                         android:id="@+id/editPriceTypeNegotiable"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="Negotiable"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent" />
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary" />
                     <RadioButton
                         android:id="@+id/editPriceTypeFree"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="Free"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent" />
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary" />
                 </RadioGroup>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -180,7 +180,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp">
             <LinearLayout
@@ -195,7 +195,7 @@
                     android:text="Condition"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="8dp" />
 
                 <RadioGroup
@@ -208,24 +208,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="New"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary"/>
                     <RadioButton
                         android:id="@+id/editConditionUsed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="Used"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent" />
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary" />
                     <RadioButton
                         android:id="@+id/editConditionRefurbished"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="Refurbished"
-                        android:textColor="@color/text_light_gray"
-                        android:buttonTint="@color/primary_color_accent" />
+                        android:textColor="?attr/colorOnPrimary"
+                        android:buttonTint="?attr/colorSecondary" />
                 </RadioGroup>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -234,7 +234,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/form_background_dark"
+            app:cardBackgroundColor="?attr/colorSecondary"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp">
             <LinearLayout
@@ -248,7 +248,7 @@
                     android:text="Location"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:layout_marginBottom="16dp" />
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -265,8 +265,8 @@
                         android:layout_height="wrap_content"
                         android:hint="District"
                         android:inputType="text"
-                        android:textColor="@color/text_light_gray"
-                        android:textColorHint="@color/text_light_gray"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textColorHint="?attr/colorOnPrimary"/>
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -281,8 +281,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Update Ad"
-                android:textColor="@color/black"
-                android:backgroundTint="@color/primary_color_accent"
+                android:textColor="?attr/colorOnSecondary"
+                android:backgroundTint="?attr/colorSecondary"
                 android:padding="16dp"
                 app:cornerRadius="12dp" />
 
@@ -292,7 +292,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="gone"
-                android:indeterminateTint="@color/black"/>
+                android:indeterminateTint="?attr/colorOnSecondary"/>
         </FrameLayout>
 
     </LinearLayout>

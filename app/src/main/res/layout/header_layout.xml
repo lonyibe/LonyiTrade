@@ -20,25 +20,19 @@
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/add_listing_icon"
                 android:background="?attr/colorPrimary"
-                app:tabIndicatorColor="@color/primary_color_accent"
+                app:tabIndicatorColor="?attr/colorSecondary"
                 app:tabIndicatorHeight="2dp"
                 app:tabMode="fixed"
                 app:tabGravity="fill"
                 app:tabTextColor="?attr/colorOnPrimary">
 
                 <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Top" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Latest" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:text="Trending" />
 
             </com.google.android.material.tabs.TabLayout>
@@ -52,7 +46,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_search"
-                app:tint="@color/primary_color_accent" />
+                app:tint="?attr/colorSecondary" />
 
             <ImageView
                 android:id="@+id/add_listing_icon"
@@ -62,7 +56,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/ic_add"
-                app:tint="@color/primary_color_accent" />
+                app:tint="?attr/colorSecondary" />
 
         </RelativeLayout>
 

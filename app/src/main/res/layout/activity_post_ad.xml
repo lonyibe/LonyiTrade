@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     tools:context=".PostAdActivity">
 
     <LinearLayout
@@ -19,14 +19,14 @@
             android:text="Post a New Ad"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="@color/text_light_gray"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginBottom="16dp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark">
+            app:boxBackgroundColor="?attr/colorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/titleEditText"
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Title"
                 android:inputType="text"
-                android:textColor="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark">
+            app:boxBackgroundColor="?attr/colorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/descriptionEditText"
@@ -51,7 +51,7 @@
                 android:gravity="top"
                 android:hint="Description"
                 android:inputType="textMultiLine"
-                android:textColor="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -59,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark">
+            app:boxBackgroundColor="?attr/colorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/priceEditText"
@@ -67,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Price"
                 android:inputType="numberDecimal"
-                android:textColor="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Price Type"
-            android:textColor="@color/text_light_gray" />
+            android:textColor="?attr/colorOnPrimary" />
 
         <RadioGroup
             android:id="@+id/priceTypeRadioGroup"
@@ -87,8 +87,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Fixed"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent"
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary"
                 android:checked="true" />
             <RadioButton
                 android:id="@+id/priceTypeNegotiable"
@@ -96,16 +96,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Negotiable"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent" />
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary" />
             <RadioButton
                 android:id="@+id/priceTypeFree"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Free"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent" />
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary" />
         </RadioGroup>
 
         <TextView
@@ -113,7 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Upload up to 4 Photos"
-            android:textColor="@color/text_light_gray" />
+            android:textColor="?attr/colorOnPrimary" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -168,14 +168,14 @@
             android:text="Contact Info"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="@color/text_light_gray" />
+            android:textColor="?attr/colorOnPrimary" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark">
+            app:boxBackgroundColor="?attr/colorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/contactNameEditText"
@@ -183,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Full Name"
                 android:inputType="textPersonName"
-                android:textColor="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -191,7 +191,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.Material3.TextInputLayout.FilledBox"
-            app:boxBackgroundColor="@color/form_background_dark">
+            app:boxBackgroundColor="?attr/colorSecondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/contactPhoneEditText"
@@ -199,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Phone Number"
                 android:inputType="phone"
-                android:textColor="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
@@ -213,7 +213,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Show on WhatsApp?"
-                android:textColor="@color/text_light_gray" />
+                android:textColor="?attr/colorOnPrimary" />
             <Switch
                 android:id="@+id/whatsappSwitch"
                 android:layout_width="wrap_content"
@@ -225,7 +225,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Condition"
-            android:textColor="@color/text_light_gray" />
+            android:textColor="?attr/colorOnPrimary" />
 
         <RadioGroup
             android:id="@+id/conditionRadioGroup"
@@ -237,8 +237,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="New"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent"
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary"
                 android:checked="true" />
             <RadioButton
                 android:id="@+id/conditionUsed"
@@ -246,16 +246,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Used"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent" />
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary" />
             <RadioButton
                 android:id="@+id/conditionRefurbished"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Refurbished"
-                android:textColor="@color/text_light_gray"
-                android:buttonTint="@color/primary_color_accent" />
+                android:textColor="?attr/colorOnPrimary"
+                android:buttonTint="?attr/colorSecondary" />
         </RadioGroup>
 
         <Button
@@ -263,8 +263,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:backgroundTint="@color/primary_color_accent"
+            android:backgroundTint="?attr/colorSecondary"
             android:text="Post Ad"
-            android:textColor="@color/black" />
+            android:textColor="?attr/colorOnSecondary" />
     </LinearLayout>
 </ScrollView>

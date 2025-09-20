@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardBackgroundColor="@color/form_background_dark"
+    app:cardBackgroundColor="?attr/colorSecondary"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp">
 
@@ -52,7 +52,7 @@
                     android:paddingEnd="10dp"
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSecondary"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     tools:text="Apartment"/>
@@ -68,7 +68,7 @@
                     android:id="@+id/rentalPriceTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/primary_color_accent"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     tools:text="UGX 500,000 / month"/>
@@ -78,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="14sp"
                     android:maxLines="1"
                     android:ellipsize="end"
@@ -89,14 +89,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@color/text_light_gray"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="12sp"
                     tools:text="3 Rooms"/>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#424242"
+                    android:background="?attr/colorPrimary"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"/>
 
@@ -110,7 +110,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_person"
-                        app:tint="@color/text_light_gray"
+                        app:tint="?attr/colorOnPrimary"
                         android:contentDescription="Landlord Icon"/>
 
                     <TextView
@@ -118,7 +118,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:textColor="@color/text_light_gray"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="12sp"
                         tools:text="John Doe (Landlord)"/>
 
@@ -135,7 +135,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_phone"
-                        app:tint="@color/text_light_gray"
+                        app:tint="?attr/colorOnPrimary"
                         android:contentDescription="Phone Icon"/>
 
                     <TextView
@@ -143,7 +143,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:textColor="@color/text_light_gray"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="12sp"
                         tools:text="077-XXX-XXXX"/>
                 </LinearLayout>
@@ -158,13 +158,13 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/primary_color_accent"
+            android:backgroundTint="?attr/colorSecondary"
             android:drawableStart="@drawable/ic_mail"
-            android:drawableTint="@color/black"
+            android:drawableTint="?attr/colorOnSecondary"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:text="Message Landlord/Agent"
-            android:textColor="@color/black"
+            android:textColor="?attr/colorOnSecondary"
             android:textSize="10sp"
             app:cornerRadius="5dp" />
 
@@ -183,7 +183,8 @@
                 android:layout_weight="1"
                 android:text="Edit"
                 android:layout_marginEnd="4dp"
-                android:backgroundTint="@color/primary_color_accent"/>
+                android:backgroundTint="?attr/colorSecondary"
+                android:textColor="?attr/colorOnSecondary"/>
 
             <Button
                 android:id="@+id/deleteButton"
@@ -192,7 +193,8 @@
                 android:layout_weight="1"
                 android:text="Delete"
                 android:layout_marginStart="4dp"
-                android:backgroundTint="#D32F2F"/>
+                android:backgroundTint="@color/error_red"
+                android:textColor="?attr/colorOnSecondary"/>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

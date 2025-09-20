@@ -50,12 +50,10 @@ class HomeFragment : Fragment() {
         val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (selectedCategory != null) {
-                    fetchAllAdverts(null)
-                    selectedCategory = null
-                    Toast.makeText(requireContext(), "Showing all ads", Toast.LENGTH_SHORT).show()
+                    resetToHomePage()
                 } else {
                     isEnabled = false
-                    requireActivity().onBackPressed()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
         }
@@ -185,6 +183,14 @@ class HomeFragment : Fragment() {
                     showNetworkError()
                 }
             }
+        }
+    }
+
+    fun resetToHomePage() {
+        if (selectedCategory != null) {
+            selectedCategory = null
+            fetchAllAdverts(sortBy = currentSortBy)
+            Toast.makeText(requireContext(), "Showing all ads", Toast.LENGTH_SHORT).show()
         }
     }
 

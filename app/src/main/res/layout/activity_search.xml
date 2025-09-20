@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
+    android:background="?attr/colorPrimary"
     android:fitsSystemWindows="true"
     tools:context=".SearchActivity">
 
@@ -31,7 +31,7 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_arrow_back"
                 android:visibility="gone"
-                app:tint="@color/primary_color_accent"
+                app:tint="?attr/colorSecondary"
                 tools:visibility="visible" />
 
             <TextView
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="Search Ads"
-                android:textColor="@color/text_light_gray"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -56,7 +56,7 @@
                 android:padding="8dp"
                 android:src="@drawable/ic_search"
                 android:visibility="gone"
-                app:tint="@color/primary_color_accent" />
+                app:tint="?attr/colorSecondary" />
         </RelativeLayout>
 
         <LinearLayout
@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="@color/form_background_dark"
+                app:cardBackgroundColor="?attr/colorSecondary"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 tools:visibility="visible">
@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
                         android:text="I want to..."
-                        android:textColor="@color/text_light_gray"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
 
@@ -104,18 +104,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="16dp"
-                            android:buttonTint="@color/primary_color_accent"
+                            android:buttonTint="?attr/colorSecondary"
                             android:checked="true"
                             android:text="Buy"
-                            android:textColor="@color/text_light_gray" />
+                            android:textColor="?attr/colorOnPrimary" />
 
                         <RadioButton
                             android:id="@+id/adSearchSell"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:buttonTint="@color/primary_color_accent"
+                            android:buttonTint="?attr/colorSecondary"
                             android:text="Sell"
-                            android:textColor="@color/text_light_gray" />
+                            android:textColor="?attr/colorOnPrimary" />
                     </RadioGroup>
 
                     <TextView
@@ -124,7 +124,7 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="4dp"
                         android:text="Category"
-                        android:textColor="@color/text_light_gray"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="12sp" />
 
                     <Spinner
@@ -141,7 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="@color/form_background_dark"
+                app:cardBackgroundColor="?attr/colorSecondary"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp">
 
@@ -166,8 +166,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Search by keyword..."
-                            android:textColor="@color/text_light_gray"
-                            android:textColorHint="@color/text_light_gray" />
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textColorHint="?attr/colorOnPrimary" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -185,8 +185,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="District"
-                            android:textColor="@color/text_light_gray"
-                            android:textColorHint="@color/text_light_gray" />
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textColorHint="?attr/colorOnPrimary" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -205,8 +205,8 @@
                             android:layout_height="wrap_content"
                             android:hint="Min Price"
                             android:inputType="numberDecimal"
-                            android:textColor="@color/text_light_gray"
-                            android:textColorHint="@color/text_light_gray" />
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textColorHint="?attr/colorOnPrimary" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -225,8 +225,8 @@
                             android:layout_height="wrap_content"
                             android:hint="Max Price"
                             android:inputType="numberDecimal"
-                            android:textColor="@color/text_light_gray"
-                            android:textColorHint="@color/text_light_gray" />
+                            android:textColor="?attr/colorOnPrimary"
+                            android:textColorHint="?attr/colorOnPrimary" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -239,10 +239,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:backgroundTint="@color/primary_color_accent"
+            android:backgroundTint="?attr/colorSecondary"
             android:padding="12dp"
             android:text="Search"
-            android:textColor="@color/black"
+            android:textColor="?attr/colorOnSecondary"
             app:cornerRadius="12dp" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -262,7 +262,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:text="No results found"
-            android:textColor="@color/text_light_gray"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="18sp"
             android:visibility="gone"
             tools:visibility="visible" />

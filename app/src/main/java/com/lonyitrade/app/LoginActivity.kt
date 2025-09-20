@@ -29,7 +29,7 @@ class LoginActivity : AppCompatActivity() {
 
         sessionManager = SessionManager(this)
 
-        val phoneNumberEditText = findViewById<EditText>(R.id.emailEditText)
+        val phoneNumberEditText = findViewById<EditText>(R.id.phoneNumberEditText) // Updated ID
         val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
         loginProgressBar = findViewById(R.id.loginProgressBar)

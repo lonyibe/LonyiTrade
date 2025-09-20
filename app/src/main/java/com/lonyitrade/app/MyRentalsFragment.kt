@@ -47,7 +47,7 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
         super.onViewCreated(view, savedInstanceState)
 
         sessionManager = SessionManager(requireContext())
-        myRentalsRecyclerView = view.findViewById(R.id.myRentalsRecyclerView)
+        myRentalsRecyclerView = view.findViewById(R.id.rentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView)
         networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         myRentalsRecyclerView.layoutManager = LinearLayoutManager(context)
