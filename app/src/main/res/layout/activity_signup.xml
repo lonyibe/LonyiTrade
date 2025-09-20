@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
+    android:background="@color/background_dark"
     tools:context=".SignupActivity">
 
     <LinearLayout
@@ -21,7 +21,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
-            android:textColor="?attr/colorOnPrimary"
+            android:textColor="@color/text_light_gray"
             android:layout_marginBottom="16dp"/>
 
         <ImageView
@@ -41,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Upload Photo"
-            android:textColor="?attr/colorOnSecondary"
-            android:backgroundTint="?attr/colorSecondary"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/primary_color_accent"
             android:layout_marginBottom="32dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -62,9 +62,9 @@
                 android:inputType="textPersonName"
                 android:paddingTop="20dp"
                 android:drawableStart="@drawable/ic_person"
-                android:drawableTint="?attr/colorOnPrimary"
+                android:drawableTint="@color/text_light_gray"
                 android:drawablePadding="12dp"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="@color/text_light_gray" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -85,9 +85,9 @@
                 android:inputType="phone"
                 android:paddingTop="20dp"
                 android:drawableStart="@drawable/ic_phone"
-                android:drawableTint="?attr/colorOnPrimary"
+                android:drawableTint="@color/text_light_gray"
                 android:drawablePadding="12dp"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="@color/text_light_gray" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -108,9 +108,9 @@
                 android:inputType="textPersonName"
                 android:paddingTop="20dp"
                 android:drawableStart="@drawable/ic_place"
-                android:drawableTint="?attr/colorOnPrimary"
+                android:drawableTint="@color/text_light_gray"
                 android:drawablePadding="12dp"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="@color/text_light_gray" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -123,7 +123,7 @@
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="?attr/colorOnPrimary">
+            app:passwordToggleTint="@color/text_light_gray">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEditText"
@@ -133,9 +133,9 @@
                 android:inputType="textPassword"
                 android:paddingTop="20dp"
                 android:drawableStart="@drawable/ic_lock"
-                android:drawableTint="?attr/colorOnPrimary"
+                android:drawableTint="@color/text_light_gray"
                 android:drawablePadding="12dp"
-                android:textColor="?attr/colorOnPrimary" />
+                android:textColor="@color/text_light_gray" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <FrameLayout
@@ -148,8 +148,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Sign Up"
-                android:textColor="?attr/colorOnSecondary"
-                android:backgroundTint="?attr/colorSecondary"/>
+                android:textColor="@color/black"
+                android:backgroundTint="@color/primary_color_accent"/>
 
             <ProgressBar
                 android:id="@+id/signupProgressBar"
@@ -157,7 +157,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:visibility="gone"
-                android:indeterminateTint="?attr/colorOnSecondary"/>
+                android:indeterminateTint="@color/black"/>
         </FrameLayout>
 
         <TextView
@@ -169,7 +169,7 @@
             android:layout_gravity="center_horizontal"
             android:clickable="true"
             android:focusable="true"
-            android:textColor="?attr/colorSecondary"/>
+            android:textColor="@color/primary_color_accent"/>
 
     </LinearLayout>
 </RelativeLayout>

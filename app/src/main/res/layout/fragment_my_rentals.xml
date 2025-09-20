@@ -4,53 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorPrimary"
-    tools:context=".RentalsFragment">
-
-    <HorizontalScrollView
-        android:id="@+id/categoryScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:background="?attr/colorPrimary">
-
-        <LinearLayout
-            android:id="@+id/categoryContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:gravity="center_vertical" />
-    </HorizontalScrollView>
+    android:background="@color/background_dark"
+    tools:context=".MyRentalsFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshLayout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/myRentalsRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rentalsRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="8dp"
-                android:clipToPadding="false"
-                tools:listitem="@layout/rental_item_card"/>
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent"
+            tools:listitem="@layout/rental_item_card" />
 
         <TextView
             android:id="@+id/noRentalsTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No rentals available at the moment."
+            android:text="You have not posted any rentals yet."
             android:textColor="@color/text_light_gray"
             android:textSize="18sp"
             android:layout_gravity="center"
@@ -58,7 +30,6 @@
             tools:visibility="visible"/>
     </FrameLayout>
 
-    <include layout="@layout/network_error_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    <include layout="@layout/network_error_layout" />
+
 </LinearLayout>

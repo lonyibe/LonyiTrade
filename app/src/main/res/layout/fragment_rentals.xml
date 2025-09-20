@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorPrimary"
+    android:background="@color/background_dark"
     tools:context=".RentalsFragment">
 
     <HorizontalScrollView
@@ -14,7 +14,7 @@
         android:scrollbars="none"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:background="?attr/colorPrimary">
+        android:background="@color/background_dark">
 
         <LinearLayout
             android:id="@+id/categoryContainer"

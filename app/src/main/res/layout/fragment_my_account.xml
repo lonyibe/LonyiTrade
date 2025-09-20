@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="?attr/colorPrimary"
+    android:background="@color/background_dark"
     android:gravity="center_horizontal">
 
     <androidx.cardview.widget.CardView
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Full Name"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/text_light_gray"
         android:textSize="22sp"
         android:textStyle="bold"/>
 
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Phone Number"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/text_light_gray"
         android:textSize="16sp"/>
 
     <TextView
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="District"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/text_light_gray"
         android:textSize="16sp"/>
 
     <View
@@ -60,8 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="My Ads"
-        android:backgroundTint="?attr/colorSecondary"
-        android:textColor="?attr/colorOnSecondary"/>
+        android:backgroundTint="@color/form_background_dark"/>
 
     <Button
         android:id="@+id/logoutButton"
@@ -69,7 +68,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Logout"
-        android:backgroundTint="@color/error_red"
-        android:textColor="?attr/colorOnSecondary"/>
+        android:backgroundTint="#D32F2F"/>
 
 </LinearLayout>

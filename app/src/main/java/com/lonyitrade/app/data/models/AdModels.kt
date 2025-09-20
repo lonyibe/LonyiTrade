@@ -21,7 +21,6 @@ data class Ad(
     val photos: List<String>?
 ) : Parcelable
 
-@Parcelize
 data class AdRequest(
     val title: String,
     val description: String,
@@ -31,7 +30,7 @@ data class AdRequest(
     @SerializedName("price_type") val priceType: String,
     val district: String,
     val condition: String
-) : Parcelable
+)
 
 data class Message(
     val id: String,

@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary">
+    android:background="@color/background_dark">
 
     <TextView
         android:id="@+id/messageTextView"
@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Messages Page"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/text_light_gray"
         android:textSize="24sp" />
 
 </FrameLayout>
