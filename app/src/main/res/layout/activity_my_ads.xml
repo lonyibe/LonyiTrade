@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="?attr/colorPrimary"
+    android:fitsSystemWindows="true"
     tools:context=".MyAdsActivity">
 
     <com.google.android.material.appbar.AppBarLayout

@@ -28,8 +28,8 @@
             android:layout_gravity="center"
             android:visibility="gone"
             tools:visibility="visible"/>
+
+        <include layout="@layout/network_error_layout" />
+
     </FrameLayout>
-
-    <include layout="@layout/network_error_layout" />
-
 </LinearLayout>
