@@ -76,7 +76,6 @@ class MainAppActivity : AppCompatActivity() {
             true
         }
 
-        // --- THIS IS THE NEW PART ---
         bottomNavigationView.setOnItemReselectedListener { item ->
             if (item.itemId == R.id.nav_home) {
                 val currentFragment = supportFragmentManager.findFragmentByTag("f${viewPager.currentItem}")
@@ -130,7 +129,7 @@ class MainAppActivity : AppCompatActivity() {
         }
 
         backButtonIcon.setOnClickListener {
-            viewPager.currentItem = 0 // Navigate back to the home screen. You can change this behavior if needed.
+            viewPager.currentItem = 0
         }
     }
 
