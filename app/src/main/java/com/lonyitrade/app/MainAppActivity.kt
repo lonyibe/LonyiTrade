@@ -20,6 +20,7 @@ class MainAppActivity : AppCompatActivity() {
     private lateinit var searchIcon: ImageView
     private lateinit var addListingIcon: ImageView
     private lateinit var headerTitleTextView: TextView
+    private lateinit var backButtonIcon: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,7 @@ class MainAppActivity : AppCompatActivity() {
         searchIcon = findViewById(R.id.search_icon)
         addListingIcon = findViewById(R.id.add_listing_icon)
         headerTitleTextView = findViewById(R.id.header_title_text_view)
+        backButtonIcon = findViewById(R.id.back_button_icon)
 
         viewPager.adapter = MainAppPagerAdapter(this)
         viewPager.offscreenPageLimit = 4
@@ -47,13 +49,15 @@ class MainAppActivity : AppCompatActivity() {
                         headerTabLayout.visibility = View.VISIBLE
                         searchIcon.visibility = View.VISIBLE
                         addListingIcon.visibility = if (position == 0) View.VISIBLE else View.GONE
-                        headerTitleTextView.visibility = View.GONE
+                        headerTitleTextView.visibility = View.VISIBLE
+                        backButtonIcon.visibility = View.GONE
                     }
                     else -> { // All other screens
                         headerTabLayout.visibility = View.GONE
                         searchIcon.visibility = View.GONE
                         addListingIcon.visibility = View.GONE
                         headerTitleTextView.visibility = View.VISIBLE
+                        backButtonIcon.visibility = View.VISIBLE
                     }
                 }
             }
@@ -107,7 +111,9 @@ class MainAppActivity : AppCompatActivity() {
             headerTabLayout.visibility = View.VISIBLE
             searchIcon.visibility = View.VISIBLE
             addListingIcon.visibility = View.VISIBLE
-            headerTitleTextView.visibility = View.GONE
+            headerTitleTextView.visibility = View.VISIBLE
+            headerTitleTextView.text = "Home"
+            backButtonIcon.visibility = View.GONE
         }
 
         searchIcon.setOnClickListener {
@@ -121,6 +127,10 @@ class MainAppActivity : AppCompatActivity() {
 
         addListingIcon.setOnClickListener {
             JobOptionsDialogFragment().show(supportFragmentManager, "JobOptionsDialogFragment")
+        }
+
+        backButtonIcon.setOnClickListener {
+            viewPager.currentItem = 0 // Navigate back to the home screen. You can change this behavior if needed.
         }
     }
 

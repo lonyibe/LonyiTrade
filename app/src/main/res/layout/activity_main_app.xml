@@ -10,7 +10,9 @@
 
     <include
         android:id="@+id/header"
-        layout="@layout/header_layout" />
+        layout="@layout/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/main_view_pager"

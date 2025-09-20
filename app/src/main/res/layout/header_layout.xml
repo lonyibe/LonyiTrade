@@ -11,32 +11,35 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="16dp"
+            android:paddingStart="0dp">
 
             <TextView
                 android:id="@+id/header_title_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:visibility="gone"
-                tools:text="Screen Title" />
+                android:text="Screen Title" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/header_tab_layout"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@+id/add_listing_icon"
+                android:layout_weight="1"
                 android:background="?attr/colorPrimary"
                 app:tabIndicatorColor="?attr/colorSecondary"
                 app:tabIndicatorHeight="2dp"
                 app:tabMode="fixed"
                 app:tabGravity="fill"
-                app:tabTextColor="?attr/colorOnPrimary">
+                app:tabTextColor="?attr/colorOnPrimary"
+                app:tabSelectedTextColor="?attr/colorOnSecondary">
 
                 <com.google.android.material.tabs.TabItem
                     android:text="Top" />
@@ -50,27 +53,24 @@
             </com.google.android.material.tabs.TabLayout>
 
             <ImageView
-                android:id="@+id/search_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_search"
-                app:tint="?attr/colorSecondary" />
-
-            <ImageView
                 android:id="@+id/add_listing_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/search_icon"
-                android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/ic_add"
-                app:tint="?attr/colorSecondary" />
+                app:tint="?attr/colorSecondary"
+                android:contentDescription="Add Listing" />
 
-        </RelativeLayout>
+            <ImageView
+                android:id="@+id/search_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/ic_search"
+                app:tint="?attr/colorSecondary"
+                android:contentDescription="Search" />
+
+        </LinearLayout>
 
     </com.google.android.material.appbar.MaterialToolbar>
 
