@@ -57,7 +57,8 @@
                 android:layout_height="wrap_content"
                 android:background="?attr/colorSecondary"
                 app:tabTextColor="?attr/colorOnPrimary"
-                app:tabIndicatorColor="?attr/colorSecondary"
+                app:tabSelectedTextColor="?attr/colorPrimary"
+                app:tabIndicatorColor="?attr/colorPrimary"
                 app:tabGravity="fill"
                 app:tabMode="fixed"/>
         </com.google.android.material.card.MaterialCardView>
