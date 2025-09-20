@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -18,6 +19,7 @@ class MainAppActivity : AppCompatActivity() {
     private lateinit var headerTabLayout: TabLayout
     private lateinit var searchIcon: ImageView
     private lateinit var addListingIcon: ImageView
+    private lateinit var headerTitleTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +30,7 @@ class MainAppActivity : AppCompatActivity() {
         headerTabLayout = findViewById(R.id.header_tab_layout)
         searchIcon = findViewById(R.id.search_icon)
         addListingIcon = findViewById(R.id.add_listing_icon)
+        headerTitleTextView = findViewById(R.id.header_title_text_view)
 
         viewPager.adapter = MainAppPagerAdapter(this)
         viewPager.offscreenPageLimit = 4
@@ -36,17 +39,21 @@ class MainAppActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 bottomNavigationView.menu.getItem(position).isChecked = true
+                val pageTitles = arrayOf("Home", "Rentals", "Post Ad", "Messages", "My Account")
+                headerTitleTextView.text = pageTitles[position]
 
                 when (position) {
                     0, 1 -> { // Home and Rentals Screen
                         headerTabLayout.visibility = View.VISIBLE
                         searchIcon.visibility = View.VISIBLE
                         addListingIcon.visibility = if (position == 0) View.VISIBLE else View.GONE
+                        headerTitleTextView.visibility = View.GONE
                     }
                     else -> { // All other screens
                         headerTabLayout.visibility = View.GONE
                         searchIcon.visibility = View.GONE
                         addListingIcon.visibility = View.GONE
+                        headerTitleTextView.visibility = View.VISIBLE
                     }
                 }
             }
@@ -100,6 +107,7 @@ class MainAppActivity : AppCompatActivity() {
             headerTabLayout.visibility = View.VISIBLE
             searchIcon.visibility = View.VISIBLE
             addListingIcon.visibility = View.VISIBLE
+            headerTitleTextView.visibility = View.GONE
         }
 
         searchIcon.setOnClickListener {
