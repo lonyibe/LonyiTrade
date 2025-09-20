@@ -14,58 +14,25 @@
         android:layout_centerInParent="true"
         android:padding="24dp">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="124dp"
-            android:layout_height="124dp"
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardBackgroundColor="?attr/colorSecondary"
-            app:cardElevation="0dp">
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/logo"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="App Logo"/>
-            </androidx.cardview.widget.CardView>
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LonyiTrade"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:layout_gravity="center_horizontal"
-            android:textColor="?attr/colorOnPrimary"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Login to your account"
-            android:textSize="18sp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
             android:layout_marginBottom="32dp"
-            android:textColor="?attr/colorOnPrimary"/>
+            android:src="@drawable/logo"
+            android:scaleType="centerCrop"
+            android:contentDescription="App Logo"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.App.TextInputLayout"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:hintTextColor="?attr/colorOnSecondary"
+            app:boxBackgroundColor="@color/instagram_gray_medium">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phoneNumberEditText"
@@ -85,12 +52,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.App.TextInputLayout"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="?attr/colorOnPrimary">
+            app:passwordToggleTint="?attr/colorOnPrimary"
+            app:hintTextColor="?attr/colorOnSecondary"
+            app:boxBackgroundColor="@color/instagram_gray_medium">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEditText"
@@ -136,7 +105,7 @@
             android:layout_gravity="center_horizontal"
             android:clickable="true"
             android:focusable="true"
-            android:textColor="?attr/colorSecondary"/>
+            android:textColor="?attr/colorOnPrimary"/>
 
     </LinearLayout>
 </RelativeLayout>

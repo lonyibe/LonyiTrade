@@ -41,18 +41,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="Upload Photo"
-            android:textColor="?attr/colorOnSecondary"
-            android:backgroundTint="?attr/colorSecondary"
+            android:textColor="?attr/colorOnPrimary"
+            android:backgroundTint="?attr/colorSecondaryVariant"
             android:layout_marginBottom="32dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/Widget.App.TextInputLayout"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:hintTextColor="?attr/colorOnSecondary"
+            app:boxBackgroundColor="@color/instagram_gray_medium">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/nameEditText"
@@ -72,10 +74,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.App.TextInputLayout"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:hintTextColor="?attr/colorOnSecondary"
+            app:boxBackgroundColor="@color/instagram_gray_medium">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/phoneNumberEditText"
@@ -95,10 +99,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.App.TextInputLayout"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp">
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:hintTextColor="?attr/colorOnSecondary"
+            app:boxBackgroundColor="@color/instagram_gray_medium">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/districtEditText"
@@ -118,12 +124,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             style="@style/Widget.App.TextInputLayout"
-            app:boxCornerRadiusBottomEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
             app:passwordToggleEnabled="true"
-            app:passwordToggleTint="?attr/colorOnPrimary">
+            app:passwordToggleTint="?attr/colorOnPrimary"
+            app:hintTextColor="?attr/colorOnSecondary"
+            app:boxBackgroundColor="@color/instagram_gray_medium">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordEditText"
@@ -169,7 +177,7 @@
             android:layout_gravity="center_horizontal"
             android:clickable="true"
             android:focusable="true"
-            android:textColor="?attr/colorSecondary"/>
+            android:textColor="?attr/colorOnPrimary"/>
 
     </LinearLayout>
 </RelativeLayout>

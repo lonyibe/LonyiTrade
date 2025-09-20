@@ -7,7 +7,7 @@
     android:layout_margin="5dp"
     app:cardBackgroundColor="?attr/colorPrimary"
     app:cardCornerRadius="8dp"
-    app:cardElevation="3dp">
+    app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
                 android:id="@+id/adImageContainer"
                 android:layout_width="match_parent"
                 android:layout_height="134dp"
-                android:background="@color/black">
+                android:background="?attr/colorPrimary">
 
                 <ImageView
                     android:id="@+id/adPhotoImageView"
@@ -37,7 +37,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:indeterminateTint="@color/primary_color_accent"
+                    android:indeterminateTint="?attr/colorSecondary"
                     android:visibility="gone" />
 
                 <TextView
@@ -46,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|end"
                     android:layout_margin="8dp"
-                    android:background="@drawable/rounded_profile_pic"
+                    android:background="@drawable/rounded_bubble_background"
                     android:paddingStart="8dp"
                     android:paddingTop="4dp"
                     android:paddingEnd="8dp"
@@ -72,7 +72,7 @@
                 android:layout_marginBottom="3dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="Ad Title Here" />
@@ -107,7 +107,7 @@
                     android:id="@+id/adPriceTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="?attr/colorSecondary"
+                    android:textColor="?attr/colorOnPrimary"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     tools:text="UGX 250,000" />
@@ -140,7 +140,7 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:background="?attr/colorOnPrimary"/>
+                android:background="?attr/colorSecondary"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -187,7 +187,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:backgroundTint="?attr/colorSecondary"
+                android:backgroundTint="?attr/primary_color_accent"
                 android:drawableStart="@drawable/ic_mail"
                 android:drawableTint="?attr/colorOnSecondary"
                 android:paddingStart="10dp"
@@ -216,7 +216,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
                 android:layout_weight="1"
-                android:backgroundTint="?attr/colorSecondary"
+                android:backgroundTint="?attr/primary_color_accent"
                 android:text="Edit"
                 android:textColor="?attr/colorOnSecondary"
                 android:textSize="10sp"

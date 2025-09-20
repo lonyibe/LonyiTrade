@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="instagram_black">#000000</color>
+    <color name="instagram_white">#FFFFFF</color>
+    <color name="instagram_gray_dark">#121212</color>
+    <color name="instagram_gray_medium">#262626</color>
+    <color name="instagram_gray_light">#363636</color>
+    <color name="instagram_blue">#3897f0</color>
+    <color name="instagram_red">#ED4956</color>
 
-    <color name="dark_background">#212121</color>
-    <color name="dark_form_background">#424242</color>
-    <color name="dark_text_primary">#EEEEEE</color>
+    <color name="dark_background">@color/instagram_black</color>
+    <color name="dark_form_background">@color/instagram_gray_dark</color>
+    <color name="dark_text_primary">@color/instagram_white</color>
     <color name="dark_text_secondary">#9E9E9E</color>
-    <color name="dark_button_background">#424242</color>
-    <color name="dark_button_text">#EEEEEE</color>
+    <color name="dark_button_background">@color/instagram_gray_medium</color>
+    <color name="dark_button_text">@color/instagram_white</color>
 
     <color name="light_background">#F5F5F5</color>
     <color name="light_form_background">#FFFFFF</color>
@@ -23,11 +23,11 @@
     <color name="light_button_text">#212121</color>
     <color name="light_category_bubble_background">#E0E0E0</color>
 
-    <color name="primary_color_accent">#03DAC6</color>
-    <color name="error_red">#D32F2F</color>
-    <color name="color_on_primary">#000000</color>
+    <color name="primary_color_accent">@color/instagram_blue</color>
+    <color name="error_red">@color/instagram_red</color>
+    <color name="color_on_primary">@color/instagram_white</color>
 
-    <color name="form_background_dark">#424242</color>
-    <color name="text_light_gray">#9E9E9E</color>
-    <color name="background_dark">#212121</color>
+    <color name="form_background_dark">@color/instagram_gray_medium</color>
+    <color name="text_light_gray">@color/dark_text_secondary</color>
+    <color name="background_dark">@color/instagram_black</color>
 </resources>

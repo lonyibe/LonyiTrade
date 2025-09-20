@@ -20,11 +20,11 @@
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/add_listing_icon"
                 android:background="?attr/colorPrimary"
-                app:tabIndicatorColor="?attr/colorSecondary"
-                app:tabIndicatorHeight="2dp"
+                app:tabIndicatorHeight="0dp"
                 app:tabMode="fixed"
                 app:tabGravity="fill"
-                app:tabTextColor="?attr/colorOnPrimary">
+                app:tabTextColor="?attr/colorOnPrimary"
+                app:tabSelectedTextColor="?attr/colorOnPrimary">
 
                 <com.google.android.material.tabs.TabItem
                     android:text="Top" />
@@ -46,7 +46,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_search"
-                app:tint="?attr/colorSecondary" />
+                app:tint="?attr/colorOnPrimary" />
 
             <ImageView
                 android:id="@+id/add_listing_icon"
@@ -56,7 +56,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/ic_add"
-                app:tint="?attr/colorSecondary" />
+                app:tint="?attr/colorOnPrimary" />
 
         </RelativeLayout>
 
