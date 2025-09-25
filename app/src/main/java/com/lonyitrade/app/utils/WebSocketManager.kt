@@ -1,5 +1,3 @@
-// File: lonyibe/lonyitrade/LonyiTrade-2115ec39136f9735491b36bf278b4b09be23cfa8/app/src/main/java/com/lonyitrade/app/utils/WebSocketManager.kt
-
 package com.lonyitrade.app.utils
 
 import android.os.Handler
@@ -201,3 +199,4 @@ object WebSocketManager {
         webSocket?.send(jsonMessage)
     }
 }
+

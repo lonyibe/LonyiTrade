@@ -1,10 +1,6 @@
-// File: lonyibe/lonyitrade/LonyiTrade-d16f52da8b320ce4e7eb82e1615d8393eafe26fa/app/src/main/java/com/lonyitrade/app/MainAppActivity.kt
-
 package com.lonyitrade.app
 
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -17,7 +13,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
 import com.lonyitrade.app.adapters.MainAppPagerAdapter
 import com.lonyitrade.app.data.models.Ad
-import com.lonyitrade.app.utils.NetworkChangeReceiver
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.utils.WebSocketManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
@@ -32,7 +27,6 @@ class MainAppActivity : AppCompatActivity() {
     private lateinit var headerTitleTextView: TextView
     private lateinit var backButtonIcon: ImageView
     private lateinit var sessionManager: SessionManager
-    private lateinit var networkChangeReceiver: NetworkChangeReceiver
     private val sharedViewModel: SharedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,13 +43,11 @@ class MainAppActivity : AppCompatActivity() {
         headerTitleTextView = findViewById(R.id.header_title_text_view)
         backButtonIcon = findViewById(R.id.back_button_icon)
 
-        // Fix: Removed 'no_internet_view' which is not in this layout. Fragments handle their own network error views.
-
+        // Pass the sharedViewModel to the WebSocketManager first
+        WebSocketManager.setSharedViewModel(sharedViewModel)
+        // Then connect with the token
         sessionManager.fetchAuthToken()?.let { token ->
-            // Fix: Changed getInstance() to directly access the object and its connect method.
             WebSocketManager.connect(token)
-            // Fix: Pass the sharedViewModel to the WebSocketManager for message count updates.
-            WebSocketManager.setSharedViewModel(sharedViewModel)
         }
 
         viewPager.adapter = MainAppPagerAdapter(this)
@@ -132,8 +124,6 @@ class MainAppActivity : AppCompatActivity() {
             viewPager.currentItem = 0
         }
 
-        // Fix: Removed the unnecessary NetworkChangeReceiver instantiation and noInternetView since fragments handle their own network UI.
-
         setupMessageBadge()
     }
 
@@ -170,20 +160,9 @@ class MainAppActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Fix: Register receiver only if it is initialized, which is not the case here. Let the fragments handle it.
-    }
-
-    override fun onPause() {
-        super.onPause()
-        // Fix: Unregister receiver only if it is initialized.
-    }
-
-
     override fun onDestroy() {
         super.onDestroy()
-        // Fix: Directly call the disconnect method on the singleton object.
         WebSocketManager.disconnect()
     }
 }
+

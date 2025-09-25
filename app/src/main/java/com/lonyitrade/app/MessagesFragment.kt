@@ -7,25 +7,26 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.ConversationsAdapter
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.data.models.ConversationSummary
 import com.lonyitrade.app.utils.NetworkUtils
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.utils.WebSocketManager
+import com.lonyitrade.app.viewmodels.SharedViewModel
 import kotlinx.coroutines.launch
 
 class MessagesFragment : Fragment() {
 
-    // Nullable view properties to handle the fragment's view lifecycle
     private var conversationsRecyclerView: RecyclerView? = null
     private var progressBar: ProgressBar? = null
 
     private lateinit var conversationsAdapter: ConversationsAdapter
     private lateinit var sessionManager: SessionManager
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +34,6 @@ class MessagesFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_messages, container, false)
 
-        // Initialize views immediately after the layout is inflated
         conversationsRecyclerView = view.findViewById(R.id.conversationsRecyclerView)
         progressBar = view.findViewById(R.id.progressBar)
 
@@ -52,28 +52,16 @@ class MessagesFragment : Fragment() {
 
     private fun setupRecyclerView() {
         conversationsAdapter = ConversationsAdapter(mutableListOf())
-        // Use the safe-call ?. to access the nullable view
         conversationsRecyclerView?.apply {
             layoutManager = LinearLayoutManager(context)
-            // Corrected the typo here
             adapter = conversationsAdapter
         }
     }
 
     private fun observeWebSocketUpdates() {
-        WebSocketManager.newMessage.observe(viewLifecycleOwner) { message ->
-            val conversation = conversationsAdapter.getConversations().find { conv ->
-                conv.advertId == message.advertId && conv.otherUserId == message.senderId
-            }
-            if (conversation != null) {
-                val updatedConversation = conversation.copy(
-                    lastMessage = message.content,
-                    unreadCount = conversation.unreadCount + 1
-                )
-                conversationsAdapter.updateOrAddConversation(updatedConversation)
-            } else {
-                fetchConversations()
-            }
+        // A simple and robust way to stay in sync is to re-fetch conversations on any update.
+        WebSocketManager.newMessage.observe(viewLifecycleOwner) {
+            fetchConversations()
         }
         WebSocketManager.messageStatusUpdate.observe(viewLifecycleOwner) {
             fetchConversations()
@@ -105,7 +93,13 @@ class MessagesFragment : Fragment() {
             try {
                 val response = ApiClient.apiService.getConversations("Bearer $token")
                 if (response.isSuccessful) {
-                    conversationsAdapter.updateConversations(response.body() ?: emptyList())
+                    val conversations = response.body() ?: emptyList()
+                    conversationsAdapter.updateConversations(conversations)
+
+                    // Calculate the total unread count and update the SharedViewModel
+                    val totalUnread = conversations.sumOf { it.unreadCount }
+                    sharedViewModel.setUnreadMessageCount(totalUnread)
+
                 } else {
                     Toast.makeText(context, "Failed to load conversations: ${response.message()}", Toast.LENGTH_SHORT).show()
                 }
@@ -119,8 +113,8 @@ class MessagesFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Clean up view references to prevent memory leaks
         conversationsRecyclerView = null
         progressBar = null
     }
 }
+
