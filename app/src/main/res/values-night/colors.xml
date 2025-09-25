@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    ...
+    <color name="dark_bg">#212121</color>
+    <color name="dark_text">#EEEEEE</color>
+    <color name="message_received_dark">#424242</color>
+
+    <color name="accent_blue">#007AFF</color>
+
+    <color name="status_success_green">#2ECC71</color>
+    <color name="status_error_red">#E74C3C</color>
+
+    <color name="whatsapp_message_sent">#007AFF</color>
+    <color name="whatsapp_message_received">#424242</color>
+
+</resources>
