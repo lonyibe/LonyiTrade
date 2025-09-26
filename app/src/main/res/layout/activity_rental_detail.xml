@@ -59,7 +59,10 @@
                 app:tabGravity="center"
                 app:tabIndicatorHeight="0dp"
                 app:tabMode="fixed"
-                app:tabMinWidth="8dp"
+                app:tabMinWidth="6dp"
+                app:tabMaxWidth="6dp"
+                app:tabPaddingStart="0dp"
+                app:tabPaddingEnd="0dp"
                 android:background="@android:color/transparent"
                 android:layout_marginBottom="8dp"/>
 
