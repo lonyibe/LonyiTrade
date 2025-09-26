@@ -18,10 +18,12 @@
     <color name="error_red">#D93025</color>
     <color name="red">#FF0000</color>
 
-    <!-- Missing resource added for star rating bar tint -->
     <color name="star_yellow">#FFC107</color>
 
     <color name="dark_background">#000000</color>
-    <color name="whatsapp_message_sent">#E0F2F1</color>
-    <color name="whatsapp_message_received">#FFFFFF</color>
-</resources>
+
+    <color name="whatsapp_message_sent">#25D366</color>
+
+    <color name="whatsapp_message_received">#E3F2FD</color>
+
+    <color name="chat_sent_text">#FFFFFF</color> <color name="chat_received_text">#202124</color> </resources>

@@ -6,78 +6,74 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="start"
-    android:padding="8dp">
+    android:paddingHorizontal="12dp"  android:paddingVertical="4dp">    <LinearLayout
+    android:id="@+id/messageBubble"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_message_received"
+    android:padding="8dp"
+    android:maxWidth="300dp"
+    android:elevation="1dp" > <ImageView
+    android:id="@+id/messageImage"
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    android:scaleType="centerCrop"
+    android:visibility="gone"
+    tools:visibility="visible"
+    android:contentDescription="Attached media"/>
 
     <LinearLayout
-        android:id="@+id/messageBubble"
-        android:layout_width="wrap_content"
+        android:id="@+id/audioPlayerLayout"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/rounded_message_received"
-        android:padding="8dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="4dp"
+        tools:visibility="visible">
 
         <ImageView
-            android:id="@+id/messageImage"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:contentDescription="Attached media"/>
+            android:id="@+id/playPauseButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_play"
+            app:tint="@color/chat_received_text"  android:contentDescription="Play or pause audio" />
 
-        <LinearLayout
-            android:id="@+id/audioPlayerLayout"
-            android:layout_width="250dp"
+        <SeekBar
+            android:id="@+id/audioSeekBar"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <ImageView
-                android:id="@+id/playPauseButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_play"
-                app:tint="?attr/colorOnSurface"
-                android:contentDescription="Play or pause audio" />
-
-            <SeekBar
-                android:id="@+id/audioSeekBar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"/>
-
-            <TextView
-                android:id="@+id/audioDurationTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="12sp"
-                tools:text="0:15" />
-        </LinearLayout>
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
 
         <TextView
-            android:id="@+id/messageText"
+            android:id="@+id/audioDurationTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="4dp"
-            android:paddingTop="4dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            tools:text="This is a message I received." />
+            android:textColor="@color/chat_received_text"
+            android:textSize="12sp"
+            tools:text="0:15" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/messageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/chat_received_text" android:textSize="16sp"
+        android:padding="0dp"
+        tools:text="This is a message I received." />
 
     <TextView
         android:id="@+id/messageTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
         android:layout_marginTop="4dp"
-        android:layout_marginStart="8dp"
-        android:textSize="12sp"
-        android:textColor="?attr/colorOnSurface"
-        tools:text="10:31 AM" />
+        android:layout_marginEnd="4dp"
+        android:textSize="10sp"
+        android:textColor="@color/google_files_text_secondary" tools:text="10:31 AM" />
 
+</LinearLayout>
 </LinearLayout>
