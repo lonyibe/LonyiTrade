@@ -26,4 +26,6 @@
 
     <color name="whatsapp_message_received">#E3F2FD</color>
 
-    <color name="chat_sent_text">#FFFFFF</color> <color name="chat_received_text">#202124</color> </resources>
+    <color name="chat_sent_text">#FFFFFF</color>
+    <color name="chat_received_text">#202124</color>
+</resources>
