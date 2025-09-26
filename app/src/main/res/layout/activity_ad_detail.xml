@@ -57,10 +57,10 @@
                 app:tabBackground="@drawable/tab_selector"
                 app:tabGravity="center"
                 app:tabIndicatorHeight="0dp"
-                app:tabMode="scrollable"
-                app:tabMinWidth="0dp"
+                app:tabMode="fixed"
+                app:tabMinWidth="20dp"
                 android:background="@android:color/transparent"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="12dp"/>
 
         </FrameLayout>
 
