@@ -1,22 +1,41 @@
 package com.lonyitrade.app.adapters
 
-import android.content.Intent
+import android.content.Context
+import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.lonyitrade.app.FullScreenImageActivity
 import com.lonyitrade.app.R
-import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Message
+import com.lonyitrade.app.utils.SessionManager
+import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+import java.util.concurrent.TimeUnit
 
-class MessageAdapter(private val messageList: List<Message>, private val currentUserId: String) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MessageAdapter(
+    private val context: Context,
+    private var messages: MutableList<Message>,
+    private val onImageClicked: (String) -> Unit
+) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
+
+    private val currentUserId: String = SessionManager.getUserId(context)
+    private var mediaPlayer: MediaPlayer? = null
+    private var playingPosition: Int = -1
+    private var playingHolder: MessageViewHolder? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     companion object {
         private const val VIEW_TYPE_SENT = 1
@@ -24,123 +43,190 @@ class MessageAdapter(private val messageList: List<Message>, private val current
     }
 
     override fun getItemViewType(position: Int): Int {
-        val message = messageList[position]
-        return if (message.senderId == currentUserId) VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
+        return if (messages[position].senderId == currentUserId) VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_SENT) {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_message_sent, parent, false)
-            SentMessageViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
+        val layoutRes = if (viewType == VIEW_TYPE_SENT) R.layout.item_message_sent else R.layout.item_message_received
+        val view = LayoutInflater.from(context).inflate(layoutRes, parent, false)
+        return MessageViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+        val message = messages[position]
+
+        holder.messageText.text = message.content
+        holder.messageTime.text = formatTimestamp(message.createdAt)
+
+        // Handle image visibility
+        if (!message.mediaUrl.isNullOrEmpty()) {
+            holder.messageImage.visibility = View.VISIBLE
+            Glide.with(context).load(message.mediaUrl).into(holder.messageImage)
+            holder.messageImage.setOnClickListener { onImageClicked(message.mediaUrl) }
         } else {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_message_received, parent, false)
-            ReceivedMessageViewHolder(view)
+            holder.messageImage.visibility = View.GONE
         }
-    }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val message = messageList[position]
-        when (holder.itemViewType) {
-            VIEW_TYPE_SENT -> (holder as SentMessageViewHolder).bind(message)
-            VIEW_TYPE_RECEIVED -> (holder as ReceivedMessageViewHolder).bind(message)
-        }
-    }
+        // Handle audio player visibility and functionality
+        if (!message.audioUrl.isNullOrEmpty()) {
+            holder.audioPlayerLayout.visibility = View.VISIBLE
+            holder.messageText.visibility = View.GONE // Hide text if there's audio
 
-    override fun getItemCount() = messageList.size
+            if (position == playingPosition) {
+                // This item is the one currently playing or paused
+                playingHolder = holder
+                updateSeekBar(holder)
+                holder.playPauseButton.setImageResource(if (mediaPlayer?.isPlaying == true) R.drawable.ic_pause else R.drawable.ic_play)
+            } else {
+                // Not the playing item, reset its state
+                holder.playPauseButton.setImageResource(R.drawable.ic_play)
+                holder.audioSeekBar.progress = 0
+                holder.audioDurationTextView.text = ""
+            }
 
-    private fun formatTime(timestamp: String?): String {
-        return try {
-            if (timestamp.isNullOrEmpty()) return ""
-            val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
-            parser.timeZone = TimeZone.getTimeZone("UTC")
-            val date = parser.parse(timestamp)
-            val formatter = SimpleDateFormat("h:mm a", Locale.getDefault())
-            date?.let { formatter.format(it) } ?: ""
-        } catch (e: Exception) {
-            timestamp ?: ""
-        }
-    }
+            holder.playPauseButton.setOnClickListener {
+                if (playingPosition == position) {
+                    // Clicked on the currently playing/paused item
+                    mediaPlayer?.let {
+                        if (it.isPlaying) {
+                            it.pause()
+                            holder.playPauseButton.setImageResource(R.drawable.ic_play)
+                            handler.removeCallbacksAndMessages(null)
+                        } else {
+                            it.start()
+                            holder.playPauseButton.setImageResource(R.drawable.ic_pause)
+                            updateSeekBar(holder)
+                        }
+                    }
+                } else {
+                    // Clicked on a new item
+                    stopPlayback() // Stop any previous playback
 
-    inner class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val messageTextView: TextView = itemView.findViewById(R.id.messageText)
-        private val messageImageView: ImageView = itemView.findViewById(R.id.messageImage)
-        private val timeTextView: TextView = itemView.findViewById(R.id.messageTime)
-        private val statusIcon: ImageView = itemView.findViewById(R.id.messageStatusIcon)
+                    playingPosition = position
+                    playingHolder = holder
 
-        fun bind(message: Message) {
-            timeTextView.text = formatTime(message.createdAt)
-
-            // Handle media URL
-            if (!message.mediaUrl.isNullOrEmpty()) {
-                messageImageView.visibility = View.VISIBLE
-                val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + message.mediaUrl.trimStart('/')
-                Glide.with(itemView.context).load(imageUrl).placeholder(R.drawable.ic_add_photo).into(messageImageView)
-                messageImageView.setOnClickListener {
-                    val intent = Intent(itemView.context, FullScreenImageActivity::class.java)
-                    intent.putExtra("IMAGE_URL", message.mediaUrl)
-                    itemView.context.startActivity(intent)
+                    mediaPlayer = MediaPlayer().apply {
+                        try {
+                            setDataSource(message.audioUrl)
+                            prepareAsync()
+                            setOnPreparedListener {
+                                holder.audioSeekBar.max = it.duration
+                                holder.audioDurationTextView.text = formatDuration(it.duration)
+                                it.start()
+                                holder.playPauseButton.setImageResource(R.drawable.ic_pause)
+                                updateSeekBar(holder)
+                            }
+                            setOnCompletionListener {
+                                stopPlayback()
+                            }
+                        } catch (e: IOException) {
+                            Log.e("MessageAdapter", "Error setting data source", e)
+                            stopPlayback()
+                        }
+                    }
                 }
-            } else {
-                messageImageView.visibility = View.GONE
             }
 
-            // Handle text content
-            if (!message.content.isNullOrEmpty()) {
-                messageTextView.visibility = View.VISIBLE
-                messageTextView.text = message.content
-            } else {
-                messageTextView.visibility = View.GONE
-            }
+            holder.audioSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        mediaPlayer?.seekTo(progress)
+                    }
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
 
-            // Update status icon
-            statusIcon.visibility = View.VISIBLE
+        } else {
+            holder.audioPlayerLayout.visibility = View.GONE
+            holder.messageText.visibility = View.VISIBLE
+        }
+
+
+        if (getItemViewType(position) == VIEW_TYPE_SENT) {
+            val statusIcon = holder.itemView.findViewById<ImageView>(R.id.messageStatusIcon)
             when (message.status) {
-                "sent" -> {
-                    statusIcon.setImageResource(R.drawable.ic_single_tick)
-                    statusIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.google_files_text_secondary))
-                }
-                "delivered" -> {
-                    statusIcon.setImageResource(R.drawable.ic_double_tick)
-                    statusIcon.setColorFilter(ContextCompat.getColor(itemView.context, R.color.google_files_text_secondary))
-                }
+                "sent" -> statusIcon.setImageResource(R.drawable.ic_single_tick)
+                "delivered" -> statusIcon.setImageResource(R.drawable.ic_double_tick)
                 "read" -> {
                     statusIcon.setImageResource(R.drawable.ic_double_tick_blue)
-                    statusIcon.clearColorFilter() // Use the original blue color from the drawable
+                    statusIcon.setColorFilter(ContextCompat.getColor(context, R.color.blue))
                 }
-                else -> statusIcon.visibility = View.GONE // Hide for unknown status or temporary messages
+                else -> statusIcon.visibility = View.GONE
             }
         }
     }
 
-    inner class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val messageTextView: TextView = itemView.findViewById(R.id.messageText)
-        private val messageImageView: ImageView = itemView.findViewById(R.id.messageImage)
-        private val timeTextView: TextView = itemView.findViewById(R.id.messageTime)
 
-        fun bind(message: Message) {
-            timeTextView.text = formatTime(message.createdAt)
+    private fun stopPlayback() {
+        playingHolder?.let {
+            it.playPauseButton.setImageResource(R.drawable.ic_play)
+            it.audioSeekBar.progress = 0
+        }
+        mediaPlayer?.release()
+        mediaPlayer = null
+        playingPosition = -1
+        playingHolder = null
+        handler.removeCallbacksAndMessages(null)
+    }
 
-            // Handle media URL
-            if (!message.mediaUrl.isNullOrEmpty()) {
-                messageImageView.visibility = View.VISIBLE
-                val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + message.mediaUrl.trimStart('/')
-                Glide.with(itemView.context).load(imageUrl).placeholder(R.drawable.ic_add_photo).into(messageImageView)
-                messageImageView.setOnClickListener {
-                    val intent = Intent(itemView.context, FullScreenImageActivity::class.java)
-                    intent.putExtra("IMAGE_URL", message.mediaUrl)
-                    itemView.context.startActivity(intent)
-                }
-            } else {
-                messageImageView.visibility = View.GONE
-            }
-
-            // Handle text content
-            if (!message.content.isNullOrEmpty()) {
-                messageTextView.visibility = View.VISIBLE
-                messageTextView.text = message.content
-            } else {
-                messageTextView.visibility = View.GONE
+    private fun updateSeekBar(holder: MessageViewHolder) {
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                holder.audioSeekBar.progress = it.currentPosition
+                val remainingTime = it.duration - it.currentPosition
+                holder.audioDurationTextView.text = formatDuration(remainingTime)
+                handler.postDelayed({ updateSeekBar(holder) }, 1000)
             }
         }
+    }
+    fun releasePlayer() {
+        stopPlayback()
+    }
+
+    private fun formatDuration(milliseconds: Int): String {
+        return String.format(
+            Locale.getDefault(), "%01d:%02d",
+            TimeUnit.MILLISECONDS.toMinutes(milliseconds.toLong()),
+            TimeUnit.MILLISECONDS.toSeconds(milliseconds.toLong()) % 60
+        )
+    }
+
+    override fun getItemCount(): Int = messages.size
+
+    fun addMessage(message: Message) {
+        messages.add(message)
+        notifyItemInserted(messages.size - 1)
+    }
+
+    fun updateMessages(newMessages: List<Message>) {
+        messages.clear()
+        messages.addAll(newMessages)
+        notifyDataSetChanged()
+    }
+
+    private fun formatTimestamp(timestamp: String?): String {
+        if (timestamp.isNullOrEmpty()) return ""
+        return try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            sdf.timeZone = TimeZone.getTimeZone("UTC")
+            val date = sdf.parse(timestamp)
+            val localSdf = SimpleDateFormat("h:mm a", Locale.getDefault())
+            localSdf.format(date ?: Date())
+        } catch (e: Exception) {
+            " "
+        }
+    }
+
+    class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val messageText: TextView = itemView.findViewById(R.id.messageText)
+        val messageTime: TextView = itemView.findViewById(R.id.messageTime)
+        val messageImage: ImageView = itemView.findViewById(R.id.messageImage)
+
+        // Audio Player Views
+        val audioPlayerLayout: LinearLayout = itemView.findViewById(R.id.audioPlayerLayout)
+        val playPauseButton: ImageView = itemView.findViewById(R.id.playPauseButton)
+        val audioSeekBar: SeekBar = itemView.findViewById(R.id.audioSeekBar)
+        val audioDurationTextView: TextView = itemView.findViewById(R.id.audioDurationTextView)
     }
 }

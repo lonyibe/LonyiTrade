@@ -139,7 +139,20 @@
                 android:contentDescription="Attach media"
                 android:background="?attr/selectableItemBackgroundBorderless"/>
 
+            <TextView
+                android:id="@+id/recordingTimerTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/error_red"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                tools:text="00:15"
+                android:visibility="gone"/>
+
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/messageTextInputLayout"
                 style="@style/Widget.App.TextInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -158,13 +171,31 @@
                     android:background="@null"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/sendButton"
+            <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send"
-                android:textColor="?attr/colorOnPrimary"
-                android:backgroundTint="?attr/colorPrimary"/>
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/sendButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send"
+                    android:visibility="gone"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:backgroundTint="?attr/colorPrimary"/>
+
+                <ImageView
+                    android:id="@+id/micButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_mic"
+                    app:tint="?attr/colorPrimary"
+                    android:padding="8dp"
+                    android:contentDescription="Record audio"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="visible"/>
+
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

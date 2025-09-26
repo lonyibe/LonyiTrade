@@ -41,6 +41,7 @@ data class Message(
     val content: String?,
     @SerializedName("created_at") val createdAt: String?,
     @SerializedName("media_url") val mediaUrl: String?,
+    @SerializedName("audio_url") val audioUrl: String?, // New field for audio messages
     val status: String?
 )
 
