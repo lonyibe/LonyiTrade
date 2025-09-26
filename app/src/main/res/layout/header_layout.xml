@@ -53,9 +53,6 @@
                 <com.google.android.material.tabs.TabItem
                     android:text="Latest" />
 
-                <com.google.android.material.tabs.TabItem
-                    android:text="Trending" />
-
             </com.google.android.material.tabs.TabLayout>
 
             <ImageView
@@ -75,6 +72,15 @@
                 android:src="@drawable/ic_search"
                 app:tint="?attr/colorPrimary"
                 android:contentDescription="Search" />
+
+            <ImageView
+                android:id="@+id/notification_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/ic_notifications"
+                app:tint="?attr/colorPrimary"
+                android:contentDescription="Notifications" />
 
         </LinearLayout>
 

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
@@ -24,6 +25,7 @@ class MainAppActivity : AppCompatActivity() {
     private lateinit var headerTabLayout: TabLayout
     private lateinit var searchIcon: ImageView
     private lateinit var addListingIcon: ImageView
+    private lateinit var notificationIcon: ImageView
     private lateinit var headerTitleTextView: TextView
     private lateinit var backButtonIcon: ImageView
     private lateinit var sessionManager: SessionManager
@@ -40,6 +42,7 @@ class MainAppActivity : AppCompatActivity() {
         headerTabLayout = findViewById(R.id.header_tab_layout)
         searchIcon = findViewById(R.id.search_icon)
         addListingIcon = findViewById(R.id.add_listing_icon)
+        notificationIcon = findViewById(R.id.notification_icon)
         headerTitleTextView = findViewById(R.id.header_title_text_view)
         backButtonIcon = findViewById(R.id.back_button_icon)
 
@@ -89,7 +92,6 @@ class MainAppActivity : AppCompatActivity() {
                 val sortBy = when (tab?.position) {
                     0 -> "top"
                     1 -> "latest"
-                    2 -> "trending"
                     else -> "latest"
                 }
 
@@ -120,6 +122,11 @@ class MainAppActivity : AppCompatActivity() {
             JobOptionsDialogFragment().show(supportFragmentManager, "JobOptionsDialogFragment")
         }
 
+        notificationIcon.setOnClickListener {
+            // Handle your notification click logic here
+            Toast.makeText(this, "Notification icon clicked!", Toast.LENGTH_SHORT).show()
+        }
+
         backButtonIcon.setOnClickListener {
             viewPager.currentItem = 0
         }
@@ -135,6 +142,7 @@ class MainAppActivity : AppCompatActivity() {
         headerTabLayout.visibility = if (isHomeOrRentals) View.VISIBLE else View.GONE
         searchIcon.visibility = if (isHomeOrRentals) View.VISIBLE else View.GONE
         addListingIcon.visibility = if (position == 0) View.VISIBLE else View.GONE
+        notificationIcon.visibility = if(position == 0) View.VISIBLE else View.GONE
         backButtonIcon.visibility = if (!isHomeOrRentals) View.VISIBLE else View.GONE
     }
 
@@ -165,4 +173,3 @@ class MainAppActivity : AppCompatActivity() {
         WebSocketManager.disconnect()
     }
 }
-
