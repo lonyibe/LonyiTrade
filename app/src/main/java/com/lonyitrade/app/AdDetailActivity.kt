@@ -77,12 +77,23 @@ class AdDetailActivity : AppCompatActivity() {
         }
 
         // Handle Photos
-        val photos = ad.photos // Create a local, immutable reference
+        val photos = ad.photos
         if (!photos.isNullOrEmpty()) {
-            val photoAdapter = AdPhotoAdapter(photos) // Use the local variable
+            val photoAdapter = AdPhotoAdapter(photos)
             adViewPager.adapter = photoAdapter
             TabLayoutMediator(tabLayout, adViewPager) { _, _ -> }.attach()
             tabLayout.visibility = View.VISIBLE
+
+            // Add click listener to open full screen view
+            photoAdapter.setOnItemClickListener(object : AdPhotoAdapter.OnItemClickListener {
+                override fun onItemClick(position: Int) {
+                    val intent = Intent(this@AdDetailActivity, FullScreenImageActivity::class.java).apply {
+                        putStringArrayListExtra("image_urls", ArrayList(photos))
+                        putExtra("position", position)
+                    }
+                    startActivity(intent)
+                }
+            })
         } else {
             adViewPager.visibility = View.GONE
             tabLayout.visibility = View.GONE
