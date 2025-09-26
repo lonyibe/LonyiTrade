@@ -3,6 +3,7 @@ package com.lonyitrade.app
 import android.Manifest
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.net.Uri
@@ -154,7 +155,9 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         chatToolbarTitle = findViewById(R.id.chatToolbarTitle)
-        findViewById<ImageView>(R.id.backButton).setOnClickListener { finish() }
+        findViewById<ImageView>(R.id.backButton).setOnClickListener {
+            finish()
+        }
         adTitleTextView = findViewById(R.id.adTitleTextView)
         adPriceTextView = findViewById(R.id.adPriceTextView)
         adPhotoImageView = findViewById(R.id.adPhotoImageView)
@@ -201,7 +204,8 @@ class ChatActivity : AppCompatActivity() {
                     }
                     true
                 }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> {
                     stopRecording(send = true)
                     true
                 }
@@ -210,8 +214,8 @@ class ChatActivity : AppCompatActivity() {
         }
 
         messageEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            override fun beforeTextChanged(s: CharSequence ?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence ?, start: Int, before: Int, count: Int) {
                 if (s.isNullOrEmpty()) {
                     sendButton.visibility = View.GONE
                     micButton.visibility = View.VISIBLE
@@ -227,14 +231,14 @@ class ChatActivity : AppCompatActivity() {
                     isTyping = true
                     WebSocketManager.sendTypingEvent(ad.id!!, ad.userId!!)
                 }
-                typingJob?.cancel()
+                typingJob ?. cancel()
                 typingJob = lifecycleScope.launch(Dispatchers.Main) {
                     delay(3000)
                     isTyping = false
                     WebSocketManager.sendStopTypingEvent(ad.id!!, ad.userId!!)
                 }
             }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun afterTextChanged(s: Editable ?) {}
         })
 
         // Media Preview Listeners
@@ -242,7 +246,8 @@ class ChatActivity : AppCompatActivity() {
             hideMediaPreview()
         }
         sendMediaButton.setOnClickListener {
-            selectedMediaUri?.let { uri ->
+            selectedMediaUri ?. let {
+                    uri ->
                 val caption = captionEditText.text.toString().trim()
                 uploadMedia(uri, caption)
                 hideMediaPreview()
@@ -251,7 +256,13 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        messageAdapter = MessageAdapter(messageList, myUserId)
+        messageAdapter = MessageAdapter(this, messageList) {
+                imageUrl ->
+            val intent = Intent(this, FullScreenImageActivity::class.java).apply {
+                putExtra("IMAGE_URL", imageUrl)
+            }
+            startActivity(intent)
+        }
         messagesRecyclerView.layoutManager = LinearLayoutManager(this).apply {
             stackFromEnd = true
         }
@@ -279,7 +290,7 @@ class ChatActivity : AppCompatActivity() {
                 val response = ApiClient.apiService.getUserById("Bearer $token", sellerUserId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        seller = response.body()!!
+                        seller = response.body() !!
                         populateAdAndChatHeader()
                         fetchMessages()
                     }
@@ -291,9 +302,12 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun observeNewMessages() {
-        WebSocketManager.newMessage.observe(this) { message ->
+        WebSocketManager.newMessage.observe(this) {
+                message ->
             if (message.advertId == ad.id && (message.senderId == myUserId || message.receiverId == myUserId)) {
-                val existingIndex = messageList.indexOfFirst { it.id == "temporaryId" && (it.content == message.content || it.audioUrl != null) }
+                val existingIndex = messageList.indexOfFirst {
+                    it.id == "temporaryId" && (it.content == message.content || it.audioUrl != null)
+                }
                 if (existingIndex != -1) {
                     messageList[existingIndex] = message
                     messageAdapter.notifyItemChanged(existingIndex)
@@ -310,9 +324,13 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun observeMessageStatusUpdates() {
-        WebSocketManager.messageStatusUpdate.observe(this) { (messageIds, status) ->
-            messageIds.forEach { messageId ->
-                val index = messageList.indexOfFirst { it.id == messageId }
+        WebSocketManager.messageStatusUpdate.observe(this) {
+                (messageIds, status) ->
+            messageIds.forEach {
+                    messageId ->
+                val index = messageList.indexOfFirst {
+                    it.id == messageId
+                }
                 if (index != -1) {
                     messageList[index] = messageList[index].copy(status = status)
                     messageAdapter.notifyItemChanged(index)
@@ -321,7 +339,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun sendMessage(content: String?, audioUrl: String?, receiverId: String) {
+    private fun sendMessage(content: String ?, audioUrl: String ?, receiverId: String) {
         val advertId = ad.id ?: return
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         sdf.timeZone = TimeZone.getTimeZone("UTC")
@@ -345,12 +363,17 @@ class ChatActivity : AppCompatActivity() {
         messageEditText.text.clear()
 
         // Send the message via WebSocket
-        val payload = mutableMapOf(
+        val payload = mutableMapOf < String,
+                Any > (
             "receiver_id" to receiverId,
             "advert_id" to advertId,
         )
-        content?.let { payload["content"] = it }
-        audioUrl?.let { payload["audio_url"] = it }
+        content ?. let {
+            payload["content"] = it
+        }
+        audioUrl ?. let {
+            payload["audio_url"] = it
+        }
 
         val messagePayload = mapOf("type" to "newMessage", "payload" to payload)
         val jsonMessage = Gson().toJson(messagePayload)
@@ -359,13 +382,14 @@ class ChatActivity : AppCompatActivity() {
 
     private fun populateAdAndChatHeader() {
         chatToolbarTitle.text = seller.fullName
-        seller.profilePictureUrl?.let { url ->
+        seller.profilePictureUrl ?. let {
+                url ->
             val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + url.trimStart('/')
             Glide.with(this).load(imageUrl).placeholder(R.drawable.ic_profile_placeholder).into(otherUserPhotoInToolbar)
         }
         adTitleTextView.text = ad.title
         adPriceTextView.text = "UGX ${ad.price}"
-        val firstPhotoUrl = ad.photos?.firstOrNull()
+        val firstPhotoUrl = ad.photos ?. firstOrNull()
         if (firstPhotoUrl != null) {
             val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + firstPhotoUrl.trimStart('/')
             Glide.with(this).load(imageUrl).into(adPhotoImageView)
@@ -388,7 +412,9 @@ class ChatActivity : AppCompatActivity() {
                         messageList.addAll(messages)
                         messageAdapter.notifyDataSetChanged()
                         messagesRecyclerView.scrollToPosition(messageList.size - 1)
-                        if (messages.any { it.receiverId == myUserId && it.status != "read" }) {
+                        if (messages.any {
+                                it.receiverId == myUserId && it.status != "read"
+                            }) {
                             WebSocketManager.markMessagesAsRead(advertId, sellerUserId)
                         }
                     }
@@ -399,17 +425,20 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadMedia(uri: Uri, caption: String?) {
+    private fun uploadMedia(uri: Uri, caption: String ?) {
         val token = sessionManager.fetchAuthToken() ?: return
         val advertId = ad.id ?: return
         val receiverId = ad.userId ?: return
 
-        getTempFileFromUri(uri)?.let { file ->
+        getTempFileFromUri(uri) ?. let {
+                file ->
             val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
             val mediaPart = MultipartBody.Part.createFormData("media", file.name, requestFile)
             val advertIdRequestBody = advertId.toRequestBody("text/plain".toMediaTypeOrNull())
             val receiverIdRequestBody = receiverId.toRequestBody("text/plain".toMediaTypeOrNull())
-            val captionRequestBody = caption?.ifEmpty { null }?.toRequestBody("text/plain".toMediaTypeOrNull())
+            val captionRequestBody = caption ?. ifEmpty {
+                null
+            } ?. toRequestBody("text/plain".toMediaTypeOrNull())
 
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
@@ -433,7 +462,7 @@ class ChatActivity : AppCompatActivity() {
             val inputStream: InputStream? = contentResolver.openInputStream(uri)
             val file = File(cacheDir, "temp_media_${System.currentTimeMillis()}.jpg")
             val outputStream = FileOutputStream(file)
-            inputStream?.copyTo(outputStream)
+            inputStream ?. copyTo(outputStream)
             file
         } catch (e: Exception) {
             null
@@ -441,7 +470,8 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun observeTypingNotifications() {
-        WebSocketManager.typingNotification.observe(this) { (senderId, advertId, isTyping) ->
+        WebSocketManager.typingNotification.observe(this) {
+                (senderId, advertId, isTyping) ->
             if (senderId == ad.userId && advertId == ad.id) {
                 if (isTyping) {
                     typingIndicatorTextView.visibility = View.VISIBLE
@@ -461,12 +491,12 @@ class ChatActivity : AppCompatActivity() {
                 repeatMode = ObjectAnimator.REVERSE
                 repeatCount = ObjectAnimator.INFINITE
             }
-            typingAnimation?.start()
+            typingAnimation ?. start()
         }
     }
 
     private fun stopTypingAnimation() {
-        typingAnimation?.cancel()
+        typingAnimation ?. cancel()
         typingAnimation = null
         typingIndicatorTextView.alpha = 1f
     }
@@ -482,7 +512,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array < String > , grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
@@ -500,7 +530,7 @@ class ChatActivity : AppCompatActivity() {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile(audioFile?.absolutePath)
+            setOutputFile(audioFile ?. absolutePath)
             try {
                 prepare()
                 start()
@@ -520,15 +550,17 @@ class ChatActivity : AppCompatActivity() {
     private fun stopRecording(send: Boolean) {
         if (!isRecording) return
         try {
-            mediaRecorder?.stop()
+            mediaRecorder ?. stop()
             if (send) {
-                audioFile?.let { uploadAudio(it) }
+                audioFile ?. let {
+                    uploadAudio(it)
+                }
             } else {
-                audioFile?.delete()
+                audioFile ?. delete()
             }
         } catch (e: RuntimeException) {
             Log.w("ChatActivity", "MediaRecorder stop() failed", e)
-            audioFile?.delete()
+            audioFile ?. delete()
         } finally {
             releaseRecorder()
             isRecording = false
@@ -542,14 +574,14 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun releaseRecorder() {
-        mediaRecorder?.reset()
-        mediaRecorder?.release()
+        mediaRecorder ?. reset()
+        mediaRecorder ?. release()
         mediaRecorder = null
     }
 
     private fun startTimer() {
         recordTime = 0
-        handler.post(object : Runnable {
+        handler.post(object: Runnable {
             override fun run() {
                 if (isRecording) {
                     recordTime++
