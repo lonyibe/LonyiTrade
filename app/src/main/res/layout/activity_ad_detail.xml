@@ -58,7 +58,6 @@
                 app:tabGravity="center"
                 app:tabIndicatorHeight="0dp"
                 app:tabMode="fixed"
-                app:tabMinWidth="10dp"
                 android:background="@android:color/transparent"
                 android:layout_marginBottom="12dp"/>
 
