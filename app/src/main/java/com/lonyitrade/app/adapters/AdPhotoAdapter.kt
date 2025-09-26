@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.lonyitrade.app.R
 import com.lonyitrade.app.api.ApiClient
+import com.lonyitrade.app.utils.BlurTransformation // 1. New Import
 
 class AdPhotoAdapter(private val photos: List<String>) : RecyclerView.Adapter<AdPhotoAdapter.PhotoViewHolder>() {
 
@@ -22,7 +23,8 @@ class AdPhotoAdapter(private val photos: List<String>) : RecyclerView.Adapter<Ad
     }
 
     inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.adImageView)
+        val foregroundImageView: ImageView = itemView.findViewById(R.id.adImageView)
+        val backgroundImageView: ImageView = itemView.findViewById(R.id.backgroundImageView) // 2. Find new ImageView
 
         init {
             itemView.setOnClickListener {
@@ -41,11 +43,22 @@ class AdPhotoAdapter(private val photos: List<String>) : RecyclerView.Adapter<Ad
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
         val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + photos[position].trimStart('/')
+
+        // 3a. Load Foreground Image (Sharp, fitCenter to show the whole image)
         Glide.with(holder.itemView.context)
             .load(imageUrl)
             .placeholder(R.drawable.ic_add_photo)
             .error(R.drawable.ic_add_photo)
-            .into(holder.imageView)
+            .into(holder.foregroundImageView)
+
+        // 3b. Load Background Image (Blurred, centerCrop to fill the background)
+        Glide.with(holder.itemView.context)
+            .load(imageUrl)
+            .placeholder(R.drawable.ic_add_photo)
+            .error(R.drawable.ic_add_photo)
+            // Apply the custom blur transformation here
+            .transform(BlurTransformation(holder.itemView.context, 15f)) // Set radius (e.g., 15)
+            .into(holder.backgroundImageView)
     }
 
     override fun getItemCount(): Int = photos.size
