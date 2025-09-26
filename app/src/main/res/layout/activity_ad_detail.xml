@@ -39,7 +39,6 @@
                     android:textStyle="bold"/>
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="250dp"
@@ -58,8 +57,8 @@
                 app:tabBackground="@drawable/tab_selector"
                 app:tabGravity="center"
                 app:tabIndicatorHeight="0dp"
-                app:tabMode="fixed"
-                app:tabMinWidth="8dp"
+                app:tabMode="scrollable"
+                app:tabMinWidth="0dp"
                 android:background="@android:color/transparent"
                 android:layout_marginBottom="8dp"/>
 
