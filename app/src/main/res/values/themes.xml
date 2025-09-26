@@ -35,6 +35,9 @@
         <item name="itemIconSize">@dimen/bottom_nav_icon_size</item>
         <item name="itemIconTint">?attr/colorPrimary</item>
         <item name="itemTextColor">?attr/colorPrimary</item>
+
+        <item name="itemRippleColor">@android:color/transparent</item>
+
         <item name="itemTextAppearanceActive">@style/Widget.App.BottomNavigationView.TextAppearance</item>
         <item name="itemTextAppearanceInactive">@style/Widget.App.BottomNavigationView.TextAppearance</item>
         <item name="android:background">?attr/colorSurface</item>
