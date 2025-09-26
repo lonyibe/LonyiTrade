@@ -34,11 +34,11 @@ class ReviewActivity : AppCompatActivity() {
     private lateinit var ratingBar: RatingBar
     private lateinit var reviewEditText: EditText
     private lateinit var submitReviewButton: Button
-    private lateinit var submitReviewContainer: View // The container holding the review form elements
+    private lateinit var submitReviewContainer: View
     private lateinit var reviewAdapter: ReviewAdapter
 
     private lateinit var sessionManager: SessionManager
-    // FIX 1: Unresolved reference 'getApiService' -> Use the direct API client instance
+    // FIX 1: Use the singleton instance directly
     private val apiService: ApiService = ApiClient.apiService
     private val loadingDialog = LoadingDialogFragment()
 
@@ -54,7 +54,6 @@ class ReviewActivity : AppCompatActivity() {
         }
 
         sessionManager = SessionManager(this)
-        // apiService = ApiClient.getApiService(this) // Removed after FIX 1
 
         initializeViews()
         setupReviewList()
@@ -63,17 +62,14 @@ class ReviewActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         backButton = findViewById(R.id.backButton)
-        // NOTE: Ensure these IDs exist in your layout XML
         reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
         noReviewsTextView = findViewById(R.id.noReviewsTextView)
-
         ratingBar = findViewById(R.id.ratingBar)
         reviewEditText = findViewById(R.id.reviewEditText)
         submitReviewButton = findViewById(R.id.submitReviewButton)
-        // FIX 3: Unresolved reference 'submitReviewContainer' -> Ensure the correct ID is used
         submitReviewContainer = findViewById(R.id.submitReviewContainer)
 
-        // FIX 4: Unresolved reference 'reviewHeaderTextView' -> Using the existing 'toolbarTitle' from XML
+        // FIX: Corrected view ID reference to use 'toolbarTitle' based on the provided XML.
         findViewById<TextView>(R.id.toolbarTitle).text = "Reviews for ${ad.title}"
 
         backButton.setOnClickListener {
@@ -108,8 +104,8 @@ class ReviewActivity : AppCompatActivity() {
         val token = sessionManager.fetchAuthToken()
         val userIdToReview = ad.userId
 
-        // Ensure both token and user ID are present
-        if (token == null || userIdToReview.isNullOrEmpty()) {
+        // Ensure non-null checks are handled safely
+        if (token.isNullOrEmpty() || userIdToReview.isNullOrEmpty()) {
             loadingDialog.dismiss()
             Toast.makeText(this, "Authentication or User ID error. Please log in.", Toast.LENGTH_SHORT).show()
             return
@@ -117,7 +113,7 @@ class ReviewActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // FIX 5, 7: Argument type mismatch String? -> String. Passed non-null String is safe due to check above.
+                // Fetch reviews for the user who posted the ad (ad.userId)
                 val response = apiService.getUserReviews("Bearer $token", userIdToReview)
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
@@ -133,7 +129,7 @@ class ReviewActivity : AppCompatActivity() {
                         }
                     } else {
                         Toast.makeText(this@ReviewActivity, "Failed to load reviews.", Toast.LENGTH_SHORT).show()
-                        Log.e("ReviewActivity", "Failed to load reviews: ${response.errorBody()?.string()}")
+                        Log.e("ReviewActivity", "Failed to load reviews: ${response.code()} - ${response.errorBody()?.string()}")
                     }
                 }
             } catch (e: Exception) {
@@ -160,24 +156,23 @@ class ReviewActivity : AppCompatActivity() {
             return
         }
 
+        val token = sessionManager.fetchAuthToken()
+        val userIdToReview = ad.userId
+        val advertId = ad.id // This is a String (UUID)
+
+        // Ensure all required UUIDs are present
+        if (token.isNullOrEmpty() || userIdToReview.isNullOrEmpty() || advertId.isNullOrEmpty()) {
+            Toast.makeText(this, "Review data missing. Cannot submit review.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (!loadingDialog.isAdded) {
             loadingDialog.show(supportFragmentManager, "loading")
         }
 
-        val token = sessionManager.fetchAuthToken()
-        val userIdToReview = ad.userId // The ID of the user being reviewed (the seller)
-
-        // Check for required non-nullable fields before proceeding
-        if (token == null || userIdToReview.isNullOrEmpty()) {
-            loadingDialog.dismiss()
-            Toast.makeText(this, "Authentication or User ID error. Cannot submit review.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // FIX 6: Argument type mismatch String? -> Int. Safely convert ad.id (String?) to Int
-        // FIX 5, 7: Argument type mismatch String? -> String. Passed non-null String is safe due to check above.
+        // FIX: Pass UUID String directly from ad.id
         val reviewRequest = ReviewRequest(
-            advert_id = ad.id?.toIntOrNull() ?: 0,
+            advert_id = advertId,
             user_id = userIdToReview,
             rating = rating.toInt(),
             review_text = reviewText
@@ -197,7 +192,7 @@ class ReviewActivity : AppCompatActivity() {
                         fetchReviews()
                     } else {
                         val errorBody = response.errorBody()?.string()
-                        Toast.makeText(this@ReviewActivity, "Failed to submit review. $errorBody", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ReviewActivity, "Failed to submit review. ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
                         Log.e("ReviewActivity", "Failed to submit review: ${response.code()} - $errorBody")
                     }
                 }

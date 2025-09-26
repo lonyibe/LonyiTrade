@@ -5,20 +5,20 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Review(
-    val id: Int,
-    val advert_id: Int,
-    val user_id: String, // The ID of the user being reviewed
-    val reviewer_id: String, // The ID of the user who wrote the review
+    val id: String, // FIX: Changed from Int to String (UUID)
+    val advert_id: String, // FIX: Changed from Int to String (UUID)
+    val user_id: String,
+    val reviewer_id: String,
     val rating: Int,
     val review_text: String?,
-    val created_at: String, // Keep as String for simplicity, format on client-side if needed
-    val reviewer_name: String?, // Added for displaying user's name
-    val reviewer_photo_url: String? // Added for displaying user's profile picture
+    val created_at: String,
+    val reviewer_name: String?,
+    val reviewer_photo_url: String?
 ) : Parcelable
 
 data class ReviewRequest(
-    val advert_id: Int,
-    val user_id: String, // The ID of the user being reviewed
+    val advert_id: String, // FIX: Changed from Int to String (UUID)
+    val user_id: String,
     val rating: Int,
     val review_text: String?
 )
