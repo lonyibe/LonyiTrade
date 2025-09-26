@@ -259,7 +259,9 @@ class ChatActivity : AppCompatActivity() {
         messageAdapter = MessageAdapter(this, messageList) {
                 imageUrl ->
             val intent = Intent(this, FullScreenImageActivity::class.java).apply {
-                putExtra("IMAGE_URL", imageUrl)
+                // FIX 2: Pass the single image URL as a list with the expected key for ViewPager2
+                putStringArrayListExtra("image_urls", arrayListOf(imageUrl))
+                putExtra("position", 0)
             }
             startActivity(intent)
         }
@@ -305,6 +307,10 @@ class ChatActivity : AppCompatActivity() {
         WebSocketManager.newMessage.observe(this) {
                 message ->
             if (message.advertId == ad.id && (message.senderId == myUserId || message.receiverId == myUserId)) {
+                // The logic to find a temporary message with id="temporaryId" is only for text/audio.
+                // For a media message that was just uploaded, there is no temporary message, so we just add it.
+                // The API call response handles adding the message immediately for the sender,
+                // and this block handles messages from the receiver or messages that were not immediately added locally.
                 val existingIndex = messageList.indexOfFirst {
                     it.id == "temporaryId" && (it.content == message.content || it.audioUrl != null)
                 }
@@ -312,8 +318,15 @@ class ChatActivity : AppCompatActivity() {
                     messageList[existingIndex] = message
                     messageAdapter.notifyItemChanged(existingIndex)
                 } else {
-                    messageList.add(message)
-                    messageAdapter.notifyItemInserted(messageList.size - 1)
+                    // Check for existing message by ID to prevent duplicates if API response and WS both fire
+                    if (message.id != null && messageList.none { it.id == message.id }) {
+                        messageList.add(message)
+                        messageAdapter.notifyItemInserted(messageList.size - 1)
+                    } else if (message.id == null) {
+                        // This case handles a temporary message or a new incoming message if no ID is assigned yet (unlikely for server message)
+                        messageList.add(message)
+                        messageAdapter.notifyItemInserted(messageList.size - 1)
+                    }
                 }
                 messagesRecyclerView.scrollToPosition(messageList.size - 1)
                 if (message.senderId == ad.userId && message.status != "read") {
@@ -444,7 +457,15 @@ class ChatActivity : AppCompatActivity() {
                 try {
                     val response = ApiClient.apiService.uploadMessageMedia("Bearer $token", advertIdRequestBody, receiverIdRequestBody, mediaPart, captionRequestBody)
                     withContext(Dispatchers.Main) {
-                        if (!response.isSuccessful) {
+                        if (response.isSuccessful) {
+                            // FIX 1: Manually insert the successful message response to trigger UI update
+                            val uploadedMessage = response.body()
+                            if (uploadedMessage != null) {
+                                messageList.add(uploadedMessage)
+                                messageAdapter.notifyItemInserted(messageList.size - 1)
+                                messagesRecyclerView.scrollToPosition(messageList.size - 1)
+                            }
+                        } else {
                             Toast.makeText(this@ChatActivity, "Failed to upload media: ${response.code()}", Toast.LENGTH_SHORT).show()
                         }
                     }
