@@ -41,8 +41,8 @@ interface ApiService {
     suspend fun postAdvert(@Header("Authorization") token: String, @Body adRequest: AdRequest): Response<Ad>
 
     @Multipart
-    @POST("api/adverts/{id}/upload-photo")
-    suspend fun uploadAdPhoto(@Header("Authorization") token: String, @Path("id") adId: String, @Part photo: MultipartBody.Part): Response<Unit>
+    @POST("api/adverts/{id}/upload-photos")
+    suspend fun uploadAdPhotos(@Header("Authorization") token: String, @Path("id") adId: String, @Part photos: List<MultipartBody.Part>): Response<Unit>
 
     @DELETE("api/adverts/{id}")
     suspend fun deleteAdvert(@Header("Authorization") token: String, @Path("id") adId: String): Response<Unit>

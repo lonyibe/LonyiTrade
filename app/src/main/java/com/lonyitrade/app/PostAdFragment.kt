@@ -1,5 +1,3 @@
-// File: lonyibe/lonyitrade/LonyiTrade-dc5328e1c9c5dbad5db9e7a3f2c6af389164e3dc/app/src/main/java/com/lonyitrade/app/PostAdFragment.kt
-
 package com.lonyitrade.app
 
 import android.net.Uri
@@ -29,7 +27,7 @@ import java.io.InputStream
 class PostAdFragment : Fragment() {
 
     private lateinit var sessionManager: SessionManager
-    private var itemPhotoUri: Uri? = null
+    private var adPhotoUris = mutableListOf<Uri>()
     private var rentalPhotoUris = mutableListOf<Uri>()
 
     // UI Elements
@@ -48,6 +46,8 @@ class PostAdFragment : Fragment() {
     private lateinit var priceTypeRadioGroup: RadioGroup
     private lateinit var sellConditionRadioGroup: RadioGroup
     private lateinit var districtEditText: EditText
+    private lateinit var adImageContainer: LinearLayout
+    private lateinit var addAdPhotoButton: ImageView
 
     // Rental Form Fields
     private lateinit var propertyTypeSpinner: Spinner
@@ -68,16 +68,18 @@ class PostAdFragment : Fragment() {
     private lateinit var addRentalPhotoButton: ImageView
 
 
-    private val pickItemImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            itemPhotoUri = it
-            view?.findViewById<ImageView>(R.id.photo1ImageView)?.setImageURI(it)
+    private val pickAdImages = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
+        if (adPhotoUris.size + uris.size > 5) {
+            Toast.makeText(requireContext(), "You can select up to 5 photos only.", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
         }
+        adPhotoUris.addAll(uris)
+        displayAdImages()
     }
 
     private val pickRentalImages = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
-        if (rentalPhotoUris.size + uris.size > 10) {
-            Toast.makeText(requireContext(), "You can select up to 10 photos only.", Toast.LENGTH_SHORT).show()
+        if (rentalPhotoUris.size + uris.size > 5) {
+            Toast.makeText(requireContext(), "You can select up to 5 photos only.", Toast.LENGTH_SHORT).show()
             return@registerForActivityResult
         }
         rentalPhotoUris.addAll(uris)
@@ -112,6 +114,9 @@ class PostAdFragment : Fragment() {
         priceTypeRadioGroup = view.findViewById(R.id.priceTypeRadioGroup)
         sellConditionRadioGroup = view.findViewById(R.id.conditionRadioGroup)
         districtEditText = view.findViewById(R.id.districtEditText)
+        adImageContainer = view.findViewById(R.id.adImageContainer)
+        addAdPhotoButton = view.findViewById(R.id.addAdPhotoButton)
+
 
         // Rental Form
         propertyTypeSpinner = view.findViewById(R.id.propertyTypeSpinner)
@@ -147,7 +152,7 @@ class PostAdFragment : Fragment() {
         }
 
         postAdButton.setOnClickListener { handlePostListing() }
-        view?.findViewById<ImageView>(R.id.photo1ImageView)?.setOnClickListener { pickItemImage.launch("image/*") }
+        addAdPhotoButton.setOnClickListener { pickAdImages.launch("image/*") }
         addRentalPhotoButton.setOnClickListener { pickRentalImages.launch("image/*") }
     }
 
@@ -224,8 +229,8 @@ class PostAdFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ad = response.body()
-                        if (ad?.id != null && itemPhotoUri != null) {
-                            uploadAdPhoto(token, ad.id, itemPhotoUri!!)
+                        if (ad?.id != null && adPhotoUris.isNotEmpty()) {
+                            uploadAdPhotos(token, ad.id, adPhotoUris)
                         } else {
                             showLoading(false)
                             Toast.makeText(requireContext(), "Ad posted successfully!", Toast.LENGTH_SHORT).show()
@@ -245,16 +250,21 @@ class PostAdFragment : Fragment() {
         }
     }
 
-    private fun uploadAdPhoto(token: String, adId: String, uri: Uri) {
-        getTempFileFromUri(uri)?.let { file ->
-            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
-            val photoPart = MultipartBody.Part.createFormData("photo", file.name, requestFile)
+    private fun uploadAdPhotos(token: String, adId: String, uris: List<Uri>) {
+        val parts = uris.mapNotNull { uri ->
+            getTempFileFromUri(uri)?.let { file ->
+                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                MultipartBody.Part.createFormData("photos", file.name, requestFile)
+            }
+        }
+
+        if (parts.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    ApiClient.apiService.uploadAdPhoto("Bearer $token", adId, photoPart)
+                    ApiClient.apiService.uploadAdPhotos("Bearer $token", adId, parts)
                     withContext(Dispatchers.Main) {
                         showLoading(false)
-                        Toast.makeText(requireContext(), "Ad and photo posted successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Ad and photos posted successfully!", Toast.LENGTH_SHORT).show()
                         navigateToHome()
                     }
                 } catch (e: Exception) {
@@ -375,6 +385,22 @@ class PostAdFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    private fun displayAdImages() {
+        if (adImageContainer.childCount > 1) {
+            adImageContainer.removeViews(0, adImageContainer.childCount - 1)
+        }
+
+        adPhotoUris.forEach { uri ->
+            val imageView = ImageView(requireContext()).apply {
+                layoutParams = ViewGroup.LayoutParams(160, 160)
+                setImageURI(uri)
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setPadding(8, 0, 8, 0)
+            }
+            adImageContainer.addView(imageView, 0)
         }
     }
 
