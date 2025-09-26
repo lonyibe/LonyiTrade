@@ -34,11 +34,12 @@ class ReviewActivity : AppCompatActivity() {
     private lateinit var ratingBar: RatingBar
     private lateinit var reviewEditText: EditText
     private lateinit var submitReviewButton: Button
-    private lateinit var submitReviewContainer: View
+    private lateinit var submitReviewContainer: View // The container holding the review form elements
     private lateinit var reviewAdapter: ReviewAdapter
 
     private lateinit var sessionManager: SessionManager
-    private lateinit var apiService: ApiService
+    // FIX 1: Unresolved reference 'getApiService' -> Use the direct API client instance
+    private val apiService: ApiService = ApiClient.apiService
     private val loadingDialog = LoadingDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +54,7 @@ class ReviewActivity : AppCompatActivity() {
         }
 
         sessionManager = SessionManager(this)
-        apiService = ApiClient.getApiService(this)
+        // apiService = ApiClient.getApiService(this) // Removed after FIX 1
 
         initializeViews()
         setupReviewList()
@@ -62,14 +63,18 @@ class ReviewActivity : AppCompatActivity() {
 
     private fun initializeViews() {
         backButton = findViewById(R.id.backButton)
+        // NOTE: Ensure these IDs exist in your layout XML
         reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
         noReviewsTextView = findViewById(R.id.noReviewsTextView)
+
         ratingBar = findViewById(R.id.ratingBar)
         reviewEditText = findViewById(R.id.reviewEditText)
         submitReviewButton = findViewById(R.id.submitReviewButton)
+        // FIX 3: Unresolved reference 'submitReviewContainer' -> Ensure the correct ID is used
         submitReviewContainer = findViewById(R.id.submitReviewContainer)
 
-        findViewById<TextView>(R.id.reviewHeaderTextView).text = "Reviews for ${ad.title}"
+        // FIX 4: Unresolved reference 'reviewHeaderTextView' -> Using the existing 'toolbarTitle' from XML
+        findViewById<TextView>(R.id.toolbarTitle).text = "Reviews for ${ad.title}"
 
         backButton.setOnClickListener {
             finish()
@@ -101,16 +106,19 @@ class ReviewActivity : AppCompatActivity() {
         }
 
         val token = sessionManager.fetchAuthToken()
-        if (token == null) {
+        val userIdToReview = ad.userId
+
+        // Ensure both token and user ID are present
+        if (token == null || userIdToReview.isNullOrEmpty()) {
             loadingDialog.dismiss()
-            Toast.makeText(this, "Authentication error. Please log in.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Authentication or User ID error. Please log in.", Toast.LENGTH_SHORT).show()
             return
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Fetch reviews for the user who posted the ad (ad.userId)
-                val response = apiService.getUserReviews("Bearer $token", ad.userId)
+                // FIX 5, 7: Argument type mismatch String? -> String. Passed non-null String is safe due to check above.
+                val response = apiService.getUserReviews("Bearer $token", userIdToReview)
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
                     if (response.isSuccessful && response.body() != null) {
@@ -157,15 +165,20 @@ class ReviewActivity : AppCompatActivity() {
         }
 
         val token = sessionManager.fetchAuthToken()
-        if (token == null) {
+        val userIdToReview = ad.userId // The ID of the user being reviewed (the seller)
+
+        // Check for required non-nullable fields before proceeding
+        if (token == null || userIdToReview.isNullOrEmpty()) {
             loadingDialog.dismiss()
-            Toast.makeText(this, "Authentication error. Please log in.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Authentication or User ID error. Cannot submit review.", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // FIX 6: Argument type mismatch String? -> Int. Safely convert ad.id (String?) to Int
+        // FIX 5, 7: Argument type mismatch String? -> String. Passed non-null String is safe due to check above.
         val reviewRequest = ReviewRequest(
-            advert_id = ad.id ?: 0, // Assuming ad.id is available and an Int. Use 0 as fallback.
-            user_id = ad.userId, // The ID of the user being reviewed (the seller)
+            advert_id = ad.id?.toIntOrNull() ?: 0,
+            user_id = userIdToReview,
             rating = rating.toInt(),
             review_text = reviewText
         )
