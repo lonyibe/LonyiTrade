@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.lonyitrade.app.R
+import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Message
 import com.lonyitrade.app.utils.SessionManager
 import java.io.IOException
@@ -62,8 +63,9 @@ class MessageAdapter(
         // Handle image visibility
         if (!message.mediaUrl.isNullOrEmpty()) {
             holder.messageImage.visibility = View.VISIBLE
-            Glide.with(context).load(message.mediaUrl).into(holder.messageImage)
-            holder.messageImage.setOnClickListener { onImageClicked(message.mediaUrl) }
+            val fullMediaUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + message.mediaUrl.trimStart('/')
+            Glide.with(context).load(fullMediaUrl).into(holder.messageImage)
+            holder.messageImage.setOnClickListener { onImageClicked(fullMediaUrl) }
         } else {
             holder.messageImage.visibility = View.GONE
         }
@@ -109,7 +111,8 @@ class MessageAdapter(
 
                     mediaPlayer = MediaPlayer().apply {
                         try {
-                            setDataSource(message.audioUrl)
+                            val fullAudioUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + message.audioUrl.trimStart('/')
+                            setDataSource(fullAudioUrl)
                             prepareAsync()
                             setOnPreparedListener {
                                 holder.audioSeekBar.max = it.duration
