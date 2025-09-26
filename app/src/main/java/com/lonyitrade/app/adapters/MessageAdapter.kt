@@ -31,7 +31,8 @@ class MessageAdapter(
     private val onImageClicked: (String) -> Unit
 ) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
-    private val currentUserId: String = SessionManager.getUserId(context)
+    private val sessionManager = SessionManager(context)
+    private val currentUserId: String = sessionManager.getUserId() ?: ""
     private var mediaPlayer: MediaPlayer? = null
     private var playingPosition: Int = -1
     private var playingHolder: MessageViewHolder? = null
@@ -72,7 +73,7 @@ class MessageAdapter(
             holder.audioPlayerLayout.visibility = View.VISIBLE
             holder.messageText.visibility = View.GONE // Hide text if there's audio
 
-            if (position == playingPosition) {
+            if (holder.adapterPosition == playingPosition) {
                 // This item is the one currently playing or paused
                 playingHolder = holder
                 updateSeekBar(holder)
@@ -85,7 +86,8 @@ class MessageAdapter(
             }
 
             holder.playPauseButton.setOnClickListener {
-                if (playingPosition == position) {
+                val currentPosition = holder.adapterPosition
+                if (playingPosition == currentPosition) {
                     // Clicked on the currently playing/paused item
                     mediaPlayer?.let {
                         if (it.isPlaying) {
@@ -102,7 +104,7 @@ class MessageAdapter(
                     // Clicked on a new item
                     stopPlayback() // Stop any previous playback
 
-                    playingPosition = position
+                    playingPosition = currentPosition
                     playingHolder = holder
 
                     mediaPlayer = MediaPlayer().apply {
@@ -150,7 +152,7 @@ class MessageAdapter(
                 "delivered" -> statusIcon.setImageResource(R.drawable.ic_double_tick)
                 "read" -> {
                     statusIcon.setImageResource(R.drawable.ic_double_tick_blue)
-                    statusIcon.setColorFilter(ContextCompat.getColor(context, R.color.blue))
+                    statusIcon.setColorFilter(ContextCompat.getColor(context, R.color.google_files_primary_accent))
                 }
                 else -> statusIcon.visibility = View.GONE
             }
