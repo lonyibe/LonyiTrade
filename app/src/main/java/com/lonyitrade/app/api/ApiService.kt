@@ -116,6 +116,15 @@ interface ApiService {
         @Part("caption") caption: RequestBody?
     ): Response<Message>
 
+    @Multipart
+    @POST("api/messages/upload-audio")
+    suspend fun uploadMessageAudio(
+        @Header("Authorization") token: String,
+        @Part("advertId") advertId: RequestBody,
+        @Part("receiverId") receiverId: RequestBody,
+        @Part audio: MultipartBody.Part
+    ): Response<Message>
+
     data class UnreadCountResponse(val unreadCount: Int)
 
     // --- Job Applications ---

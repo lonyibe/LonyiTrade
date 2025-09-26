@@ -609,27 +609,71 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+        // --- Create a temporary message ---
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        val timestamp = sdf.format(Date())
+        val tempMessage = Message(
+            id = "temporaryId_${System.currentTimeMillis()}", // More unique temp ID
+            senderId = myUserId,
+            receiverId = receiverId,
+            advertId = advertId,
+            content = null,
+            createdAt = timestamp,
+            mediaUrl = null,
+            audioUrl = file.absolutePath, // Local path for now
+            status = "sending" // A "sending" status is more accurate here
+        )
+        val tempMessagePosition = messageList.size
+        messageList.add(tempMessage)
+        messageAdapter.notifyItemInserted(tempMessagePosition)
+        messagesRecyclerView.scrollToPosition(tempMessagePosition)
+
+
+        // --- Prepare the upload ---
         val requestFile = file.asRequestBody("audio/m4a".toMediaTypeOrNull())
         val audioPart = MultipartBody.Part.createFormData("audio", file.name, requestFile)
         val advertIdRequestBody = advertId.toRequestBody("text/plain".toMediaTypeOrNull())
         val receiverIdRequestBody = receiverId.toRequestBody("text/plain".toMediaTypeOrNull())
 
 
-        // Display a temporary message
-        sendMessage(null, file.absolutePath, receiverId)
-
-
+        // --- Make the API call ---
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // NOTE: We will create the `uploadMessageAudio` endpoint on the backend next.
-                // This call will fail for now, but the WebSocket message will handle the real update.
-                ApiClient.apiService.uploadMessageAudio("Bearer $token", advertIdRequestBody, receiverIdRequestBody, audioPart)
+                val response = ApiClient.apiService.uploadMessageAudio("Bearer $token", advertIdRequestBody, receiverIdRequestBody, audioPart)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val uploadedMessage = response.body()
+                        if (uploadedMessage != null) {
+                            // The websocket will probably send an update, but you can also update the UI here
+                            // For example, find the temporary message and replace it with the real one
+                            val index = messageList.indexOfFirst { it.id == tempMessage.id }
+                            if (index != -1) {
+                                messageList[index] = uploadedMessage
+                                messageAdapter.notifyItemChanged(index)
+                            }
+                        }
+                    } else {
+                        // Handle the error - maybe change the status of the temp message to "failed"
+                        val index = messageList.indexOfFirst { it.id == tempMessage.id }
+                        if (index != -1) {
+                            messageList[index] = tempMessage.copy(status = "failed")
+                            messageAdapter.notifyItemChanged(index)
+                        }
+                        Toast.makeText(this@ChatActivity, "Failed to send audio", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } catch (e: Exception) {
-                Log.e("ChatActivity", "Failed to upload audio via API. WebSocket will handle it.")
-            } finally {
-                // The websocket will send the real message with the remote URL
+                withContext(Dispatchers.Main) {
+                    // Handle the error
+                    val index = messageList.indexOfFirst { it.id == tempMessage.id }
+                    if (index != -1) {
+                        messageList[index] = tempMessage.copy(status = "failed")
+                        messageAdapter.notifyItemChanged(index)
+                    }
+                    Toast.makeText(this@ChatActivity, "Error sending audio: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 }
-
