@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.lonyitrade.app.R
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.utils.BlurTransformation // 1. New Import
+import com.lonyitrade.app.utils.BlurTransformation
 
 class AdPhotoAdapter(private val photos: List<String>) : RecyclerView.Adapter<AdPhotoAdapter.PhotoViewHolder>() {
 
@@ -24,7 +24,7 @@ class AdPhotoAdapter(private val photos: List<String>) : RecyclerView.Adapter<Ad
 
     inner class PhotoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val foregroundImageView: ImageView = itemView.findViewById(R.id.adImageView)
-        val backgroundImageView: ImageView = itemView.findViewById(R.id.backgroundImageView) // 2. Find new ImageView
+        val backgroundImageView: ImageView = itemView.findViewById(R.id.backgroundImageView)
 
         init {
             itemView.setOnClickListener {
@@ -42,21 +42,29 @@ class AdPhotoAdapter(private val photos: List<String>) : RecyclerView.Adapter<Ad
     }
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
-        val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + photos[position].trimStart('/')
+        val photoPath = photos[position]
 
-        // 3a. Load Foreground Image (Sharp, fitCenter to show the whole image)
+        // FIX: Check if the photoPath is already a full URL (from ChatActivity)
+        // If it starts with "http" or "https", use it directly. Otherwise, assume it's a relative path (from AdDetailActivity)
+        val imageUrl = if (photoPath.startsWith("http", ignoreCase = true) || photoPath.startsWith("https", ignoreCase = true)) {
+            photoPath
+        } else {
+            // This logic is for relative paths (e.g., ad detail view)
+            ApiClient.BASE_URL.trimEnd('/') + "/" + photoPath.trimStart('/')
+        }
+
+        // Load Foreground Image (Sharp, fitCenter to show the whole image)
         Glide.with(holder.itemView.context)
             .load(imageUrl)
             .placeholder(R.drawable.ic_add_photo)
             .error(R.drawable.ic_add_photo)
             .into(holder.foregroundImageView)
 
-        // 3b. Load Background Image (Blurred, centerCrop to fill the background)
+        // Load Background Image (Blurred, centerCrop to fill the background)
         Glide.with(holder.itemView.context)
             .load(imageUrl)
             .placeholder(R.drawable.ic_add_photo)
             .error(R.drawable.ic_add_photo)
-            // Apply the custom blur transformation here
             .transform(BlurTransformation(holder.itemView.context, 15f)) // Set radius (e.g., 15)
             .into(holder.backgroundImageView)
     }
