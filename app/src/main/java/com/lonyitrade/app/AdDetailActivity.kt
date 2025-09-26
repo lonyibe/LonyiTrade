@@ -52,6 +52,7 @@ class AdDetailActivity : AppCompatActivity() {
         val phoneNumberTextView: TextView = findViewById(R.id.adPhoneNumberTextView)
         val adTypeTextView: TextView = findViewById(R.id.adTypeTextView)
         val messageSellerButton: Button = findViewById(R.id.messageSellerButton)
+        val reviewButton: Button = findViewById(R.id.reviewButton)
 
         // Set Ad Details
         categoryTextView.text = "Category: ${ad.category}"
@@ -111,6 +112,11 @@ class AdDetailActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             }
+        }
+
+        reviewButton.setOnClickListener {
+            val intent = Intent(this, ReviewActivity::class.java)
+            startActivity(intent)
         }
     }
 }

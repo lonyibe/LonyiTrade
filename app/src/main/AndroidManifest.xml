@@ -89,6 +89,9 @@
         <activity
             android:name=".HireEmployeeActivity"
             android:exported="false" />
+        <activity
+            android:name=".ReviewActivity"
+            android:exported="false" />
 
         <receiver
             android:name=".utils.NetworkChangeReceiver"
