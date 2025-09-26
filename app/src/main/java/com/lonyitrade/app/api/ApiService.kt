@@ -143,4 +143,17 @@ interface ApiService {
         @Query("jobTitle") jobTitle: String?,
         @Query("education") education: String?
     ): Response<List<JobApplication>>
+
+    // --- Reviews ---
+    @POST("api/reviews")
+    suspend fun postReview(
+        @Header("Authorization") token: String,
+        @Body reviewRequest: ReviewRequest
+    ): Response<Review>
+
+    @GET("api/reviews/{userId}")
+    suspend fun getUserReviews(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: String
+    ): Response<List<Review>>
 }

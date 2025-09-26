@@ -5,35 +5,85 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:background="?attr/colorSurface">
 
-    <TextView
-        android:id="@+id/reviewerNameTextView"
-        android:layout_width="wrap_content"
+    <!-- Reviewer Info (Photo, Name, Timestamp) -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        tools:text="John Doe" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
+        <!-- Reviewer Photo -->
+        <ImageView
+            android:id="@+id/reviewerPhotoImageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/rounded_profile_pic"
+            android:contentDescription="@string/profile_picture_desc"
+            tools:src="@drawable/ic_profile_placeholder" />
+
+        <!-- Name and Timestamp Group -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <!-- Reviewer Name -->
+            <TextView
+                android:id="@+id/reviewerNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="John Doe" />
+
+            <!-- Review Date/Timestamp -->
+            <TextView
+                android:id="@+id/reviewTimestampTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="12sp"
+                tools:text="2025-09-25" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Rating and Review Text -->
     <RatingBar
         android:id="@+id/reviewRatingBar"
         style="?android:attr/ratingBarStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:isIndicator="true"
         android:numStars="5"
         android:stepSize="0.1"
+        android:progressTint="@color/star_yellow"
         tools:rating="4.5" />
 
     <TextView
         android:id="@+id/reviewTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="14sp"
-        tools:text="This is a great product! Highly recommended." />
+        tools:text="This is a great product! Highly recommended. The seller was friendly and the transaction was smooth." />
+
+    <!-- Separator for the next item -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="?attr/colorOutlineVariant" />
 
 </LinearLayout>

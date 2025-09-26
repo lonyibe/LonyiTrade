@@ -114,8 +114,13 @@ class AdDetailActivity : AppCompatActivity() {
             }
         }
 
+        // Pass necessary data to ReviewActivity
         reviewButton.setOnClickListener {
-            val intent = Intent(this, ReviewActivity::class.java)
+            val intent = Intent(this, ReviewActivity::class.java).apply {
+                // We pass the Ad object which contains the seller's ID (ad.userId)
+                // and the advert ID (ad.id) needed for review submission/fetching.
+                putExtra("AD_EXTRA", ad)
+            }
             startActivity(intent)
         }
     }

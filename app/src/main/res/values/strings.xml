@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">LonyiTrade</string>
+    <string name="profile_picture_desc">Reviewer profile picture</string>
     <string-array name="categories">
         <item>Electronics &amp; Gadgets</item>
         <item>Clothing &amp; Fashion</item>
