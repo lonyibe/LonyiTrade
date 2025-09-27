@@ -132,6 +132,11 @@ interface ApiService {
 
     data class UnreadCountResponse(val unreadCount: Int)
 
+    // FIX 1: New API call to fetch combined notification counts
+    @GET("api/notifications/count")
+    suspend fun getNotificationCounts(@Header("Authorization") token: String): Response<NotificationCountsResponse>
+
+
     // --- Job Applications ---
     @GET("api/jobs/applications/my")
     suspend fun getMyJobApplications(@Header("Authorization") token: String): Response<List<JobApplication>>

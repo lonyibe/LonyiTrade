@@ -77,6 +77,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".NotificationsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ChatActivity"
             android:exported="false"
             android:launchMode="singleTop" />

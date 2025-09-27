@@ -80,6 +80,8 @@ class MainAppActivity : AppCompatActivity() {
         // Then connect with the token
         sessionManager.fetchAuthToken()?.let { token ->
             WebSocketManager.connect(token)
+            // FIX: Fetch the initial total unread count on startup
+            fetchInitialNotificationCount()
         }
 
         // --- FIX: Call permission check on activity creation ---
@@ -157,16 +159,17 @@ class MainAppActivity : AppCompatActivity() {
             JobOptionsDialogFragment().show(supportFragmentManager, "JobOptionsDialogFragment")
         }
 
+        // FIX: Change click handler to launch a new NotificationsActivity
         notificationIcon.setOnClickListener {
-            // Handle your notification click logic here
-            Toast.makeText(this, "Notification icon clicked!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, NotificationsActivity::class.java)
+            startActivity(intent)
         }
 
         backButtonIcon.setOnClickListener {
             viewPager.currentItem = 0
         }
 
-        setupMessageBadge()
+        setupNotificationBadge() // FIX: Renamed from setupMessageBadge()
     }
 
     // --- FIX: Function to check and request the notification permission ---
@@ -203,16 +206,43 @@ class MainAppActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun setupMessageBadge() {
+    // FIX: Function renamed and updated to observe the total notification count
+    private fun setupNotificationBadge() {
+        // We will continue to use the messages tab badge for the aggregate count for simplicity
         val badge: BadgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.nav_messages)
         badge.isVisible = false // Initially hidden
 
-        sharedViewModel.unreadMessageCount.observe(this) { count ->
+        // FIX: Observe the total count (to be implemented in SharedViewModel)
+        sharedViewModel.totalNotificationCount.observe(this) { count ->
             if (count != null && count > 0) {
                 badge.number = count
                 badge.isVisible = true
             } else {
                 badge.isVisible = false
+            }
+        }
+    }
+
+    // FIX: New function to fetch initial total notification count (Messages + Reviews) from API
+    private fun fetchInitialNotificationCount() {
+        val token = sessionManager.fetchAuthToken()
+        if (token == null) return
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // FIX: Use a new API service function (to be implemented in ApiService.kt)
+                val response = ApiClient().getApiService(this@MainAppActivity).getNotificationCounts("Bearer $token")
+
+                if (response.isSuccessful && response.body() != null) {
+                    val counts = response.body()!!
+                    // FIX: Update the SharedViewModel LiveData with the fetched data
+                    sharedViewModel.updateTotalNotificationCount(counts.unreadMessageCount, counts.unreadReviewCount)
+                    Log.d("NotificationBadge", "Initial counts: Messages=${counts.unreadMessageCount}, Reviews=${counts.unreadReviewCount}")
+                } else {
+                    Log.e("NotificationBadge", "Failed to fetch initial notification counts: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("NotificationBadge", "Error fetching initial notification counts: ${e.message}")
             }
         }
     }

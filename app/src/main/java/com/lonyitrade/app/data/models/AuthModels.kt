@@ -34,7 +34,15 @@ data class TokenResponse(
     val token: String
 )
 
-// --- New Model for FCM Token ---
+// --- Existing Model for FCM Token ---
 data class FcmTokenRequest(
     val fcmToken: String
+)
+
+// FIX: New Model for combined notification count API response
+data class NotificationCountsResponse(
+    @SerializedName("unread_message_count")
+    val unreadMessageCount: Int,
+    @SerializedName("unread_review_count")
+    val unreadReviewCount: Int
 )

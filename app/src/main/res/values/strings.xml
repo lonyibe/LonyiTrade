@@ -2,29 +2,32 @@
 <resources>
     <string name="app_name">LonyiTrade</string>
     <string name="profile_picture_desc">Reviewer profile picture</string>
-    <string name="back_button">Back Button</string> <string-array name="categories">
-    <item>Electronics &amp; Gadgets</item>
-    <item>Clothing &amp; Fashion</item>
-    <item>Home &amp; Kitchen</item>
-    <item>Groceries &amp; Food</item>
-    <item>Health &amp; Beauty</item>
-    <item>Sports &amp; Fitness</item>
-    <item>Toys &amp; Games</item>
-    <item>Books &amp; Stationery</item>
-    <item>Cars &amp; Motorcycles</item>
-    <item>Car Parts &amp; Accessories</item>
-    <item>Bicycles &amp; Scooters</item>
-    <item>Houses &amp; Apartments</item>
-    <item>Land &amp; Plots</item>
-    <item>Commercial Properties</item>
-    <item>Software &amp; Apps</item>
-    <item>E-books, Online Courses, Digital Art</item>
-    <item>Services</item>
-    <item>Pets &amp; Pet Supplies</item>
-    <item>Agricultural Products</item>
-    <item>Collectibles</item>
-    <item>Event Items</item>
-</string-array>
+    <string name="back_button">Back Button</string>
+    <string name="cd_back_button">Back button icon</string>
+
+    <string-array name="categories">
+        <item>Electronics &amp; Gadgets</item>
+        <item>Clothing &amp; Fashion</item>
+        <item>Home &amp; Kitchen</item>
+        <item>Groceries &amp; Food</item>
+        <item>Health &amp; Beauty</item>
+        <item>Sports &amp; Fitness</item>
+        <item>Toys &amp; Games</item>
+        <item>Books &amp; Stationery</item>
+        <item>Cars &amp; Motorcycles</item>
+        <item>Car Parts &amp; Accessories</item>
+        <item>Bicycles &amp; Scooters</item>
+        <item>Houses &amp; Apartments</item>
+        <item>Land &amp; Plots</item>
+        <item>Commercial Properties</item>
+        <item>Software &amp; Apps</item>
+        <item>E-books, Online Courses, Digital Art</item>
+        <item>Services</item>
+        <item>Pets &amp; Pet Supplies</item>
+        <item>Agricultural Products</item>
+        <item>Collectibles</item>
+        <item>Event Items</item>
+    </string-array>
 
     <string-array name="property_types">
         <item>Any</item>

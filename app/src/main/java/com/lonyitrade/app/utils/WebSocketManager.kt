@@ -37,7 +37,7 @@ object WebSocketManager {
     private val _newMessage = MutableLiveData<Message>()
     val newMessage: LiveData<Message> = _newMessage
 
-    // LiveData for unread count updates
+    // LiveData for unread count updates (DEPRECATED: Now handled via SharedViewModel total)
     private val _unreadCountUpdate = MutableLiveData<Int>()
     val unreadCountUpdate: LiveData<Int> = _unreadCountUpdate
 
@@ -138,9 +138,14 @@ object WebSocketManager {
             val jsonObject = JSONObject(text)
             when (jsonObject.getString("type")) {
                 "unreadCountUpdate" -> {
-                    val unreadCount = jsonObject.getJSONObject("payload").getInt("unreadCount")
+                    val messageCount = jsonObject.getJSONObject("payload").getInt("unreadCount")
                     // Use the shared ViewModel to update the unread message count
-                    sharedViewModel?.setUnreadMessageCount(unreadCount)
+                    sharedViewModel?.setUnreadMessageCount(messageCount)
+                }
+                // FIX 1: Handle new review count updates from WebSocket
+                "reviewCountUpdate" -> {
+                    val reviewCount = jsonObject.getJSONObject("payload").getInt("reviewCount")
+                    sharedViewModel?.setUnreadReviewCount(reviewCount)
                 }
                 "newMessage" -> {
                     val message = gson.fromJson(jsonObject.getJSONObject("payload").toString(), Message::class.java)
@@ -199,4 +204,3 @@ object WebSocketManager {
         webSocket?.send(jsonMessage)
     }
 }
-
