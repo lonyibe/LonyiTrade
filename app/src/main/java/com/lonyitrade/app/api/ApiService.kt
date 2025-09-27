@@ -29,6 +29,10 @@ interface ApiService {
         @Part photo: MultipartBody.Part
     ): Response<UserProfile>
 
+    // --- New FCM Token Endpoint ---
+    @POST("api/users/fcm-token")
+    suspend fun updateFcmToken(@Body fcmTokenRequest: FcmTokenRequest): Response<Unit>
+
 
     // --- Adverts ---
     @GET("api/adverts")

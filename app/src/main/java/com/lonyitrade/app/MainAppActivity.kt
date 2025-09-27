@@ -2,6 +2,7 @@ package com.lonyitrade.app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -12,11 +13,19 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayout
+import com.google.firebase.messaging.FirebaseMessaging
 import com.lonyitrade.app.adapters.MainAppPagerAdapter
+import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Ad
+import com.lonyitrade.app.data.models.FcmTokenRequest
 import com.lonyitrade.app.utils.SessionManager
 import com.lonyitrade.app.utils.WebSocketManager
 import com.lonyitrade.app.viewmodels.SharedViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class MainAppActivity : AppCompatActivity() {
 
@@ -52,6 +61,9 @@ class MainAppActivity : AppCompatActivity() {
         sessionManager.fetchAuthToken()?.let { token ->
             WebSocketManager.connect(token)
         }
+
+        // --- New FCM Token Logic ---
+        retrieveAndSendFcmToken()
 
         viewPager.adapter = MainAppPagerAdapter(this)
         viewPager.offscreenPageLimit = 4 // Keep all fragments in memory
@@ -164,6 +176,42 @@ class MainAppActivity : AppCompatActivity() {
                 badge.isVisible = true
             } else {
                 badge.isVisible = false
+            }
+        }
+    }
+
+    private fun retrieveAndSendFcmToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            Log.d("FCM", "Current token: $token")
+            sendTokenToServer(token)
+        }
+    }
+
+    private fun sendTokenToServer(token: String) {
+        if (sessionManager.fetchAuthToken() == null) {
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val apiClient = ApiClient()
+                val response = apiClient.getApiService(this@MainAppActivity).updateFcmToken(FcmTokenRequest(token))
+
+                if (response.isSuccessful) {
+                    Log.d("FCM", "Token updated successfully on server from MainAppActivity.")
+                } else {
+                    Log.e("FCM", "Failed to update token on server from MainAppActivity: ${response.errorBody()?.string()}")
+                }
+            } catch (e: IOException) {
+                Log.e("FCM", "Network error while sending token from MainAppActivity: ${e.message}")
+            } catch (e: HttpException) {
+                Log.e("FCM", "HTTP error while sending token from MainAppActivity: ${e.message}")
             }
         }
     }

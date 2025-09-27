@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    id("com.google.gms.google-services") // Add this line
 }
 
 android {
@@ -67,4 +68,10 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     implementation("de.hdodenhof:circleimageview:3.1.0")
+
+    // --- New Firebase Dependencies ---
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    // Add the dependency for the Firebase Cloud Messaging library
+    implementation("com.google.firebase:firebase-messaging-ktx")
 }

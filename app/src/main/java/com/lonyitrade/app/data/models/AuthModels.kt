@@ -31,3 +31,8 @@ data class AuthResponse(
 data class TokenResponse(
     val token: String
 )
+
+// --- New Model for FCM Token ---
+data class FcmTokenRequest(
+    val fcmToken: String
+)
