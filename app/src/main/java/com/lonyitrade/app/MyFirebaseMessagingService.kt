@@ -51,9 +51,21 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         remoteMessage.data.isNotEmpty().let {
             Log.d("FCM", "Message data payload: " + remoteMessage.data)
             val title = remoteMessage.data["title"]
-            val body = remoteMessage.data["body"]
+            var body = remoteMessage.data["body"] // Start with the backend's default body
 
-            // Pass all data to a simpler showNotification that creates intent for ChatActivity
+            // FIX: Implement logic to check for specific chat content
+            val adId = remoteMessage.data["adId"]
+            val senderName = remoteMessage.data["senderName"] // New expected field from backend
+            val messageContent = remoteMessage.data["messageContent"] // New expected field from backend
+
+            // Check if it's a chat notification and we have specific message content
+            if (adId != null && senderName != null && messageContent != null) {
+                // If we have the specific name and message content, use the format: "Name: Message"
+                // This ensures subsequent messages show the actual chat content, not the generic "interested" phrase.
+                body = "$senderName: $messageContent"
+            }
+            // If data is missing (e.g., first message only has generic body), 'body' remains the default.
+
             showNotification(title, body, remoteMessage.data)
         }
     }
@@ -97,6 +109,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle(title)
+            // FIX: Use the potentially modified 'body' which now contains the sender name and message content
             .setContentText(body)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
