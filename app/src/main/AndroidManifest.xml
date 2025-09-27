@@ -79,10 +79,11 @@
         <activity
             android:name=".ChatActivity"
             android:exported="false"
-            android:launchMode="singleTop" />  <activity
-        android:name=".FullScreenImageActivity"
-        android:exported="false"
-        android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".FullScreenImageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <activity
             android:name=".ApplyForJobActivity"
@@ -91,6 +92,15 @@
         <activity
             android:name=".HireEmployeeActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".PostJobActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".JobListingActivity"
+            android:exported="false" />
+
         <activity
             android:name=".ReviewActivity"
             android:exported="false" />

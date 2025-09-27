@@ -149,6 +149,19 @@ interface ApiService {
         @Query("education") education: String?
     ): Response<List<JobApplication>>
 
+    // --- Job Listings (New) ---
+    @POST("api/jobs/listings")
+    suspend fun postJobListing(
+        @Header("Authorization") token: String,
+        @Body jobListingRequest: JobListingRequest
+    ): Response<JobAd>
+
+    @GET("api/jobs/listings")
+    suspend fun getJobListings(
+        @Query("q") query: String?,
+        @Query("location") location: String?
+    ): Response<List<JobAd>>
+
     // --- Reviews ---
     @POST("api/reviews")
     suspend fun postReview(

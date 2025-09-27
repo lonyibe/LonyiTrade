@@ -1,5 +1,6 @@
 package com.lonyitrade.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -21,6 +22,7 @@ class HireEmployeeActivity : AppCompatActivity() {
     private lateinit var searchJobTitle: EditText
     private lateinit var searchEducation: EditText
     private lateinit var searchEmployeesButton: Button
+    private lateinit var postJobAdvertButton: Button // FIX: New Button for posting jobs
     private lateinit var applicantsRecyclerView: RecyclerView
     private lateinit var sessionManager: SessionManager
     private var allJobApplications: List<JobApplication> = emptyList()
@@ -43,12 +45,19 @@ class HireEmployeeActivity : AppCompatActivity() {
         searchJobTitle = findViewById(R.id.searchJobTitle)
         searchEducation = findViewById(R.id.searchEducation)
         searchEmployeesButton = findViewById(R.id.searchEmployeesButton)
+        postJobAdvertButton = findViewById(R.id.postJobAdvertButton) // FIX: Initialize new button
         applicantsRecyclerView = findViewById(R.id.applicantsRecyclerView)
     }
 
     private fun setupListeners() {
         searchEmployeesButton.setOnClickListener {
             performSearch()
+        }
+
+        // FIX: Add listener for the new Post Job Advert button
+        postJobAdvertButton.setOnClickListener {
+            val intent = Intent(this, PostJobActivity::class.java) // Launch PostJobActivity
+            startActivity(intent)
         }
     }
 

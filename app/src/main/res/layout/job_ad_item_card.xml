@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/jobTitleTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Senior Mobile Developer (Kotlin/Android)" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="Location Icon"
+                    android:src="@drawable/ic_place"
+                    app:tint="@color/google_files_text_secondary" />
+
+                <TextView
+                    android:id="@+id/jobLocationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/google_files_text_secondary"
+                    android:textSize="12sp"
+                    tools:text="Location: Remote / Kampala" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/jobDescriptionTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:textColor="@color/google_files_text_secondary"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"
+                tools:text="Seeking a highly skilled developer to lead our mobile team. Must have 5+ years experience with Kotlin and a strong portfolio."/>
+
+            <Button
+                android:id="@+id/applyForJobButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="View Details &amp; Apply"
+                android:backgroundTint="?attr/colorPrimary"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

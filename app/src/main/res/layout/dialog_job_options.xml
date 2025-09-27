@@ -44,6 +44,16 @@
                     android:textSize="16sp"/>
 
                 <RadioButton
+                    android:id="@+id/optionFindJob"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Find Job"
+                    android:textColor="?attr/colorOnSurface"
+                    app:buttonTint="?attr/colorPrimary"
+                    android:padding="12dp"
+                    android:textSize="16sp"/>
+
+                <RadioButton
                     android:id="@+id/optionHireEmployee"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
