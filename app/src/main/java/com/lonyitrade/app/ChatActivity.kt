@@ -108,8 +108,13 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         sessionManager = SessionManager(this)
+
+        // --- CRITICAL: Intent Data Check ---
+        // If the intent came from a notification, the 'AD_EXTRA' will contain the full Ad object,
+        // which was fetched in MyFirebaseMessagingService.
         ad = intent.getParcelableExtra("AD_EXTRA") ?: run {
-            Toast.makeText(this, "Error loading ad data", Toast.LENGTH_SHORT).show()
+            // This case should now only happen if the ChatActivity was launched improperly.
+            Toast.makeText(this, "Error loading ad data. Launching conversation directly is not supported.", Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -129,7 +134,7 @@ class ChatActivity : AppCompatActivity() {
         observeNewMessages()
         observeTypingNotifications()
         observeMessageStatusUpdates()
-        checkAndRequestPermissions()
+        checkAndRequestPermissions() // Permissions for mic/audio recording
     }
 
     override fun onStop() {
@@ -521,6 +526,7 @@ class ChatActivity : AppCompatActivity() {
     // --- Audio Recording Functions ---
 
     private fun checkAndRequestPermissions(): Boolean {
+        // Only check for mic permission here, notification permission is handled in MainAppActivity
         return if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
             false
