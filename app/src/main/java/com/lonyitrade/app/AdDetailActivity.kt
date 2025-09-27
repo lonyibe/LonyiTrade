@@ -3,7 +3,9 @@ package com.lonyitrade.app
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +22,9 @@ class AdDetailActivity : AppCompatActivity() {
 
     private lateinit var ad: Ad
     private lateinit var sessionManager: SessionManager
+    private lateinit var adViewPager: ViewPager2
+    private lateinit var arrowLeft: ImageButton
+    private lateinit var arrowRight: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +46,7 @@ class AdDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.adTitleTextView).text = ad.title
 
         // Ad Details
-        val adViewPager: ViewPager2 = findViewById(R.id.adPhotosViewPager)
+        adViewPager = findViewById(R.id.adPhotosViewPager) // Initialize here
         val tabLayout: TabLayout = findViewById(R.id.photoTabLayout)
         val categoryTextView: TextView = findViewById(R.id.adCategoryTextView)
         val descriptionTextView: TextView = findViewById(R.id.adDescriptionTextView)
@@ -53,6 +58,10 @@ class AdDetailActivity : AppCompatActivity() {
         val adTypeTextView: TextView = findViewById(R.id.adTypeTextView)
         val messageSellerButton: Button = findViewById(R.id.messageSellerButton)
         val reviewButton: Button = findViewById(R.id.reviewButton)
+
+        // Initialize Arrows
+        arrowLeft = findViewById(R.id.arrowLeft)
+        arrowRight = findViewById(R.id.arrowRight)
 
         // Set Ad Details
         categoryTextView.text = "Category: ${ad.category}"
@@ -85,6 +94,53 @@ class AdDetailActivity : AppCompatActivity() {
             TabLayoutMediator(tabLayout, adViewPager) { _, _ -> }.attach()
             tabLayout.visibility = View.VISIBLE
 
+            val spacingPx = (resources.displayMetrics.density * 4).toInt() // 4dp horizontal spacing
+
+            for (i in 0 until tabLayout.tabCount) {
+                val tab = tabLayout.getTabAt(i)
+                tab?.view?.let { tabView ->
+                    tabView.setPadding(0, 0, 0, 0)
+                    val layoutParams = tabView.layoutParams as? ViewGroup.MarginLayoutParams
+                    if (layoutParams != null) {
+                        layoutParams.marginStart = spacingPx
+                        layoutParams.marginEnd = spacingPx
+                        tabView.layoutParams = layoutParams
+                    }
+                }
+            }
+
+            // Arrow visibility logic and click listeners
+            if (photos.size > 1) { // Only show arrows if there's more than one photo
+                arrowLeft.visibility = View.VISIBLE
+                arrowRight.visibility = View.VISIBLE
+
+                // Set initial visibility
+                updateArrowVisibility(adViewPager.currentItem, photos.size)
+
+                // Listener for page changes to update arrow visibility
+                adViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                    override fun onPageSelected(position: Int) {
+                        super.onPageSelected(position)
+                        updateArrowVisibility(position, photos.size)
+                    }
+                })
+
+                arrowLeft.setOnClickListener {
+                    if (adViewPager.currentItem > 0) {
+                        adViewPager.currentItem--
+                    }
+                }
+
+                arrowRight.setOnClickListener {
+                    if (adViewPager.currentItem < photos.size - 1) {
+                        adViewPager.currentItem++
+                    }
+                }
+            } else {
+                arrowLeft.visibility = View.GONE
+                arrowRight.visibility = View.GONE
+            }
+
             // Add click listener to open full screen view
             photoAdapter.setOnItemClickListener(object : AdPhotoAdapter.OnItemClickListener {
                 override fun onItemClick(position: Int) {
@@ -98,6 +154,8 @@ class AdDetailActivity : AppCompatActivity() {
         } else {
             adViewPager.visibility = View.GONE
             tabLayout.visibility = View.GONE
+            arrowLeft.visibility = View.GONE
+            arrowRight.visibility = View.GONE
         }
 
         // Handle "Message Seller" button visibility and action
@@ -117,11 +175,14 @@ class AdDetailActivity : AppCompatActivity() {
         // Pass necessary data to ReviewActivity
         reviewButton.setOnClickListener {
             val intent = Intent(this, ReviewActivity::class.java).apply {
-                // We pass the Ad object which contains the seller's ID (ad.userId)
-                // and the advert ID (ad.id) needed for review submission/fetching.
                 putExtra("AD_EXTRA", ad)
             }
             startActivity(intent)
         }
+    }
+
+    private fun updateArrowVisibility(currentPosition: Int, totalItems: Int) {
+        arrowLeft.visibility = if (currentPosition == 0) View.INVISIBLE else View.VISIBLE
+        arrowRight.visibility = if (currentPosition == totalItems - 1) View.INVISIBLE else View.VISIBLE
     }
 }

@@ -2,6 +2,7 @@ package com.lonyitrade.app
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -61,6 +62,26 @@ class RentalDetailActivity : AppCompatActivity() {
             rentalViewPager.adapter = photoAdapter
             TabLayoutMediator(tabLayout, rentalViewPager) { tab, position -> }.attach()
             tabLayout.visibility = View.VISIBLE
+
+            // ELITE CODE MASTER FIX: Reduce padding on individual tab views to shrink the indicator size (Fixes large transparent area/stretching)
+            val spacingPx = (resources.displayMetrics.density * 4).toInt() // 4dp horizontal spacing
+
+            for (i in 0 until tabLayout.tabCount) {
+                val tab = tabLayout.getTabAt(i)
+                tab?.view?.let { tabView ->
+                    // Set padding to 0 to eliminate the large default clickable area
+                    tabView.setPadding(0, 0, 0, 0)
+
+                    // Add a small margin to provide spacing between the 6dp dots
+                    val layoutParams = tabView.layoutParams as? ViewGroup.MarginLayoutParams
+                    if (layoutParams != null) {
+                        layoutParams.marginStart = spacingPx
+                        layoutParams.marginEnd = spacingPx
+                        tabView.layoutParams = layoutParams
+                    }
+                }
+            }
+            // END ELITE CODE MASTER FIX
         } else {
             rentalViewPager.visibility = View.GONE
             tabLayout.visibility = View.GONE
