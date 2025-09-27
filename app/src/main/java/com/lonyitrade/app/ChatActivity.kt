@@ -115,7 +115,27 @@ class ChatActivity : AppCompatActivity() {
         setupRecyclerView()
         checkAndRequestPermissions() // Permissions for mic/audio recording
 
-        // --- FIX: Robust Intent Handling for Deep Link ---
+        // FIX: Delegate the actual intent processing to a dedicated method
+        handleIncomingIntent(intent)
+
+        // FIX: Ensure real-time observers are set up immediately
+        observeTypingNotifications()
+        observeNewMessages()
+        observeMessageStatusUpdates()
+    }
+
+    // FIX: Correct signature for onNewIntent to properly override the method, addressing the 'overrides nothing' error.
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // FIX: Set the new intent as the current one and handle it if it's not null.
+        if (intent != null) {
+            setIntent(intent)
+            handleIncomingIntent(intent)
+        }
+    }
+
+    // FIX: Extracted intent handling logic into a reusable method.
+    private fun handleIncomingIntent(intent: Intent) {
         val adParcelable = intent.getParcelableExtra("AD_EXTRA") as? Ad
         val adIdFromNotification = intent.getStringExtra("adId")
 
@@ -133,9 +153,11 @@ class ChatActivity : AppCompatActivity() {
             // The Firebase Service passed the adId, now we fetch the full Ad object.
             fetchAdDetailsForDeepLink(adIdFromNotification)
         } else {
-            // Case 3: Error (neither parcelable nor adId found)
-            Toast.makeText(this, "Error: Missing conversation details.", Toast.LENGTH_LONG).show()
-            finish()
+            // Case 3: Error (neither parcelable nor adId found) - Only exit if it's the first launch
+            if (!::ad.isInitialized) {
+                Toast.makeText(this, "Error: Missing conversation details.", Toast.LENGTH_LONG).show()
+                finish()
+            }
         }
     }
 
@@ -171,7 +193,10 @@ class ChatActivity : AppCompatActivity() {
                 Log.e("ChatActivity", "Deep link failed to fetch Ad: ${e.message}")
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@ChatActivity, "Error loading conversation details. Please try again.", Toast.LENGTH_LONG).show()
-                    finish()
+                    // Only finish if 'ad' wasn't initialized, otherwise keep the user in the existing chat context
+                    if (!::ad.isInitialized) {
+                        finish()
+                    }
                 }
             }
         }
@@ -359,7 +384,7 @@ class ChatActivity : AppCompatActivity() {
     private fun observeNewMessages() {
         WebSocketManager.newMessage.observe(this) {
                 message ->
-            if (message.advertId == ad.id && (message.senderId == myUserId || message.receiverId == myUserId)) {
+            if (::ad.isInitialized && message.advertId == ad.id && (message.senderId == myUserId || message.receiverId == myUserId)) {
                 val existingIndex = messageList.indexOfFirst {
                     it.id == "temporaryId" && (it.content == message.content || it.audioUrl != null)
                 }
