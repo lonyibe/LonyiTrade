@@ -44,7 +44,6 @@ class HomeFragment : Fragment() {
     private var selectedCategory: String? = null
     private var currentSortBy: String = "latest" // Default sort
 
-    // Correctly initialize ApiClient
     private val apiService by lazy { ApiClient().getApiService(requireContext()) }
 
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
@@ -165,12 +164,16 @@ class HomeFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Correctly use the apiService instance
-                val response = if (category != null) {
-                    apiService.searchAdverts(query = null, category = category, district = null, minPrice = null, maxPrice = null, type = "for_sale", sortBy = null)
-                } else {
-                    apiService.getAdverts(sortBy)
-                }
+                // Use the new unified searchAdverts function for all cases
+                val response = apiService.searchAdverts(
+                    query = null,
+                    category = category,
+                    district = null,
+                    minPrice = null,
+                    maxPrice = null,
+                    type = "for_sale", // Always fetch "for_sale" ads on the home screen
+                    sortBy = sortBy
+                )
 
                 withContext(Dispatchers.Main) {
                     swipeRefreshLayout.isRefreshing = false

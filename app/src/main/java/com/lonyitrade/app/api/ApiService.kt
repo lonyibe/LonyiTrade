@@ -29,14 +29,22 @@ interface ApiService {
         @Part photo: MultipartBody.Part
     ): Response<UserProfile>
 
-    // --- New FCM Token Endpoint ---
     @POST("api/users/fcm-token")
     suspend fun updateFcmToken(@Body fcmTokenRequest: FcmTokenRequest): Response<Unit>
 
 
     // --- Adverts ---
+    // MERGED getAdverts and searchAdverts into one function
     @GET("api/adverts")
-    suspend fun getAdverts(@Query("sort_by") sortBy: String? = null): Response<List<Ad>>
+    suspend fun searchAdverts(
+        @Query("q") query: String?,
+        @Query("district") district: String?,
+        @Query("min_price") minPrice: String?,
+        @Query("max_price") maxPrice: String?,
+        @Query("type") type: String?,
+        @Query("category") category: String?,
+        @Query("sort_by") sortBy: String? // Added sortBy
+    ): Response<List<Ad>>
 
     @GET("api/adverts/my")
     suspend fun getMyAdverts(@Header("Authorization") token: String): Response<List<Ad>>
@@ -53,16 +61,6 @@ interface ApiService {
 
     @PUT("api/adverts/{id}")
     suspend fun updateAdvert(@Header("Authorization") token: String, @Path("id") adId: String, @Body adRequest: AdRequest): Response<Ad>
-
-    @GET("api/adverts")
-    suspend fun searchAdverts(
-        @Query("q") query: String?,
-        @Query("district") district: String?,
-        @Query("min_price") minPrice: String?,
-        @Query("max_price") maxPrice: String?,
-        @Query("type") type: String?,
-        @Query("category") category: String?
-    ): Response<List<Ad>>
 
 
     // --- Rentals ---
