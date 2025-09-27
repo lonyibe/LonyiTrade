@@ -83,22 +83,33 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        val adId = data["adId"]
+        val type = data["type"] // Get the explicit type
+        val adId = data["adId"] // Retain adId for use in notification ID
 
-        // If the message has an adId (i.e., it's a chat notification)
-        val targetIntent = if (adId != null) {
-            Intent(this, ChatActivity::class.java).apply {
-                // FIX: Use FLAG_ACTIVITY_CLEAR_TOP to bring the existing ChatActivity instance to the front and call onNewIntent.
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                // Pass the adId and other data as simple strings (including potential otherUserId if backend starts sending it)
-                data.forEach { (key, value) ->
-                    putExtra(key, value)
+        // FIX: Use 'when' expression to route based on explicit notification type
+        val targetIntent = when (type) {
+            "newMessage" -> {
+                Intent(this, ChatActivity::class.java).apply {
+                    // Use FLAG_ACTIVITY_CLEAR_TOP to bring the existing ChatActivity instance to the front.
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    // Pass all data to ChatActivity
+                    data.forEach { (key, value) -> putExtra(key, value) }
                 }
             }
-        } else {
-            // Fallback to SplashActivity for general notifications (like reviews)
-            Intent(this, SplashActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            "newReview" -> {
+                // Route to SplashActivity, which will check login status and route to ReviewActivity
+                Intent(this, SplashActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    // Pass all data including "type" and "adId"
+                    data.forEach { (key, value) -> putExtra(key, value) }
+                }
+            }
+            else -> {
+                // Fallback for general/untyped notifications
+                Intent(this, SplashActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    data.forEach { (key, value) -> putExtra(key, value) }
+                }
             }
         }
 
@@ -108,8 +119,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Build the notification
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notifications)
+            // Use the potentially modified 'body' which now contains the sender name and message content
             .setContentTitle(title)
-            // FIX: Use the potentially modified 'body' which now contains the sender name and message content
             .setContentText(body)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)

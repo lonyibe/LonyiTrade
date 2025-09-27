@@ -25,7 +25,8 @@ import kotlinx.coroutines.withContext
 
 class ReviewActivity : AppCompatActivity() {
 
-    private lateinit var ad: Ad
+    // FIX 1: Change to nullable var since ad might be loaded async via adId
+    private var ad: Ad? = null
     private lateinit var backButton: ImageView
     private lateinit var reviewsRecyclerView: RecyclerView
     private lateinit var noReviewsTextView: TextView
@@ -44,20 +45,73 @@ class ReviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_review)
 
-        ad = intent.getParcelableExtra("AD_EXTRA") ?: run {
-            Toast.makeText(this, "Error loading ad data", Toast.LENGTH_SHORT).show()
+        sessionManager = SessionManager(this)
+
+        // 1. Check for parcelable Ad object (from AdDetailActivity)
+        val adParcelable = intent.getParcelableExtra("AD_EXTRA") as? Ad
+        // 2. Check for adId string (from Notification deep link via SplashActivity)
+        val adIdFromNotification = intent.getStringExtra("adId")
+
+        // FIX 2: Handle both normal flow (AD_EXTRA) and deep-link flow (adId)
+        if (adParcelable != null) {
+            ad = adParcelable
+            initializeViews()
+            setupReviewList()
+            fetchReviews()
+        } else if (adIdFromNotification != null) {
+            // Case: Launched from notification (deep link)
+            loadingDialog.show(supportFragmentManager, "loading")
+            fetchAdDetails(adIdFromNotification)
+        } else {
+            // Case: No data at all
+            Toast.makeText(this, "Error loading review context.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    // FIX 3: New function to fetch Ad details by ID for notification deep-linking
+    private fun fetchAdDetails(adId: String) {
+        val token = sessionManager.fetchAuthToken()
+        if (token.isNullOrEmpty()) {
+            loadingDialog.dismiss()
+            Toast.makeText(this, "Please log in to view this review.", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        sessionManager = SessionManager(this)
-
-        initializeViews()
-        setupReviewList()
-        fetchReviews()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Use the API service to fetch the full Ad object
+                val response = apiService.getAdvertById("Bearer $token", adId)
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    if (response.isSuccessful && response.body() != null) {
+                        ad = response.body() // Store the fetched Ad object
+                        // Ad object is now ready, continue setup
+                        ad?.let {
+                            initializeViews()
+                            setupReviewList()
+                            fetchReviews()
+                        }
+                    } else {
+                        Toast.makeText(this@ReviewActivity, "Failed to load ad details: ${response.code()}", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    Toast.makeText(this@ReviewActivity, "Network error loading ad: ${e.message}", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
+        }
     }
 
+    // FIX 4: Update initializeViews to safely use the nullable 'ad'
     private fun initializeViews() {
+        val currentAd = ad ?: return // Safety check, exit if ad is null/not yet loaded
+
         backButton = findViewById(R.id.backButton)
         reviewsRecyclerView = findViewById(R.id.reviewsRecyclerView)
         noReviewsTextView = findViewById(R.id.noReviewsTextView)
@@ -66,14 +120,14 @@ class ReviewActivity : AppCompatActivity() {
         submitReviewButton = findViewById(R.id.submitReviewButton)
         submitReviewContainer = findViewById(R.id.submitReviewContainer)
 
-        findViewById<TextView>(R.id.toolbarTitle).text = "Reviews for ${ad.title}"
+        findViewById<TextView>(R.id.toolbarTitle).text = "Reviews for ${currentAd.title}"
 
         backButton.setOnClickListener {
             finish()
         }
 
         val currentUserId = sessionManager.getUserId()
-        if (ad.userId == currentUserId) {
+        if (currentAd.userId == currentUserId) {
             submitReviewContainer.visibility = View.GONE
         } else {
             submitReviewContainer.visibility = View.VISIBLE
@@ -91,13 +145,16 @@ class ReviewActivity : AppCompatActivity() {
         }
     }
 
+    // FIX 5: Update fetchReviews to safely use the nullable 'ad'
     private fun fetchReviews() {
+        val currentAd = ad ?: return // Safety check, exit if ad is null
+
         if (!loadingDialog.isAdded) {
             loadingDialog.show(supportFragmentManager, "loading")
         }
 
         val token = sessionManager.fetchAuthToken()
-        val userIdToReview = ad.userId
+        val userIdToReview = currentAd.userId // Use currentAd.userId
 
         if (token.isNullOrEmpty() || userIdToReview.isNullOrEmpty()) {
             loadingDialog.dismiss()
@@ -136,7 +193,10 @@ class ReviewActivity : AppCompatActivity() {
         }
     }
 
+    // FIX 6: Update postUserReview to safely use the nullable 'ad'
     private fun postUserReview() {
+        val currentAd = ad ?: return // Safety check, exit if ad is null
+
         val rating = ratingBar.rating
         val reviewText = reviewEditText.text.toString().trim()
 
@@ -151,8 +211,8 @@ class ReviewActivity : AppCompatActivity() {
         }
 
         val token = sessionManager.fetchAuthToken()
-        val userIdToReview = ad.userId
-        val advertId = ad.id
+        val userIdToReview = currentAd.userId // Use currentAd.userId
+        val advertId = currentAd.id // Use currentAd.id
 
         if (token.isNullOrEmpty() || userIdToReview.isNullOrEmpty() || advertId.isNullOrEmpty()) {
             Toast.makeText(this, "Review data missing. Cannot submit review.", Toast.LENGTH_SHORT).show()
