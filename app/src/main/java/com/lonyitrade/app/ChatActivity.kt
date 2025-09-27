@@ -108,44 +108,88 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         sessionManager = SessionManager(this)
-
-        // --- CRITICAL: Intent Data Check ---
-        // If the intent came from a notification, the 'AD_EXTRA' will contain the full Ad object,
-        // which was fetched in MyFirebaseMessagingService.
-        ad = intent.getParcelableExtra("AD_EXTRA") ?: run {
-            // This case should now only happen if the ChatActivity was launched improperly.
-            Toast.makeText(this, "Error loading ad data. Launching conversation directly is not supported.", Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
-
-        if (ad.userId == null) {
-            Toast.makeText(this, "Seller details are missing. Cannot start chat.", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
-        myUserId = sessionManager.getUserId() ?: ""
+        myUserId = sessionManager.getUserId() ?: "" // Initialize myUserId here
 
         initializeViews()
         setupListeners()
         setupRecyclerView()
-        fetchSellerDetails()
-        observeNewMessages()
-        observeTypingNotifications()
-        observeMessageStatusUpdates()
         checkAndRequestPermissions() // Permissions for mic/audio recording
+
+        // --- FIX: Robust Intent Handling for Deep Link ---
+        val adParcelable = intent.getParcelableExtra("AD_EXTRA") as? Ad
+        val adIdFromNotification = intent.getStringExtra("adId")
+
+        if (adParcelable != null) {
+            // Case 1: Launched from MessagesFragment/AdDetailActivity (expected)
+            ad = adParcelable
+            if (ad.userId == null) { // Check for a critical piece of data
+                Toast.makeText(this, "Seller details are missing. Cannot start chat.", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+            fetchSellerDetails() // Will call fetchMessages() on success
+        } else if (adIdFromNotification != null) {
+            // Case 2: Launched from Notification (deep link)
+            // The Firebase Service passed the adId, now we fetch the full Ad object.
+            fetchAdDetailsForDeepLink(adIdFromNotification)
+        } else {
+            // Case 3: Error (neither parcelable nor adId found)
+            Toast.makeText(this, "Error: Missing conversation details.", Toast.LENGTH_LONG).show()
+            finish()
+        }
     }
+
+    // --- NEW FUNCTION: Fetch Ad Details for Deep Link ---
+    private fun fetchAdDetailsForDeepLink(adId: String) {
+        val token = sessionManager.fetchAuthToken()
+        if (token == null) {
+            Toast.makeText(this, "Please log in to view this conversation.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val adResponse = apiService.getAdvertById("Bearer $token", adId)
+
+                if (!adResponse.isSuccessful || adResponse.body() == null) {
+                    throw IOException("Failed to fetch Ad details for ID: $adId. HTTP Code: ${adResponse.code()}")
+                }
+
+                val fetchedAd = adResponse.body()!!
+
+                if (fetchedAd.userId == null) {
+                    throw IOException("Fetched Ad is missing seller ID.")
+                }
+
+                // Set the fetched Ad and proceed
+                withContext(Dispatchers.Main) {
+                    ad = fetchedAd
+                    fetchSellerDetails() // Will proceed with chat setup
+                }
+            } catch (e: Exception) {
+                Log.e("ChatActivity", "Deep link failed to fetch Ad: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ChatActivity, "Error loading conversation details. Please try again.", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
+        }
+    }
+    // ---------------------------------------------------
+
 
     override fun onStop() {
         super.onStop()
-        if (isTyping) {
-            ad.id?.let { advertId ->
-                ad.userId?.let { receiverId ->
-                    WebSocketManager.sendStopTypingEvent(advertId, receiverId)
+        if (::ad.isInitialized) { // Check if 'ad' is initialized before using
+            if (isTyping) {
+                ad.id?.let { advertId ->
+                    ad.userId?.let { receiverId ->
+                        WebSocketManager.sendStopTypingEvent(advertId, receiverId)
+                    }
                 }
+                isTyping = false
             }
-            isTyping = false
         }
         if (isRecording) {
             stopRecording(send = false) // Cancel recording if activity is stopped
@@ -234,7 +278,8 @@ class ChatActivity : AppCompatActivity() {
                     attachMediaButton.visibility = View.GONE
                 }
 
-                if (ad.id == null || ad.userId == null) return
+                if (!::ad.isInitialized || ad.id == null || ad.userId == null) return // Guard clause
+
                 if (!isTyping) {
                     isTyping = true
                     WebSocketManager.sendTypingEvent(ad.id!!, ad.userId!!)
@@ -494,7 +539,7 @@ class ChatActivity : AppCompatActivity() {
     private fun observeTypingNotifications() {
         WebSocketManager.typingNotification.observe(this) {
                 (senderId, advertId, isTyping) ->
-            if (senderId == ad.userId && advertId == ad.id) {
+            if (::ad.isInitialized && senderId == ad.userId && advertId == ad.id) {
                 if (isTyping) {
                     typingIndicatorTextView.visibility = View.VISIBLE
                     startTypingAnimation()

@@ -49,7 +49,6 @@ interface ApiService {
     @GET("api/adverts/my")
     suspend fun getMyAdverts(@Header("Authorization") token: String): Response<List<Ad>>
 
-    // --- FIX: Added endpoint to fetch a single Ad by ID ---
     @GET("api/adverts/{id}")
     suspend fun getAdvertById(@Header("Authorization") token: String, @Path("id") adId: String): Response<Ad>
 

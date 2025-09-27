@@ -12,7 +12,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.api.ApiService
-import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.data.models.FcmTokenRequest
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +23,6 @@ import java.io.IOException
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private lateinit var sessionManager: SessionManager
-    private val apiService: ApiService by lazy { ApiClient().getApiService(applicationContext) }
 
     override fun onCreate() {
         super.onCreate()
@@ -52,62 +50,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Handle data payload
         remoteMessage.data.isNotEmpty().let {
             Log.d("FCM", "Message data payload: " + remoteMessage.data)
-
-            val type = remoteMessage.data["type"]
-            val adId = remoteMessage.data["adId"]
             val title = remoteMessage.data["title"]
             val body = remoteMessage.data["body"]
 
-            if (type == "newMessage" && adId != null) {
-                // FIX: If a message is received, we need to fetch the full Ad object for the deep link
-                handleMessageNotification(adId, title, body, remoteMessage.data)
-            } else {
-                // For general notifications (like 'newReview' or others)
-                showNotification(title, body, remoteMessage.data, null)
-            }
+            // FIX: Pass all data to a simpler showNotification that creates intent for ChatActivity
+            showNotification(title, body, remoteMessage.data)
         }
     }
-
-    /**
-     * Fetches Ad data and then displays the notification with a specific deep link.
-     */
-    private fun handleMessageNotification(adId: String, title: String?, body: String?, data: Map<String, String>) {
-        val token = sessionManager.fetchAuthToken()
-        if (token == null) {
-            // Can't fetch details without a token, so just open the main activity
-            showNotification(title, body, data, null)
-            return
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = apiService.getAdvertById("Bearer $token", adId)
-                if (response.isSuccessful) {
-                    val ad = response.body()
-                    if (ad != null) {
-                        // FIX: Pass the full Ad object to the notification creator
-                        showNotification(title, body, data, ad)
-                    } else {
-                        Log.e("FCM", "Failed to parse Ad data for deep link.")
-                        showNotification(title, body, data, null)
-                    }
-                } else {
-                    Log.e("FCM", "API failed to fetch Ad details for notification: ${response.errorBody()?.string()}")
-                    showNotification(title, body, data, null)
-                }
-            } catch (e: Exception) {
-                Log.e("FCM", "Network error while fetching Ad details for notification: ${e.message}")
-                showNotification(title, body, data, null)
-            }
-        }
-    }
-
 
     /**
      * Creates and displays a system notification.
-     * The targetIntent now depends on whether an Ad object is provided.
+     * Always passes data to ChatActivity, which is now responsible for fetching the Ad object.
      */
-    private fun showNotification(title: String?, body: String?, data: Map<String, String>, ad: Ad?) {
+    private fun showNotification(title: String?, body: String?, data: Map<String, String>) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "default_channel_id"
 
@@ -117,20 +72,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // --- FIX: Change Target Activity and Pass Parcelable ---
-        val targetIntent = if (ad != null) {
-            // Deep Link to ChatActivity with the required Ad object
+        // --- FIX: Determine Target Activity Based on Ad ID ---
+        val adId = data["adId"]
+
+        // If the message has an adId (i.e., it's a chat notification)
+        val targetIntent = if (adId != null) {
             Intent(this, ChatActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                // This is CRUCIAL: Pass the fetched Ad object as the expected Parcelable extra
-                putExtra("AD_EXTRA", ad)
-                // You can still pass the raw data, but the Ad object is what ChatActivity needs
+                // Pass the adId and other data as simple strings
                 data.forEach { (key, value) ->
                     putExtra(key, value)
                 }
             }
         } else {
-            // Fallback to SplashActivity or MainAppActivity (no deep link)
+            // Fallback to SplashActivity for general notifications (like reviews)
             Intent(this, SplashActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
@@ -146,10 +101,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
-        // Use a unique ID for chat notifications to update them later if needed.
-        // For simplicity, using a generic ID or adId hash here.
-        // Using 0 as before, but this is a point for future improvement.
-        val notificationId = ad?.id?.hashCode() ?: 0
+        val notificationId = adId?.hashCode() ?: 0 // Use adId for unique ID
 
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
@@ -165,8 +117,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Use the existing apiService instance
-                val response = apiService.updateFcmToken(FcmTokenRequest(token))
+                val apiClient = ApiClient()
+                val response = apiClient.getApiService(this@MyFirebaseMessagingService).updateFcmToken(FcmTokenRequest(token))
 
                 if (response.isSuccessful) {
                     Log.d("FCM", "Token updated successfully on server.")
