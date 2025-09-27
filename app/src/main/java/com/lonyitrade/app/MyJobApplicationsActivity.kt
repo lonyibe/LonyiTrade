@@ -23,6 +23,9 @@ class MyJobApplicationsActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var noApplicationsTextView: TextView
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_job_applications)
@@ -56,7 +59,8 @@ class MyJobApplicationsActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
-                val response = ApiClient.apiService.getMyJobApplications("Bearer $token")
+                // Correctly use the apiService instance
+                val response = apiService.getMyJobApplications("Bearer $token")
                 progressBar.visibility = View.GONE
                 if (response.isSuccessful) {
                     val applications = response.body() ?: emptyList()
@@ -69,7 +73,7 @@ class MyJobApplicationsActivity : AppCompatActivity() {
                         jobApplicationAdapter.updateApplications(applications)
                     }
                 } else {
-                    Toast.makeText(this@MyJobApplicationsActivity, "Failed to load applications", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MyJobApplicationsActivity, "Failed to load applications: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 progressBar.visibility = View.GONE

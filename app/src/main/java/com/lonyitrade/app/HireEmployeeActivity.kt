@@ -25,6 +25,9 @@ class HireEmployeeActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
     private var allJobApplications: List<JobApplication> = emptyList()
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hire_employee)
@@ -61,15 +64,15 @@ class HireEmployeeActivity : AppCompatActivity() {
         }
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Corrected the method call to getJobApplicants
-                val response = ApiClient.apiService.getJobApplicants("Bearer $token", null, null)
+                // Correctly use the apiService instance
+                val response = apiService.getJobApplicants("Bearer $token", null, null)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val applications = response.body() ?: emptyList()
                         allJobApplications = applications
                         displayJobApplications(applications)
                     } else {
-                        Toast.makeText(this@HireEmployeeActivity, "Failed to load applicants", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@HireEmployeeActivity, "Failed to load applicants: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

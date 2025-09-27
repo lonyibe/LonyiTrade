@@ -35,7 +35,9 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
     private var adList: MutableList<Ad> = mutableListOf()
     private lateinit var networkErrorLayout: LinearLayout
 
-    // NEW: NetworkChangeReceiver instance
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
+
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     private val editAdLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -53,7 +55,6 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
         networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
         myAdsRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        // NEW: Initialize the receiver with both onNetworkAvailable and onNetworkLost callbacks
         networkChangeReceiver = NetworkChangeReceiver(
             onNetworkAvailable = {
                 fetchMyAds()
@@ -67,13 +68,11 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
         fetchMyAds()
     }
 
-    // NEW: Register the receiver when the fragment is started
     override fun onStart() {
         super.onStart()
         requireContext().registerReceiver(networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
     }
 
-    // NEW: Unregister the receiver when the fragment is stopped
     override fun onStop() {
         super.onStop()
         requireContext().unregisterReceiver(networkChangeReceiver)
@@ -106,7 +105,8 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
         val token = sessionManager.fetchAuthToken() ?: return
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.getMyAdverts("Bearer $token")
+                // Correctly use the apiService instance
+                val response = apiService.getMyAdverts("Bearer $token")
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ads = response.body() ?: emptyList()
@@ -115,7 +115,7 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
                         adapter.notifyDataSetChanged()
                         updateEmptyView()
                     } else {
-                        Toast.makeText(context, "Failed to load ads", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to load ads: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -147,7 +147,8 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.deleteAdvert("Bearer $token", adId)
+                // Correctly use the apiService instance
+                val response = apiService.deleteAdvert("Bearer $token", adId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         Toast.makeText(context, "Ad deleted", Toast.LENGTH_SHORT).show()
@@ -158,7 +159,7 @@ class MyAdsFragment : Fragment(R.layout.fragment_my_ads) {
                             updateEmptyView()
                         }
                     } else {
-                        Toast.makeText(context, "Failed to delete ad", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Failed to delete ad: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

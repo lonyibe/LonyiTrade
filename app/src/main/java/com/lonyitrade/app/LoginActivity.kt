@@ -26,6 +26,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var loginButton: Button
     private lateinit var loginProgressBar: ProgressBar
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -49,7 +52,8 @@ class LoginActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val request = LoginRequest(phoneNumber, password)
-                        val response = ApiClient.apiService.loginUser(request)
+                        // Correctly use the apiService instance
+                        val response = apiService.loginUser(request)
 
                         withContext(Dispatchers.Main) {
                             showLoading(false)
