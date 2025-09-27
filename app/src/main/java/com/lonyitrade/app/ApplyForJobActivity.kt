@@ -24,6 +24,8 @@ class ApplyForJobActivity : AppCompatActivity() {
     private lateinit var applyButton: Button
     private lateinit var applyProgressBar: ProgressBar
     private lateinit var sessionManager: SessionManager
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,19 +78,21 @@ class ApplyForJobActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.applyForJob("Bearer $token", jobApplicationRequest)
+                // Use the correctly initialized apiService
+                val response = apiService.applyForJob("Bearer $token", jobApplicationRequest)
                 withContext(Dispatchers.Main) {
                     showLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(this@ApplyForJobActivity, "Application submitted successfully!", Toast.LENGTH_LONG).show()
                         finish()
                     } else {
-                        Toast.makeText(this@ApplyForJobActivity, "Failed to submit application", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ApplyForJobActivity, "Failed to submit application: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     showLoading(false)
+                    // Corrected the label here
                     Toast.makeText(this@ApplyForJobActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }

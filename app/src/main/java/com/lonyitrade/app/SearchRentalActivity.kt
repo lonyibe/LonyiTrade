@@ -27,6 +27,9 @@ class SearchRentalActivity : AppCompatActivity() {
     private lateinit var searchButton: Button
     private lateinit var backButton: ImageView
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     // Form Fields
     private lateinit var propertyTypeSpinner: Spinner
     private lateinit var districtEditText: EditText
@@ -101,7 +104,8 @@ class SearchRentalActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.getRentals()
+                // Correctly use the apiService instance
+                val response = apiService.getRentals()
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         var rentals = response.body() ?: emptyList()
@@ -131,6 +135,7 @@ class SearchRentalActivity : AppCompatActivity() {
                         }
                     } else {
                         showNoResults()
+                        Toast.makeText(this@SearchRentalActivity, "Failed to get results: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {

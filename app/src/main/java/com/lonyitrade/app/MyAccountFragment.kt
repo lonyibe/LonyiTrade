@@ -19,6 +19,8 @@ import kotlinx.coroutines.withContext
 class MyAccountFragment : Fragment(R.layout.fragment_my_account) {
 
     private lateinit var sessionManager: SessionManager
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,7 +65,8 @@ class MyAccountFragment : Fragment(R.layout.fragment_my_account) {
         if (token != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val response = ApiClient.apiService.getUserProfile("Bearer $token")
+                    // Correctly use the apiService instance
+                    val response = apiService.getUserProfile("Bearer $token")
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             val userProfile = response.body()
@@ -71,7 +74,7 @@ class MyAccountFragment : Fragment(R.layout.fragment_my_account) {
                             phoneNumberTextView.text = userProfile?.phoneNumber ?: "N/A"
                             districtTextView.text = userProfile?.district ?: "N/A"
 
-                            // NEW: Load the profile picture using Glide
+                            // Correctly reference the public BASE_URL
                             userProfile?.profilePictureUrl?.let {
                                 Glide.with(requireContext())
                                     .load(ApiClient.BASE_URL.trimEnd('/') + it)

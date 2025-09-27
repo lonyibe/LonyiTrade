@@ -58,6 +58,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var messageAdapter: MessageAdapter
     private var selectedMediaUri: Uri? = null
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     // UI Elements
     private lateinit var adTitleTextView: TextView
     private lateinit var adPriceTextView: TextView
@@ -259,7 +262,6 @@ class ChatActivity : AppCompatActivity() {
         messageAdapter = MessageAdapter(this, messageList) {
                 imageUrl ->
             val intent = Intent(this, FullScreenImageActivity::class.java).apply {
-                // FIX 2: Pass the single image URL as a list with the expected key for ViewPager2
                 putStringArrayListExtra("image_urls", arrayListOf(imageUrl))
                 putExtra("position", 0)
             }
@@ -289,7 +291,8 @@ class ChatActivity : AppCompatActivity() {
         val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = ApiClient.apiService.getUserById("Bearer $token", sellerUserId)
+                // Correctly use the apiService instance
+                val response = apiService.getUserById("Bearer $token", sellerUserId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         seller = response.body() !!
@@ -307,10 +310,6 @@ class ChatActivity : AppCompatActivity() {
         WebSocketManager.newMessage.observe(this) {
                 message ->
             if (message.advertId == ad.id && (message.senderId == myUserId || message.receiverId == myUserId)) {
-                // The logic to find a temporary message with id="temporaryId" is only for text/audio.
-                // For a media message that was just uploaded, there is no temporary message, so we just add it.
-                // The API call response handles adding the message immediately for the sender,
-                // and this block handles messages from the receiver or messages that were not immediately added locally.
                 val existingIndex = messageList.indexOfFirst {
                     it.id == "temporaryId" && (it.content == message.content || it.audioUrl != null)
                 }
@@ -318,19 +317,17 @@ class ChatActivity : AppCompatActivity() {
                     messageList[existingIndex] = message
                     messageAdapter.notifyItemChanged(existingIndex)
                 } else {
-                    // Check for existing message by ID to prevent duplicates if API response and WS both fire
                     if (message.id != null && messageList.none { it.id == message.id }) {
                         messageList.add(message)
                         messageAdapter.notifyItemInserted(messageList.size - 1)
                     } else if (message.id == null) {
-                        // This case handles a temporary message or a new incoming message if no ID is assigned yet (unlikely for server message)
                         messageList.add(message)
                         messageAdapter.notifyItemInserted(messageList.size - 1)
                     }
                 }
                 messagesRecyclerView.scrollToPosition(messageList.size - 1)
                 if (message.senderId == ad.userId && message.status != "read") {
-                    WebSocketManager.markMessagesAsRead(ad.id!!, ad.userId!!)
+                    ad.id?.let { ad.userId?.let { it1 -> WebSocketManager.markMessagesAsRead(it, it1) } }
                 }
             }
         }
@@ -358,7 +355,6 @@ class ChatActivity : AppCompatActivity() {
         sdf.timeZone = TimeZone.getTimeZone("UTC")
         val timestamp = sdf.format(Date())
 
-        // Create a temporary message to display instantly
         val tempMessage = Message(
             id = "temporaryId",
             senderId = myUserId,
@@ -375,7 +371,6 @@ class ChatActivity : AppCompatActivity() {
         messagesRecyclerView.scrollToPosition(messageList.size - 1)
         messageEditText.text.clear()
 
-        // Send the message via WebSocket
         val payload = mutableMapOf < String,
                 Any > (
             "receiver_id" to receiverId,
@@ -417,7 +412,8 @@ class ChatActivity : AppCompatActivity() {
         val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = ApiClient.apiService.getMessages("Bearer $token", advertId, sellerUserId)
+                // Correctly use the apiService instance
+                val response = apiService.getMessages("Bearer $token", advertId, sellerUserId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val messages = response.body() ?: emptyList()
@@ -455,10 +451,10 @@ class ChatActivity : AppCompatActivity() {
 
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    val response = ApiClient.apiService.uploadMessageMedia("Bearer $token", advertIdRequestBody, receiverIdRequestBody, mediaPart, captionRequestBody)
+                    // Correctly use the apiService instance
+                    val response = apiService.uploadMessageMedia("Bearer $token", advertIdRequestBody, receiverIdRequestBody, mediaPart, captionRequestBody)
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
-                            // FIX 1: Manually insert the successful message response to trigger UI update
                             val uploadedMessage = response.body()
                             if (uploadedMessage != null) {
                                 messageList.add(uploadedMessage)
@@ -630,44 +626,38 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-        // --- Create a temporary message ---
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         sdf.timeZone = TimeZone.getTimeZone("UTC")
         val timestamp = sdf.format(Date())
         val tempMessage = Message(
-            id = "temporaryId_${System.currentTimeMillis()}", // More unique temp ID
+            id = "temporaryId_${System.currentTimeMillis()}",
             senderId = myUserId,
             receiverId = receiverId,
             advertId = advertId,
             content = null,
             createdAt = timestamp,
             mediaUrl = null,
-            audioUrl = file.absolutePath, // Local path for now
-            status = "sending" // A "sending" status is more accurate here
+            audioUrl = file.absolutePath,
+            status = "sending"
         )
         val tempMessagePosition = messageList.size
         messageList.add(tempMessage)
         messageAdapter.notifyItemInserted(tempMessagePosition)
         messagesRecyclerView.scrollToPosition(tempMessagePosition)
 
-
-        // --- Prepare the upload ---
         val requestFile = file.asRequestBody("audio/m4a".toMediaTypeOrNull())
         val audioPart = MultipartBody.Part.createFormData("audio", file.name, requestFile)
         val advertIdRequestBody = advertId.toRequestBody("text/plain".toMediaTypeOrNull())
         val receiverIdRequestBody = receiverId.toRequestBody("text/plain".toMediaTypeOrNull())
 
-
-        // --- Make the API call ---
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val response = ApiClient.apiService.uploadMessageAudio("Bearer $token", advertIdRequestBody, receiverIdRequestBody, audioPart)
+                // Correctly use the apiService instance
+                val response = apiService.uploadMessageAudio("Bearer $token", advertIdRequestBody, receiverIdRequestBody, audioPart)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val uploadedMessage = response.body()
                         if (uploadedMessage != null) {
-                            // The websocket will probably send an update, but you can also update the UI here
-                            // For example, find the temporary message and replace it with the real one
                             val index = messageList.indexOfFirst { it.id == tempMessage.id }
                             if (index != -1) {
                                 messageList[index] = uploadedMessage
@@ -675,7 +665,6 @@ class ChatActivity : AppCompatActivity() {
                             }
                         }
                     } else {
-                        // Handle the error - maybe change the status of the temp message to "failed"
                         val index = messageList.indexOfFirst { it.id == tempMessage.id }
                         if (index != -1) {
                             messageList[index] = tempMessage.copy(status = "failed")
@@ -686,7 +675,6 @@ class ChatActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    // Handle the error
                     val index = messageList.indexOfFirst { it.id == tempMessage.id }
                     if (index != -1) {
                         messageList[index] = tempMessage.copy(status = "failed")

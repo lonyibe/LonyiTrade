@@ -10,7 +10,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -44,6 +43,9 @@ class HomeFragment : Fragment() {
     private lateinit var networkErrorLayout: LinearLayout
     private var selectedCategory: String? = null
     private var currentSortBy: String = "latest" // Default sort
+
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
 
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
@@ -88,7 +90,6 @@ class HomeFragment : Fragment() {
         setupCategoryBubbles()
 
         sharedViewModel.adList.observe(viewLifecycleOwner) { updatedList ->
-            // FIX: Correctly get the userId from SessionManager
             val currentUserId = sessionManager.getUserId()
             adAdapter = AdAdapter(updatedList, currentUserId) { ad ->
                 (activity as? MainAppActivity)?.openChatActivity(ad)
@@ -164,10 +165,11 @@ class HomeFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // Correctly use the apiService instance
                 val response = if (category != null) {
-                    ApiClient.apiService.searchAdverts(query = null, category = category, district = null, minPrice = null, maxPrice = null, type = "for_sale")
+                    apiService.searchAdverts(query = null, category = category, district = null, minPrice = null, maxPrice = null, type = "for_sale", sortBy = null)
                 } else {
-                    ApiClient.apiService.getAdverts(sortBy)
+                    apiService.getAdverts(sortBy)
                 }
 
                 withContext(Dispatchers.Main) {
@@ -176,7 +178,7 @@ class HomeFragment : Fragment() {
                         val fetchedAds = response.body()
                         sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
                     } else {
-                        Toast.makeText(requireContext(), "Failed to fetch ads: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to fetch ads: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

@@ -25,6 +25,9 @@ class EditAdActivity : AppCompatActivity() {
     private lateinit var ad: Ad
     private lateinit var sessionManager: SessionManager
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     // UI Elements
     private lateinit var titleEditText: EditText
     private lateinit var descriptionEditText: EditText
@@ -123,15 +126,15 @@ class EditAdActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Correct call to updateAdvert
-                val response = ApiClient.apiService.updateAdvert("Bearer $token", ad.id!!, adRequest)
+                // Correctly use the apiService instance
+                val response = apiService.updateAdvert("Bearer $token", ad.id!!, adRequest)
                 withContext(Dispatchers.Main) {
                     showLoading(false)
                     if (response.isSuccessful) {
                         Toast.makeText(this@EditAdActivity, "Ad updated successfully!", Toast.LENGTH_SHORT).show()
                         finish() // Go back to the My Ads screen
                     } else {
-                        Toast.makeText(this@EditAdActivity, "Failed to update ad: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@EditAdActivity, "Failed to update ad: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

@@ -30,6 +30,9 @@ class PostAdFragment : Fragment() {
     private var adPhotoUris = mutableListOf<Uri>()
     private var rentalPhotoUris = mutableListOf<Uri>()
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
+
     // UI Elements
     private lateinit var postAdButton: Button
     private lateinit var postAdProgressBar: ProgressBar
@@ -225,7 +228,8 @@ class PostAdFragment : Fragment() {
     private fun postAd(token: String, adRequest: AdRequest) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.postAdvert("Bearer $token", adRequest)
+                // Correctly use the apiService instance
+                val response = apiService.postAdvert("Bearer $token", adRequest)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ad = response.body()
@@ -238,7 +242,7 @@ class PostAdFragment : Fragment() {
                         }
                     } else {
                         showLoading(false)
-                        Toast.makeText(requireContext(), "Failed to post ad", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to post ad: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -261,7 +265,8 @@ class PostAdFragment : Fragment() {
         if (parts.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    ApiClient.apiService.uploadAdPhotos("Bearer $token", adId, parts)
+                    // Correctly use the apiService instance
+                    apiService.uploadAdPhotos("Bearer $token", adId, parts)
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Ad and photos posted successfully!", Toast.LENGTH_SHORT).show()
@@ -293,10 +298,9 @@ class PostAdFragment : Fragment() {
         val landlordEmail = landlordEmailEditText.text.toString().trim()
         val landlordWhatsapp = landlordWhatsappEditText.text.toString().trim().ifEmpty { null }
 
-        // --- Start of The Fix ---
         val landlordType = when (landlordTypeRadioGroup.checkedRadioButtonId) {
-            R.id.landlordTypeLandlord -> "Landlord" // Assumes this ID exists in your layout
-            R.id.landlordTypeAgent -> "Agent"       // Assumes this ID exists in your layout
+            R.id.landlordTypeLandlord -> "Landlord"
+            R.id.landlordTypeAgent -> "Agent"
             else -> {
                 val selectedRadioButton = view?.findViewById<RadioButton>(landlordTypeRadioGroup.checkedRadioButtonId)
                 if (selectedRadioButton?.text.toString().contains("Landlord", ignoreCase = true)) {
@@ -308,7 +312,6 @@ class PostAdFragment : Fragment() {
                 }
             }
         }
-        // --- End of The Fix ---
 
         if (propertyType.isEmpty() || city.isEmpty() || district.isEmpty() || rooms == null || rent == null || priceType.isEmpty() || rules.isEmpty() || description.isEmpty() || landlordName.isEmpty() || landlordPhone.isEmpty() || landlordType.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill in all required fields for the rental listing.", Toast.LENGTH_LONG).show()
@@ -336,7 +339,8 @@ class PostAdFragment : Fragment() {
     private fun postRental(token: String, rentalRequest: RentalRequest) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.postRental("Bearer $token", rentalRequest)
+                // Correctly use the apiService instance
+                val response = apiService.postRental("Bearer $token", rentalRequest)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val rental = response.body()
@@ -349,7 +353,7 @@ class PostAdFragment : Fragment() {
                         }
                     } else {
                         showLoading(false)
-                        Toast.makeText(requireContext(), "Failed to post rental", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to post rental: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -372,7 +376,8 @@ class PostAdFragment : Fragment() {
         if (parts.isNotEmpty()) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    ApiClient.apiService.uploadRentalPhotos("Bearer $token", rentalId, parts)
+                    // Correctly use the apiService instance
+                    apiService.uploadRentalPhotos("Bearer $token", rentalId, parts)
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(requireContext(), "Rental and photos posted successfully!", Toast.LENGTH_SHORT).show()
@@ -405,7 +410,6 @@ class PostAdFragment : Fragment() {
     }
 
     private fun displayRentalImages() {
-        // Clear all but the "add photo" button
         if (rentalImageContainer.childCount > 1) {
             rentalImageContainer.removeViews(0, rentalImageContainer.childCount - 1)
         }

@@ -28,6 +28,9 @@ class MessagesFragment : Fragment() {
     private lateinit var sessionManager: SessionManager
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -91,7 +94,8 @@ class MessagesFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val response = ApiClient.apiService.getConversations("Bearer $token")
+                // Correctly use the apiService instance
+                val response = apiService.getConversations("Bearer $token")
                 if (response.isSuccessful) {
                     val conversations = response.body() ?: emptyList()
                     conversationsAdapter.updateConversations(conversations)
@@ -101,7 +105,7 @@ class MessagesFragment : Fragment() {
                     sharedViewModel.setUnreadMessageCount(totalUnread)
 
                 } else {
-                    Toast.makeText(context, "Failed to load conversations: ${response.message()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Failed to load conversations: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(context, "Error fetching conversations: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -117,4 +121,3 @@ class MessagesFragment : Fragment() {
         progressBar = null
     }
 }
-

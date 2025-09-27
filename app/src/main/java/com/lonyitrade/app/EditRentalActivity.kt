@@ -25,6 +25,9 @@ class EditRentalActivity : AppCompatActivity() {
     private lateinit var rental: Rental
     private lateinit var sessionManager: SessionManager
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     // UI Elements
     private lateinit var propertyTypeSpinner: Spinner
     private lateinit var rentalRoomsEditText: EditText
@@ -161,7 +164,8 @@ class EditRentalActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.updateRental("Bearer $token", rentalId, rentalRequest)
+                // Correctly use the apiService instance
+                val response = apiService.updateRental("Bearer $token", rentalId, rentalRequest)
                 withContext(Dispatchers.Main) {
                     showLoading(false)
                     if (response.isSuccessful) {
@@ -169,7 +173,7 @@ class EditRentalActivity : AppCompatActivity() {
                         setResult(RESULT_OK)
                         finish()
                     } else {
-                        Toast.makeText(this@EditRentalActivity, "Failed to update rental", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@EditRentalActivity, "Failed to update rental: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

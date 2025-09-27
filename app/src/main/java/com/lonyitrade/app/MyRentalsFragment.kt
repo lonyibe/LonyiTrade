@@ -35,6 +35,9 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
     private var rentalList: MutableList<Rental> = mutableListOf()
     private var networkErrorLayout: LinearLayout? = null
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
+
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     private val editRentalLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -47,7 +50,6 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
         super.onViewCreated(view, savedInstanceState)
 
         sessionManager = SessionManager(requireContext())
-        // FIX: Corrected the resource ID to reference the RecyclerView in this fragment's layout
         myRentalsRecyclerView = view.findViewById(R.id.myRentalsRecyclerView)
         noRentalsTextView = view.findViewById(R.id.noRentalsTextView)
         networkErrorLayout = view.findViewById(R.id.networkErrorLayout)
@@ -101,7 +103,8 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.getMyRentals("Bearer $token")
+                // Correctly use the apiService instance
+                val response = apiService.getMyRentals("Bearer $token")
                 withContext(Dispatchers.Main) {
                     if (isAdded) {
                         if (response.isSuccessful) {
@@ -111,7 +114,7 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
                             adapter.notifyDataSetChanged()
                             updateEmptyView(rentals.isEmpty())
                         } else {
-                            Toast.makeText(context, "Failed to load rentals", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Failed to load rentals: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -146,7 +149,8 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.deleteRental("Bearer $token", rentalId)
+                // Correctly use the apiService instance
+                val response = apiService.deleteRental("Bearer $token", rentalId)
                 withContext(Dispatchers.Main) {
                     if (isAdded) {
                         if (response.isSuccessful) {
@@ -158,7 +162,7 @@ class MyRentalsFragment : Fragment(R.layout.fragment_my_rentals) {
                                 updateEmptyView(rentalList.isEmpty())
                             }
                         } else {
-                            Toast.makeText(context, "Failed to delete rental", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Failed to delete rental: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }

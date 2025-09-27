@@ -39,6 +39,9 @@ class RentalsFragment : Fragment() {
     private var selectedCategory: String? = null
     private var currentSortBy: String = "latest" // Default sort
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
+
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     override fun onCreateView(
@@ -126,7 +129,8 @@ class RentalsFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.getRentals(sortBy)
+                // Correctly use the apiService instance
+                val response = apiService.getRentals(sortBy)
                 withContext(Dispatchers.Main) {
                     swipeRefreshLayout.isRefreshing = false
                     if (response.isSuccessful) {
@@ -135,7 +139,6 @@ class RentalsFragment : Fragment() {
                             rentals = rentals.filter { it.property_type.equals(category, ignoreCase = true) }
                         }
 
-                        // FIX: Correctly get the userId from SessionManager
                         val currentUserId = sessionManager.getUserId()
                         rentalAdapter = RentalAdapter(rentals, currentUserId)
                         rentalsRecyclerView.adapter = rentalAdapter
@@ -148,7 +151,7 @@ class RentalsFragment : Fragment() {
                             noRentalsTextView.visibility = View.GONE
                         }
                     } else {
-                        Toast.makeText(requireContext(), "Failed to load rentals", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to load rentals: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
