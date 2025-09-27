@@ -1,14 +1,21 @@
+// File: lonyibe/lonyitrade/LonyiTrade-79a0389294bf821249d6a729e75adea628882689/app/src/main/java/com/lonyitrade/app/MainAppActivity.kt
+
 package com.lonyitrade.app
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -40,6 +47,19 @@ class MainAppActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
     private val sharedViewModel: SharedViewModel by viewModels()
 
+    // --- FIX: Activity Result Launcher for Notification Permission (Android 13+) ---
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("FCM", "POST_NOTIFICATIONS permission granted. Notifications enabled.")
+        } else {
+            Log.w("FCM", "POST_NOTIFICATIONS permission denied. Notifications may be disabled by the system.")
+            Toast.makeText(this, "Notification permission denied. You may not receive updates.", Toast.LENGTH_LONG).show()
+        }
+    }
+    // -------------------------------------------------------------------
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_app)
@@ -61,6 +81,9 @@ class MainAppActivity : AppCompatActivity() {
         sessionManager.fetchAuthToken()?.let { token ->
             WebSocketManager.connect(token)
         }
+
+        // --- FIX: Call permission check on activity creation ---
+        checkNotificationPermission()
 
         // --- New FCM Token Logic ---
         retrieveAndSendFcmToken()
@@ -145,6 +168,20 @@ class MainAppActivity : AppCompatActivity() {
 
         setupMessageBadge()
     }
+
+    // --- FIX: Function to check and request the notification permission ---
+    private fun checkNotificationPermission() {
+        // Permission check is only required for Android 13 (Tiramisu, API 33) and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED) {
+                // Request the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+    // -----------------------------------------------------------------------
+
 
     private fun updateHeaderForPosition(position: Int) {
         val pageTitles = arrayOf("Home", "Rentals", "Post Ad", "Messages", "My Account")
