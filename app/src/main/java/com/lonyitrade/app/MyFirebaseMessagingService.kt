@@ -46,9 +46,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         // Log the message details
         Log.d("FCM", "From: ${remoteMessage.from}")
-        remoteMessage.notification?.let {
-            Log.d("FCM", "Notification Message Body: ${it.body}")
-            showNotification(it.title, it.body, remoteMessage.data)
+
+        // Handle data payload
+        remoteMessage.data.isNotEmpty().let {
+            Log.d("FCM", "Message data payload: " + remoteMessage.data)
+            val title = remoteMessage.data["title"]
+            val body = remoteMessage.data["body"]
+            showNotification(title, body, remoteMessage.data)
         }
     }
 
