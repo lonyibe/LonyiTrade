@@ -16,14 +16,21 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+// FIX: Correct imports to resolve Unresolved references
+import com.bumptech.glide.request.transition.DrawableCrossfadeFactory
+import com.bumptech.glide.request.transition.DrawableTransitionOptions
 import com.lonyitrade.app.R
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.Ad
 import com.lonyitrade.app.AdDetailActivity
 import com.lonyitrade.app.ChatActivity
+
+// Glide Crossfade Factory for smoother transitions
+private val factory = DrawableCrossfadeFactory.Builder().setCrossfadeEnabled(true).build()
 
 class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?, private val onMessageSellerClick: (Ad) -> Unit) : RecyclerView.Adapter<AdAdapter.AdViewHolder>() {
 
@@ -82,8 +89,14 @@ class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?
 
             if (!ad.photos.isNullOrEmpty() && ad.photos.first() != null) {
                 val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + ad.photos.first()!!.trimStart('/')
+
+                // --- GLIDE OPTIMIZATION ---
                 Glide.with(holder.itemView.context)
                     .load(imageUrl)
+                    .centerCrop() // Efficiently crops and scales down the image to fit the ImageView
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache original and transformed image locally
+                    // FIX: Use the correct, now-imported DrawableTransitionOptions
+                    .transition(DrawableTransitionOptions.withCrossFade(factory)) // Smooth crossfade animation
                     .listener(object : RequestListener<Drawable> {
                         override fun onLoadFailed(
                             e: GlideException?,
@@ -92,6 +105,7 @@ class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?
                             isFirstResource: Boolean
                         ): Boolean {
                             holder.progressBar.visibility = View.GONE
+                            // Log.e("GlideError", "Load failed for URL: $imageUrl", e) // Uncomment for debug
                             return false // Important to return false so the error placeholder can be displayed
                         }
 

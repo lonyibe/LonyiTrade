@@ -8,10 +8,10 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.api.ApiService
 import com.lonyitrade.app.data.models.FcmTokenRequest
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -23,10 +23,25 @@ import java.io.IOException
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private lateinit var sessionManager: SessionManager
+    private val CHAT_CHANNEL_ID = "default_channel_id"
 
     override fun onCreate() {
         super.onCreate()
         sessionManager = SessionManager(applicationContext)
+        createNotificationChannel()
+    }
+
+    /**
+     * Creates the notification channel for Android Oreo and above.
+     */
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHAT_CHANNEL_ID, "LonyiTrade Chat Messages", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = "Notifications for incoming chat messages."
+            }
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     /**
@@ -44,27 +59,25 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        // Log the message details
         Log.d("FCM", "From: ${remoteMessage.from}")
 
-        // Handle data payload
-        remoteMessage.data.isNotEmpty().let {
+        // Handle data payload (all message content)
+        if (remoteMessage.data.isNotEmpty()) {
             Log.d("FCM", "Message data payload: " + remoteMessage.data)
+
             val title = remoteMessage.data["title"]
             var body = remoteMessage.data["body"] // Start with the backend's default body
 
-            // FIX: Implement logic to check for specific chat content
+            // Logic to customize the body for chat messages
             val adId = remoteMessage.data["adId"]
-            val senderName = remoteMessage.data["senderName"] // New expected field from backend
-            val messageContent = remoteMessage.data["messageContent"] // New expected field from backend
+            val senderName = remoteMessage.data["senderName"]
+            val messageContent = remoteMessage.data["messageContent"]
+            val otherUserId = remoteMessage.data["otherUserId"]
 
-            // Check if it's a chat notification and we have specific message content
-            if (adId != null && senderName != null && messageContent != null) {
-                // If we have the specific name and message content, use the format: "Name: Message"
-                // This ensures subsequent messages show the actual chat content, not the generic "interested" phrase.
+            if (adId != null && senderName != null && messageContent != null && otherUserId != null) {
+                // Use the specific name and message content for better preview
                 body = "$senderName: $messageContent"
             }
-            // If data is missing (e.g., first message only has generic body), 'body' remains the default.
 
             showNotification(title, body, remoteMessage.data)
         }
@@ -72,49 +85,59 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     /**
      * Creates and displays a system notification.
+     * FIX: Uses TaskStackBuilder to ensure proper navigation stack (MainAppActivity -> ChatActivity).
      */
     private fun showNotification(title: String?, body: String?, data: Map<String, String>) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "default_channel_id"
-
-        // Create a notification channel for Android Oreo and above
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "Default Channel", NotificationManager.IMPORTANCE_DEFAULT)
-            notificationManager.createNotificationChannel(channel)
-        }
 
         val adId = data["adId"]
+        val otherUserId = data["otherUserId"] // Critical for ChatActivity deep link logic
 
-        // If the message has an adId (i.e., it's a chat notification)
-        val targetIntent = if (adId != null) {
+        // 1. Create an Intent for the MainAppActivity (the parent)
+        val mainAppIntent = Intent(this, MainAppActivity::class.java)
+
+        // 2. Create the Intent for the target ChatActivity
+        val chatIntent = if (adId != null && otherUserId != null) {
             Intent(this, ChatActivity::class.java).apply {
-                // FIX: Use FLAG_ACTIVITY_CLEAR_TOP to bring the existing ChatActivity instance to the front and call onNewIntent.
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                // Pass the adId and other data as simple strings (including potential otherUserId if backend starts sending it)
+                // Pass all data to ChatActivity.onNewIntent/handleIncomingIntent
                 data.forEach { (key, value) ->
                     putExtra(key, value)
                 }
+                // Setting flags helps ensure the activity gets the new intent,
+                // but TaskStackBuilder is preferred for stack creation.
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP // Better for bringing existing chat to front
             }
         } else {
-            // Fallback to SplashActivity for general notifications (like reviews)
-            Intent(this, SplashActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+            // Fallback: If chat context is missing, go to the main app screen
+            Intent(this, MainAppActivity::class.java)
         }
 
-        // FLAG_UPDATE_CURRENT ensures the new extras are passed to the existing activity
-        val pendingIntent = PendingIntent.getActivity(this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        // 3. Build the Task Stack
+        val pendingIntent = if (adId != null && otherUserId != null) {
+            TaskStackBuilder.create(this).run {
+                // Add MainAppActivity as the parent activity
+                addNextIntentWithParentStack(mainAppIntent)
+                // Add ChatActivity as the top activity
+                addNextIntent(chatIntent)
+
+                // FLAG_UPDATE_CURRENT ensures the extras are passed
+                getPendingIntent(adId.hashCode(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+        } else {
+            // Use a simple pending intent for non-chat notifications
+            PendingIntent.getActivity(this, 0, chatIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
 
         // Build the notification
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+        val notificationBuilder = NotificationCompat.Builder(this, CHAT_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notifications)
             .setContentTitle(title)
-            // FIX: Use the potentially modified 'body' which now contains the sender name and message content
             .setContentText(body)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
-        val notificationId = adId?.hashCode() ?: 0 // Use adId for unique ID
+        val notificationId = adId?.hashCode() ?: System.currentTimeMillis().toInt() // Use a reliable ID
 
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
@@ -131,12 +154,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val apiClient = ApiClient()
-                val response = apiClient.getApiService(this@MyFirebaseMessagingService).updateFcmToken(FcmTokenRequest(token))
+                // FIX: Ensure API Key is passed correctly if necessary, though it seems implicit here.
+                val response = apiClient.getApiService(this@MyFirebaseMessagingService).updateFcmToken(
+                    // FIX: Ensure the API endpoint correctly handles the user context via the token/auth header
+                    FcmTokenRequest(token)
+                )
 
                 if (response.isSuccessful) {
                     Log.d("FCM", "Token updated successfully on server.")
                 } else {
-                    Log.e("FCM", "Failed to update token on server: ${response.errorBody()?.string()}")
+                    // Log HTTP code for better debugging
+                    Log.e("FCM", "Failed to update token on server. Code: ${response.code()}, Body: ${response.errorBody()?.string()}")
                 }
             } catch (e: IOException) {
                 Log.e("FCM", "Network error while sending token: ${e.message}")

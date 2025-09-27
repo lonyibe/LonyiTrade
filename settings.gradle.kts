@@ -16,6 +16,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // CRITICAL FIX: Add JitPack repository to resolve 'glide-integration' dependency
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
