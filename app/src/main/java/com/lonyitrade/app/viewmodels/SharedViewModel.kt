@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/lonyitrade/app/viewmodels/SharedViewModel.kt
 package com.lonyitrade.app.viewmodels
 
 import androidx.lifecycle.LiveData

@@ -1,3 +1,4 @@
+// File: app/src/main/java/com/lonyitrade/app/data/models/AdModels.kt
 package com.lonyitrade.app.data.models
 
 import android.os.Parcelable
@@ -61,3 +62,27 @@ data class ConversationSummary(
     @Transient var isNew: Boolean = false,
     @Transient var isTyping: Boolean = false
 ) : Parcelable
+
+// --- FIX: Add missing Notification Models needed by ApiService.kt and MainAppActivity.kt ---
+
+/**
+ * API response model for fetching combined unread counts.
+ * Required by ApiService.getNotificationCounts().
+ */
+data class NotificationCountsResponse(
+    @SerializedName("unread_message_count") val unreadMessageCount: Int,
+    @SerializedName("unread_review_count") val unreadReviewCount: Int
+)
+
+/**
+ * Model for an unread review, used in NotificationsActivity.
+ * Required by ApiService.getUnreadReviews().
+ */
+data class ReviewNotification(
+    val id: String,
+    @SerializedName("reviewer_id") val reviewerId: String,
+    @SerializedName("review_text") val reviewText: String,
+    val rating: Int,
+    val timestamp: Long,
+    @SerializedName("is_read") val isRead: Boolean = false
+)

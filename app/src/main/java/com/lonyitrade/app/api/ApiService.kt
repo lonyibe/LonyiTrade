@@ -1,7 +1,10 @@
+// File: app/src/main/java/com/lonyitrade/app/api/ApiService.kt
 package com.lonyitrade.app.api
 
 import com.lonyitrade.app.data.models.*
-import com.lonyitrade.app.data.models.ReviewNotification // FIX 1: Ensure ReviewNotification is imported or accessible
+import com.lonyitrade.app.data.models.ReviewNotification
+// FIX: Add import for the new NotificationCountsResponse model (now in AdModels.kt)
+import com.lonyitrade.app.data.models.NotificationCountsResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
