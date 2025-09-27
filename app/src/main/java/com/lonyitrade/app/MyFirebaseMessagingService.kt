@@ -53,14 +53,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val title = remoteMessage.data["title"]
             val body = remoteMessage.data["body"]
 
-            // FIX: Pass all data to a simpler showNotification that creates intent for ChatActivity
+            // Pass all data to a simpler showNotification that creates intent for ChatActivity
             showNotification(title, body, remoteMessage.data)
         }
     }
 
     /**
      * Creates and displays a system notification.
-     * Always passes data to ChatActivity, which is now responsible for fetching the Ad object.
      */
     private fun showNotification(title: String?, body: String?, data: Map<String, String>) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -72,14 +71,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // --- FIX: Determine Target Activity Based on Ad ID ---
         val adId = data["adId"]
 
         // If the message has an adId (i.e., it's a chat notification)
         val targetIntent = if (adId != null) {
             Intent(this, ChatActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                // Pass the adId and other data as simple strings
+                // FIX: Use FLAG_ACTIVITY_CLEAR_TOP to bring the existing ChatActivity instance to the front and call onNewIntent.
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                // Pass the adId and other data as simple strings (including potential otherUserId if backend starts sending it)
                 data.forEach { (key, value) ->
                     putExtra(key, value)
                 }
@@ -91,6 +90,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
 
+        // FLAG_UPDATE_CURRENT ensures the new extras are passed to the existing activity
         val pendingIntent = PendingIntent.getActivity(this, 0, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         // Build the notification

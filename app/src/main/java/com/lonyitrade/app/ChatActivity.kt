@@ -52,8 +52,9 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
     private lateinit var ad: Ad
-    private lateinit var seller: UserProfile
+    private lateinit var chatPartner: UserProfile // FIX: Renamed from 'seller'
     private lateinit var myUserId: String
+    private lateinit var chatPartnerId: String // FIX: New field to hold the ID of the person the user is chatting with
     private var messageList: MutableList<Message> = mutableListOf()
     private lateinit var messageAdapter: MessageAdapter
     private var selectedMediaUri: Uri? = null
@@ -94,6 +95,8 @@ class ChatActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
+        private const val PARTNER_ID_EXTRA = "PARTNER_ID_EXTRA" // Expected from MessagesFragment/AdDetailActivity
+        private const val OTHER_USER_ID_NOTIFICATION = "otherUserId" // Expected from FCM data (but often missing)
     }
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -113,55 +116,152 @@ class ChatActivity : AppCompatActivity() {
         initializeViews()
         setupListeners()
         setupRecyclerView()
-        checkAndRequestPermissions() // Permissions for mic/audio recording
+        checkAndRequestPermissions()
 
-        // FIX: Delegate the actual intent processing to a dedicated method
+        // Delegate the actual intent processing to a dedicated method
         handleIncomingIntent(intent)
 
-        // FIX: Ensure real-time observers are set up immediately
         observeTypingNotifications()
         observeNewMessages()
         observeMessageStatusUpdates()
     }
 
-    // FIX: Correct signature for onNewIntent to properly override the method, addressing the 'overrides nothing' error.
-    override fun onNewIntent(intent: Intent?) {
+    /**
+     * @Override: Called when the activity is relaunched with a new Intent (e.g., from a notification)
+     * The signature is corrected to take a non-nullable Intent.
+     */
+    override fun onNewIntent(intent: Intent) { // FIX: Changed Intent? to Intent
         super.onNewIntent(intent)
-        // FIX: Set the new intent as the current one and handle it if it's not null.
-        if (intent != null) {
-            setIntent(intent)
-            handleIncomingIntent(intent)
-        }
+        setIntent(intent)
+        handleIncomingIntent(intent)
     }
 
-    // FIX: Extracted intent handling logic into a reusable method.
+    /**
+     * FIX: Refactored intent handling logic to correctly determine the chat partner and reload the chat if the context changes.
+     * Includes a robust fallback mechanism for notifications missing the chat partner ID.
+     */
     private fun handleIncomingIntent(intent: Intent) {
         val adParcelable = intent.getParcelableExtra("AD_EXTRA") as? Ad
         val adIdFromNotification = intent.getStringExtra("adId")
+        val notificationPartnerId = intent.getStringExtra(OTHER_USER_ID_NOTIFICATION) // May be null
 
+        val currentAdId = if (::ad.isInitialized) ad.id else null
+        val currentChatPartnerId = if (::chatPartnerId.isInitialized) chatPartnerId else null
+
+        // Case 1: Launched from MessagesFragment/AdDetailActivity (expected parcelable)
         if (adParcelable != null) {
-            // Case 1: Launched from MessagesFragment/AdDetailActivity (expected)
-            ad = adParcelable
-            if (ad.userId == null) { // Check for a critical piece of data
-                Toast.makeText(this, "Seller details are missing. Cannot start chat.", Toast.LENGTH_SHORT).show()
+            val incomingPartnerId = if (adParcelable.userId == myUserId) {
+                // I am the seller, the partner is the buyer, whose ID must be in the extra from the conversation object.
+                intent.getStringExtra(PARTNER_ID_EXTRA)
+            } else {
+                // I am the buyer, the partner is the seller (Ad owner).
+                adParcelable.userId
+            } ?: run {
+                Toast.makeText(this, "Error: Missing chat partner ID.", Toast.LENGTH_SHORT).show()
                 finish()
                 return
             }
-            fetchSellerDetails() // Will call fetchMessages() on success
-        } else if (adIdFromNotification != null) {
-            // Case 2: Launched from Notification (deep link)
-            // The Firebase Service passed the adId, now we fetch the full Ad object.
-            fetchAdDetailsForDeepLink(adIdFromNotification)
-        } else {
-            // Case 3: Error (neither parcelable nor adId found) - Only exit if it's the first launch
-            if (!::ad.isInitialized) {
-                Toast.makeText(this, "Error: Missing conversation details.", Toast.LENGTH_LONG).show()
-                finish()
+
+            if (currentChatPartnerId != incomingPartnerId || !::ad.isInitialized || ad.id != adParcelable.id) {
+                ad = adParcelable
+                chatPartnerId = incomingPartnerId
+                fetchChatPartnerDetails() // Will load new partner details and fetch messages
+            }
+            return
+        }
+
+        // Case 2: Launched from Notification (deep link - expected adId)
+        if (adIdFromNotification != null) {
+            val isContextChange = currentAdId != adIdFromNotification || currentChatPartnerId != notificationPartnerId
+
+            if (isContextChange) {
+                if (notificationPartnerId != null) {
+                    // Best case: Partner ID is in the notification data
+                    chatPartnerId = notificationPartnerId
+                    fetchAdDetailsForDeepLink(adIdFromNotification) // Now calls fetchChatPartnerDetails
+                } else {
+                    // FIX: Partner ID is missing. Crash prevention: fetch conversation list to find the partner ID.
+                    fetchConversationAndAdDetails(adIdFromNotification)
+                }
+            }
+            return
+        }
+
+        // Case 3: Error
+        if (!::ad.isInitialized) {
+            Toast.makeText(this, "Error: Missing conversation details.", Toast.LENGTH_LONG).show()
+            finish()
+        }
+    }
+
+    /**
+     * FIX: New method to fetch partner ID from the conversation list when it's missing from the notification payload.
+     */
+    private fun fetchConversationAndAdDetails(adId: String) {
+        val token = sessionManager.fetchAuthToken()
+        if (token == null) {
+            Toast.makeText(this, "Please log in to view this conversation.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 1. Fetch all conversations to find the partner ID for this ad
+                val conversationsResponse = apiService.getConversations("Bearer $token")
+                if (!conversationsResponse.isSuccessful || conversationsResponse.body() == null) {
+                    throw IOException("Failed to fetch conversation list.")
+                }
+
+                // Find the conversation summary matching the adId
+                val conversation = conversationsResponse.body()?.firstOrNull { it.advertId == adId }
+                val partnerId = conversation?.otherUserId //
+
+                if (partnerId == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@ChatActivity, "Error: Could not find chat partner for this ad.", Toast.LENGTH_LONG).show()
+                        if (!::ad.isInitialized) finish()
+                    }
+                    return@launch // FIX: Use labeled return to exit only the coroutine block.
+                }
+
+                // 2. Set the partner ID and proceed to fetch the Ad details
+                withContext(Dispatchers.Main) {
+                    chatPartnerId = partnerId
+                    fetchAdDetailsForDeepLink(adId) // This will now use the correct chatPartnerId
+                }
+            } catch (e: Exception) {
+                Log.e("ChatActivity", "Error fetching conversation details: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ChatActivity, "Error loading conversation details. Please try again.", Toast.LENGTH_LONG).show()
+                    if (!::ad.isInitialized) finish()
+                }
             }
         }
     }
 
-    // --- NEW FUNCTION: Fetch Ad Details for Deep Link ---
+    // FIX: Refactored fetchSellerDetails to fetchChatPartnerDetails.
+    private fun fetchChatPartnerDetails() {
+        val partnerId = chatPartnerId
+        val token = sessionManager.fetchAuthToken() ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // Fetch the profile of the determined chat partner (buyer or seller)
+                val response = apiService.getUserById("Bearer $token", partnerId)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        chatPartner = response.body() !! // FIX: Use new name
+                        populateAdAndChatHeader()
+                        fetchMessages()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ChatActivity", "Error fetching chat partner details: ${e.message}")
+            }
+        }
+    }
+
+    // FIX: Updated fetchAdDetailsForDeepLink to call fetchChatPartnerDetails.
     private fun fetchAdDetailsForDeepLink(adId: String) {
         val token = sessionManager.fetchAuthToken()
         if (token == null) {
@@ -180,20 +280,17 @@ class ChatActivity : AppCompatActivity() {
 
                 val fetchedAd = adResponse.body()!!
 
-                if (fetchedAd.userId == null) {
-                    throw IOException("Fetched Ad is missing seller ID.")
-                }
-
                 // Set the fetched Ad and proceed
                 withContext(Dispatchers.Main) {
                     ad = fetchedAd
-                    fetchSellerDetails() // Will proceed with chat setup
+                    // The chatPartnerId was set in handleIncomingIntent or fetchConversationAndAdDetails.
+                    fetchChatPartnerDetails() // Will proceed with chat setup
                 }
             } catch (e: Exception) {
                 Log.e("ChatActivity", "Deep link failed to fetch Ad: ${e.message}")
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@ChatActivity, "Error loading conversation details. Please try again.", Toast.LENGTH_LONG).show()
-                    // Only finish if 'ad' wasn't initialized, otherwise keep the user in the existing chat context
+                    // Only finish if 'ad' wasn't initialized
                     if (!::ad.isInitialized) {
                         finish()
                     }
@@ -209,8 +306,9 @@ class ChatActivity : AppCompatActivity() {
         if (::ad.isInitialized) { // Check if 'ad' is initialized before using
             if (isTyping) {
                 ad.id?.let { advertId ->
-                    ad.userId?.let { receiverId ->
-                        WebSocketManager.sendStopTypingEvent(advertId, receiverId)
+                    // FIX: Use chatPartnerId
+                    if (::chatPartnerId.isInitialized) {
+                        WebSocketManager.sendStopTypingEvent(advertId, chatPartnerId)
                     }
                 }
                 isTyping = false
@@ -262,9 +360,11 @@ class ChatActivity : AppCompatActivity() {
         sendButton.setOnClickListener {
             val content = messageEditText.text.toString().trim()
             if (content.isNotEmpty()) {
-                sendMessage(content, null, ad.userId!!)
-                if (ad.id != null && ad.userId != null) {
-                    WebSocketManager.sendStopTypingEvent(ad.id!!, ad.userId!!)
+                if (!::chatPartnerId.isInitialized) return@setOnClickListener
+                // FIX: Use chatPartnerId
+                sendMessage(content, null, chatPartnerId)
+                if (ad.id != null) {
+                    WebSocketManager.sendStopTypingEvent(ad.id!!, chatPartnerId)
                 }
                 isTyping = false
             }
@@ -303,17 +403,19 @@ class ChatActivity : AppCompatActivity() {
                     attachMediaButton.visibility = View.GONE
                 }
 
-                if (!::ad.isInitialized || ad.id == null || ad.userId == null) return // Guard clause
+                if (!::ad.isInitialized || ad.id == null || !::chatPartnerId.isInitialized) return // Guard clause
 
                 if (!isTyping) {
                     isTyping = true
-                    WebSocketManager.sendTypingEvent(ad.id!!, ad.userId!!)
+                    // FIX: Use chatPartnerId
+                    WebSocketManager.sendTypingEvent(ad.id!!, chatPartnerId)
                 }
                 typingJob ?. cancel()
                 typingJob = lifecycleScope.launch(Dispatchers.Main) {
                     delay(3000)
                     isTyping = false
-                    WebSocketManager.sendStopTypingEvent(ad.id!!, ad.userId!!)
+                    // FIX: Use chatPartnerId
+                    WebSocketManager.sendStopTypingEvent(ad.id!!, chatPartnerId)
                 }
             }
             override fun afterTextChanged(s: Editable ?) {}
@@ -361,26 +463,6 @@ class ChatActivity : AppCompatActivity() {
         selectedMediaUri = null
     }
 
-    private fun fetchSellerDetails() {
-        val sellerUserId = ad.userId ?: return
-        val token = sessionManager.fetchAuthToken() ?: return
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // Correctly use the apiService instance
-                val response = apiService.getUserById("Bearer $token", sellerUserId)
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        seller = response.body() !!
-                        populateAdAndChatHeader()
-                        fetchMessages()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("ChatActivity", "Error fetching seller details: ${e.message}")
-            }
-        }
-    }
-
     private fun observeNewMessages() {
         WebSocketManager.newMessage.observe(this) {
                 message ->
@@ -401,8 +483,10 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
                 messagesRecyclerView.scrollToPosition(messageList.size - 1)
-                if (message.senderId == ad.userId && message.status != "read") {
-                    ad.id?.let { ad.userId?.let { it1 -> WebSocketManager.markMessagesAsRead(it, it1) } }
+
+                // FIX: Check if the sender is the chat partner, not necessarily the ad owner
+                if (::chatPartnerId.isInitialized && message.senderId == chatPartnerId && message.status != "read") {
+                    ad.id?.let { WebSocketManager.markMessagesAsRead(it, chatPartnerId) }
                 }
             }
         }
@@ -433,7 +517,7 @@ class ChatActivity : AppCompatActivity() {
         val tempMessage = Message(
             id = "temporaryId",
             senderId = myUserId,
-            receiverId = receiverId,
+            receiverId = receiverId, // This is now chatPartnerId
             advertId = advertId,
             content = content,
             createdAt = timestamp,
@@ -448,7 +532,7 @@ class ChatActivity : AppCompatActivity() {
 
         val payload = mutableMapOf < String,
                 Any > (
-            "receiver_id" to receiverId,
+            "receiver_id" to receiverId, // This is now chatPartnerId
             "advert_id" to advertId,
         )
         content ?. let {
@@ -463,9 +547,10 @@ class ChatActivity : AppCompatActivity() {
         WebSocketManager.sendMessage(jsonMessage)
     }
 
+    // FIX: Updated to use chatPartner
     private fun populateAdAndChatHeader() {
-        chatToolbarTitle.text = seller.fullName
-        seller.profilePictureUrl ?. let {
+        chatToolbarTitle.text = chatPartner.fullName // FIX: Use chatPartner
+        chatPartner.profilePictureUrl ?. let { // FIX: Use chatPartner
                 url ->
             val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + url.trimStart('/')
             Glide.with(this).load(imageUrl).placeholder(R.drawable.ic_profile_placeholder).into(otherUserPhotoInToolbar)
@@ -481,14 +566,16 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    // FIX: Updated to use chatPartnerId for message fetching
     private fun fetchMessages() {
-        val sellerUserId = ad.userId ?: return
+        if (!::chatPartnerId.isInitialized) return
+        val partnerId = chatPartnerId // FIX: Use chatPartnerId
         val advertId = ad.id ?: return
         val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // Correctly use the apiService instance
-                val response = apiService.getMessages("Bearer $token", advertId, sellerUserId)
+                // Fetch messages based on Ad ID and the specific chat partner ID
+                val response = apiService.getMessages("Bearer $token", advertId, partnerId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val messages = response.body() ?: emptyList()
@@ -499,7 +586,7 @@ class ChatActivity : AppCompatActivity() {
                         if (messages.any {
                                 it.receiverId == myUserId && it.status != "read"
                             }) {
-                            WebSocketManager.markMessagesAsRead(advertId, sellerUserId)
+                            WebSocketManager.markMessagesAsRead(advertId, partnerId)
                         }
                     }
                 }
@@ -509,10 +596,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    // FIX: Updated to use chatPartnerId for receiver ID
     private fun uploadMedia(uri: Uri, caption: String ?) {
         val token = sessionManager.fetchAuthToken() ?: return
         val advertId = ad.id ?: return
-        val receiverId = ad.userId ?: return
+        if (!::chatPartnerId.isInitialized) return
+        val receiverId = chatPartnerId // FIX: Use chatPartnerId
 
         getTempFileFromUri(uri) ?. let {
                 file ->
@@ -564,7 +653,7 @@ class ChatActivity : AppCompatActivity() {
     private fun observeTypingNotifications() {
         WebSocketManager.typingNotification.observe(this) {
                 (senderId, advertId, isTyping) ->
-            if (::ad.isInitialized && senderId == ad.userId && advertId == ad.id) {
+            if (::ad.isInitialized && ::chatPartnerId.isInitialized && senderId == chatPartnerId && advertId == ad.id) { // FIX: Use chatPartnerId
                 if (isTyping) {
                     typingIndicatorTextView.visibility = View.VISIBLE
                     startTypingAnimation()
@@ -692,10 +781,12 @@ class ChatActivity : AppCompatActivity() {
         recordingTimerTextView.text = "00:00"
     }
 
+    // FIX: Updated to use chatPartnerId for receiver ID
     private fun uploadAudio(file: File) {
         val token = sessionManager.fetchAuthToken() ?: return
         val advertId = ad.id ?: return
-        val receiverId = ad.userId ?: return
+        if (!::chatPartnerId.isInitialized) return
+        val receiverId = chatPartnerId // FIX: Use chatPartnerId
 
         if (!file.exists() || file.length() == 0L) {
             Log.e("ChatActivity", "Audio file is empty or does not exist.")
