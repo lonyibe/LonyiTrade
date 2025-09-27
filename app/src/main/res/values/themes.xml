@@ -12,7 +12,7 @@
         <item name="colorSurface">@color/google_files_surface</item>
         <item name="colorOnSurface">@color/google_files_text_primary</item>
 
-        <item name="android:statusBarColor">@color/google_files_background</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
 
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>

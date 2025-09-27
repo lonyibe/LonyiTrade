@@ -80,7 +80,7 @@ class AdDetailActivity : AppCompatActivity() {
             }
             "wanted" -> {
                 adTypeTextView.text = "Wanted"
-                adTypeTextView.setBackgroundColor(ContextCompat.getColor(this, R.color.status_error_red))
+                adTypeTextView.setBackgroundColor(ContextCompat.getColor(this, R.color.error_red)) // Corrected
                 priceTextView.text = "Budget: UGX ${ad.price ?: "0"}"
             }
             else -> adTypeTextView.visibility = View.GONE

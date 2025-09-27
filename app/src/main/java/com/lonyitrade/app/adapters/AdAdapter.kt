@@ -132,7 +132,7 @@ class AdAdapter(private val adList: List<Ad>, private val currentUserId: String?
             }
             "wanted" -> {
                 holder.adTypeTextView.text = "Wanted"
-                holder.adTypeTextView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.status_error_red))
+                holder.adTypeTextView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context, R.color.error_red)) // Corrected
                 holder.priceTextView.text = "Budget: UGX ${ad.price ?: "0"}"
             }
             else -> {

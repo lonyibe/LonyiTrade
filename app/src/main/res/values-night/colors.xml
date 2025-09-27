@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="dark_bg">#212121</color>
-    <color name="dark_text">#EEEEEE</color>
-    <color name="message_received_dark">#424242</color>
-
-    <color name="accent_blue">#007AFF</color>
-
-    <color name="status_success_green">#2ECC71</color>
-    <color name="status_error_red">#E74C3C</color>
-
-    <color name="whatsapp_message_sent">#007AFF</color>
-    <color name="whatsapp_message_received">#424242</color>
-
-    <color name="chat_received_text">@color/google_files_dark_text_primary</color>
-
-    <color name="google_files_text_secondary">#AAAAAA</color>
-
+    <color name="google_files_primary_accent">#82b1ff</color>
+    <color name="google_files_background">#202124</color>
+    <color name="google_files_surface">#303134</color>
+    <color name="google_files_text_primary">#e8eaed</color>
+    <color name="google_files_text_secondary">#9aa0a6</color>
+    <color name="google_files_card_stroke">#5f6368</color>
 </resources>
