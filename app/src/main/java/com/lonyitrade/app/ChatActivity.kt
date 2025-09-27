@@ -52,9 +52,9 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var sessionManager: SessionManager
     private lateinit var ad: Ad
-    private lateinit var chatPartner: UserProfile // FIX: Renamed from 'seller'
+    private lateinit var chatPartner: UserProfile // Renamed from 'seller'
     private lateinit var myUserId: String
-    private lateinit var chatPartnerId: String // FIX: New field to hold the ID of the person the user is chatting with
+    private lateinit var chatPartnerId: String // New field to hold the ID of the person the user is chatting with
     private var messageList: MutableList<Message> = mutableListOf()
     private lateinit var messageAdapter: MessageAdapter
     private var selectedMediaUri: Uri? = null
@@ -95,7 +95,7 @@ class ChatActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
-        private const val PARTNER_ID_EXTRA = "PARTNER_ID_EXTRA" // Expected from MessagesFragment/AdDetailActivity
+        const val PARTNER_ID_EXTRA = "PARTNER_ID_EXTRA" // Expected from MessagesFragment/AdDetailActivity
         private const val OTHER_USER_ID_NOTIFICATION = "otherUserId" // Expected from FCM data (but often missing)
     }
 
@@ -130,7 +130,7 @@ class ChatActivity : AppCompatActivity() {
      * @Override: Called when the activity is relaunched with a new Intent (e.g., from a notification)
      * The signature is corrected to take a non-nullable Intent.
      */
-    override fun onNewIntent(intent: Intent) { // FIX: Changed Intent? to Intent
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleIncomingIntent(intent)
@@ -151,12 +151,14 @@ class ChatActivity : AppCompatActivity() {
         // Case 1: Launched from MessagesFragment/AdDetailActivity (expected parcelable)
         if (adParcelable != null) {
             val incomingPartnerId = if (adParcelable.userId == myUserId) {
-                // I am the seller, the partner is the buyer, whose ID must be in the extra from the conversation object.
+                // I am the seller (ad owner). The partner is the Buyer.
+                // We MUST rely on the explicit ID passed by the ConversationsAdapter.
                 intent.getStringExtra(PARTNER_ID_EXTRA)
             } else {
-                // I am the buyer, the partner is the seller (Ad owner).
+                // I am the buyer (not the ad owner). The partner is the Seller (Ad owner).
                 adParcelable.userId
             } ?: run {
+                // CRITICAL FIX: This path handles cases where the context is incomplete (e.g., launching from old notification without proper extras)
                 Toast.makeText(this, "Error: Missing chat partner ID.", Toast.LENGTH_SHORT).show()
                 finish()
                 return
@@ -165,7 +167,7 @@ class ChatActivity : AppCompatActivity() {
             if (currentChatPartnerId != incomingPartnerId || !::ad.isInitialized || ad.id != adParcelable.id) {
                 ad = adParcelable
                 chatPartnerId = incomingPartnerId
-                fetchChatPartnerDetails() // Will load new partner details and fetch messages
+                fetchAdDetailsForAdExtra(ad) // Set ad, then fetch partner, then messages
             }
             return
         }
@@ -195,6 +197,16 @@ class ChatActivity : AppCompatActivity() {
     }
 
     /**
+     * FIX: New method to handle logic when launching from AdExtra (ensures we get fresh partner details).
+     */
+    private fun fetchAdDetailsForAdExtra(adParcelable: Ad) {
+        // We already have the AD object and the chatPartnerId is set.
+        ad = adParcelable
+        fetchChatPartnerDetails()
+    }
+
+
+    /**
      * FIX: New method to fetch partner ID from the conversation list when it's missing from the notification payload.
      */
     private fun fetchConversationAndAdDetails(adId: String) {
@@ -222,7 +234,7 @@ class ChatActivity : AppCompatActivity() {
                         Toast.makeText(this@ChatActivity, "Error: Could not find chat partner for this ad.", Toast.LENGTH_LONG).show()
                         if (!::ad.isInitialized) finish()
                     }
-                    return@launch // FIX: Use labeled return to exit only the coroutine block.
+                    return@launch // Use labeled return to exit only the coroutine block.
                 }
 
                 // 2. Set the partner ID and proceed to fetch the Ad details
@@ -240,7 +252,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    // FIX: Refactored fetchSellerDetails to fetchChatPartnerDetails.
+    // Refactored fetchSellerDetails to fetchChatPartnerDetails.
     private fun fetchChatPartnerDetails() {
         val partnerId = chatPartnerId
         val token = sessionManager.fetchAuthToken() ?: return
@@ -250,9 +262,12 @@ class ChatActivity : AppCompatActivity() {
                 val response = apiService.getUserById("Bearer $token", partnerId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        chatPartner = response.body() !! // FIX: Use new name
+                        chatPartner = response.body() ?: return@withContext
                         populateAdAndChatHeader()
                         fetchMessages()
+                    } else {
+                        Log.e("ChatActivity", "Failed to fetch chat partner details: ${response.code()}")
+                        Toast.makeText(this@ChatActivity, "Failed to load chat partner info.", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
@@ -261,7 +276,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    // FIX: Updated fetchAdDetailsForDeepLink to call fetchChatPartnerDetails.
+    // Updated fetchAdDetailsForDeepLink to call fetchChatPartnerDetails.
     private fun fetchAdDetailsForDeepLink(adId: String) {
         val token = sessionManager.fetchAuthToken()
         if (token == null) {
@@ -272,6 +287,8 @@ class ChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                // CRITICAL FIX: The backend route /api/adverts/:id does not require the token,
+                // but if it is passed, it needs to be formatted correctly.
                 val adResponse = apiService.getAdvertById("Bearer $token", adId)
 
                 if (!adResponse.isSuccessful || adResponse.body() == null) {
@@ -466,14 +483,20 @@ class ChatActivity : AppCompatActivity() {
     private fun observeNewMessages() {
         WebSocketManager.newMessage.observe(this) {
                 message ->
-            if (::ad.isInitialized && message.advertId == ad.id && (message.senderId == myUserId || message.receiverId == myUserId)) {
+            // FIX: Check if the message is for the current conversation thread
+            if (::ad.isInitialized && message.advertId == ad.id && (message.senderId == chatPartnerId || message.receiverId == chatPartnerId)) {
+
                 val existingIndex = messageList.indexOfFirst {
+                    // Match temporary IDs for messages sent by the current user
                     it.id == "temporaryId" && (it.content == message.content || it.audioUrl != null)
                 }
+
                 if (existingIndex != -1) {
+                    // Update the local temporary message with the server-generated message
                     messageList[existingIndex] = message
                     messageAdapter.notifyItemChanged(existingIndex)
                 } else {
+                    // Add the new message only if it's not already in the list (e.g., from the messages history fetch)
                     if (message.id != null && messageList.none { it.id == message.id }) {
                         messageList.add(message)
                         messageAdapter.notifyItemInserted(messageList.size - 1)
@@ -485,7 +508,7 @@ class ChatActivity : AppCompatActivity() {
                 messagesRecyclerView.scrollToPosition(messageList.size - 1)
 
                 // FIX: Check if the sender is the chat partner, not necessarily the ad owner
-                if (::chatPartnerId.isInitialized && message.senderId == chatPartnerId && message.status != "read") {
+                if (message.senderId == chatPartnerId && message.status != "read") {
                     ad.id?.let { WebSocketManager.markMessagesAsRead(it, chatPartnerId) }
                 }
             }
@@ -547,10 +570,10 @@ class ChatActivity : AppCompatActivity() {
         WebSocketManager.sendMessage(jsonMessage)
     }
 
-    // FIX: Updated to use chatPartner
+    // Updated to use chatPartner
     private fun populateAdAndChatHeader() {
-        chatToolbarTitle.text = chatPartner.fullName // FIX: Use chatPartner
-        chatPartner.profilePictureUrl ?. let { // FIX: Use chatPartner
+        chatToolbarTitle.text = chatPartner.fullName // Use chatPartner
+        chatPartner.profilePictureUrl ?. let { // Use chatPartner
                 url ->
             val imageUrl = ApiClient.BASE_URL.trimEnd('/') + "/" + url.trimStart('/')
             Glide.with(this).load(imageUrl).placeholder(R.drawable.ic_profile_placeholder).into(otherUserPhotoInToolbar)
@@ -566,10 +589,10 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    // FIX: Updated to use chatPartnerId for message fetching
+    // Updated to use chatPartnerId for message fetching
     private fun fetchMessages() {
         if (!::chatPartnerId.isInitialized) return
-        val partnerId = chatPartnerId // FIX: Use chatPartnerId
+        val partnerId = chatPartnerId // Use chatPartnerId
         val advertId = ad.id ?: return
         val token = sessionManager.fetchAuthToken() ?: return
         lifecycleScope.launch(Dispatchers.IO) {
@@ -596,12 +619,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    // FIX: Updated to use chatPartnerId for receiver ID
+    // Updated to use chatPartnerId for receiver ID
     private fun uploadMedia(uri: Uri, caption: String ?) {
         val token = sessionManager.fetchAuthToken() ?: return
         val advertId = ad.id ?: return
         if (!::chatPartnerId.isInitialized) return
-        val receiverId = chatPartnerId // FIX: Use chatPartnerId
+        val receiverId = chatPartnerId // Use chatPartnerId
 
         getTempFileFromUri(uri) ?. let {
                 file ->
@@ -621,9 +644,7 @@ class ChatActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             val uploadedMessage = response.body()
                             if (uploadedMessage != null) {
-                                messageList.add(uploadedMessage)
-                                messageAdapter.notifyItemInserted(messageList.size - 1)
-                                messagesRecyclerView.scrollToPosition(messageList.size - 1)
+                                // FIX: Use observeNewMessages logic to handle addition/update
                             }
                         } else {
                             Toast.makeText(this@ChatActivity, "Failed to upload media: ${response.code()}", Toast.LENGTH_SHORT).show()
@@ -653,7 +674,7 @@ class ChatActivity : AppCompatActivity() {
     private fun observeTypingNotifications() {
         WebSocketManager.typingNotification.observe(this) {
                 (senderId, advertId, isTyping) ->
-            if (::ad.isInitialized && ::chatPartnerId.isInitialized && senderId == chatPartnerId && advertId == ad.id) { // FIX: Use chatPartnerId
+            if (::ad.isInitialized && ::chatPartnerId.isInitialized && senderId == chatPartnerId && advertId == ad.id) { // Use chatPartnerId
                 if (isTyping) {
                     typingIndicatorTextView.visibility = View.VISIBLE
                     startTypingAnimation()
@@ -781,12 +802,12 @@ class ChatActivity : AppCompatActivity() {
         recordingTimerTextView.text = "00:00"
     }
 
-    // FIX: Updated to use chatPartnerId for receiver ID
+    // Updated to use chatPartnerId for receiver ID
     private fun uploadAudio(file: File) {
         val token = sessionManager.fetchAuthToken() ?: return
         val advertId = ad.id ?: return
         if (!::chatPartnerId.isInitialized) return
-        val receiverId = chatPartnerId // FIX: Use chatPartnerId
+        val receiverId = chatPartnerId // Use chatPartnerId
 
         if (!file.exists() || file.length() == 0L) {
             Log.e("ChatActivity", "Audio file is empty or does not exist.")
@@ -796,8 +817,12 @@ class ChatActivity : AppCompatActivity() {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         sdf.timeZone = TimeZone.getTimeZone("UTC")
         val timestamp = sdf.format(Date())
+
+        // Use a more unique temporary ID for better tracking
+        val tempId = "temporaryId_${UUID.randomUUID()}"
+
         val tempMessage = Message(
-            id = "temporaryId_${System.currentTimeMillis()}",
+            id = tempId,
             senderId = myUserId,
             receiverId = receiverId,
             advertId = advertId,
@@ -825,14 +850,15 @@ class ChatActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val uploadedMessage = response.body()
                         if (uploadedMessage != null) {
-                            val index = messageList.indexOfFirst { it.id == tempMessage.id }
+                            // Find the temporary message using the unique tempId
+                            val index = messageList.indexOfFirst { it.id == tempId }
                             if (index != -1) {
                                 messageList[index] = uploadedMessage
                                 messageAdapter.notifyItemChanged(index)
                             }
                         }
                     } else {
-                        val index = messageList.indexOfFirst { it.id == tempMessage.id }
+                        val index = messageList.indexOfFirst { it.id == tempId }
                         if (index != -1) {
                             messageList[index] = tempMessage.copy(status = "failed")
                             messageAdapter.notifyItemChanged(index)
@@ -842,7 +868,7 @@ class ChatActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    val index = messageList.indexOfFirst { it.id == tempMessage.id }
+                    val index = messageList.indexOfFirst { it.id == tempId }
                     if (index != -1) {
                         messageList[index] = tempMessage.copy(status = "failed")
                         messageAdapter.notifyItemChanged(index)

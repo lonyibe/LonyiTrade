@@ -55,6 +55,7 @@ data class ConversationSummary(
     @SerializedName("advert_photos") val advertPhotos: List<String>?,
     @SerializedName("advert_price") val advertPrice: String?,
     @SerializedName("advert_price_type") val advertPriceType: String?,
+    @SerializedName("advert_owner_id") val advertOwnerId: String?, // CRITICAL FIX: Added ad owner ID from backend
     @SerializedName("last_message") var lastMessage: String?,
     @SerializedName("unread_count") var unreadCount: Int,
     @Transient var isNew: Boolean = false,

@@ -103,11 +103,11 @@ class ConversationsAdapter(private val conversations: MutableList<ConversationSu
             itemView.setOnClickListener {
                 val context = itemView.context
 
-                // *** THE FIX IS HERE ***
-                // Create an Ad object from the conversation summary to pass to ChatActivity
+                // CRITICAL FIX 1: Ensure the Ad object's userId field always holds the ID of the original seller (advertOwnerId)
+                // This is vital for the logic inside ChatActivity to determine the user roles correctly.
                 val adForChat = Ad(
                     id = conversation.advertId,
-                    userId = conversation.otherUserId, // The seller/other user's ID
+                    userId = conversation.advertOwnerId, // <-- FIXED: Now uses the Ad Owner ID from the backend response
                     title = conversation.advertTitle ?: "",
                     photos = conversation.advertPhotos,
                     price = conversation.advertPrice,
@@ -123,8 +123,10 @@ class ConversationsAdapter(private val conversations: MutableList<ConversationSu
                 )
 
                 val intent = Intent(context, ChatActivity::class.java).apply {
-                    // Pass the newly created Ad object
+                    // Pass the corrected Ad object
                     putExtra("AD_EXTRA", adForChat)
+                    // CRITICAL FIX 2: Explicitly pass the chat partner's ID. This overrides ambiguity in ChatActivity.
+                    putExtra("PARTNER_ID_EXTRA", conversation.otherUserId)
                 }
                 context.startActivity(intent)
             }
