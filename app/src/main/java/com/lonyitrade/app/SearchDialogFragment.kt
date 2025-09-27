@@ -23,6 +23,9 @@ class SearchDialogFragment : DialogFragment() {
 
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(requireContext()) }
+
     // New UI elements
     private lateinit var listingTypeRadioGroup: RadioGroup
     private lateinit var adSearchOptions: View
@@ -86,7 +89,8 @@ class SearchDialogFragment : DialogFragment() {
                 if (listingType == R.id.listingTypeAd) {
                     val type = if (adType == R.id.adSearchBuy) "for_sale" else "wanted"
                     val category = adCategorySpinner.selectedItem?.toString()
-                    val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, type, category)
+                    // Correctly use the apiService instance
+                    val response = apiService.searchAdverts(query, district, minPrice, maxPrice, type, category)
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             val ads = response.body()
@@ -103,7 +107,8 @@ class SearchDialogFragment : DialogFragment() {
                         }
                     }
                 } else if (listingType == R.id.listingTypeRental) {
-                    val response = ApiClient.apiService.getRentals()
+                    // Correctly use the apiService instance
+                    val response = apiService.getRentals()
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             // Since this returns Rentals, you would need to handle this differently,
@@ -115,7 +120,7 @@ class SearchDialogFragment : DialogFragment() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    // Handle error
+                    Toast.makeText(context, "An error occurred: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }

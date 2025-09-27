@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lonyitrade.app.adapters.ReviewAdapter
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.api.ApiService
 import com.lonyitrade.app.data.models.Ad
-import com.lonyitrade.app.data.models.Review
 import com.lonyitrade.app.data.models.ReviewRequest
 import com.lonyitrade.app.utils.LoadingDialogFragment
 import com.lonyitrade.app.utils.SessionManager
@@ -38,15 +36,14 @@ class ReviewActivity : AppCompatActivity() {
     private lateinit var reviewAdapter: ReviewAdapter
 
     private lateinit var sessionManager: SessionManager
-    // FIX 1: Use the singleton instance directly
-    private val apiService: ApiService = ApiClient.apiService
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
     private val loadingDialog = LoadingDialogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_review)
 
-        // Get Ad data passed from AdDetailActivity
         ad = intent.getParcelableExtra("AD_EXTRA") ?: run {
             Toast.makeText(this, "Error loading ad data", Toast.LENGTH_SHORT).show()
             finish()
@@ -69,14 +66,12 @@ class ReviewActivity : AppCompatActivity() {
         submitReviewButton = findViewById(R.id.submitReviewButton)
         submitReviewContainer = findViewById(R.id.submitReviewContainer)
 
-        // FIX: Corrected view ID reference to use 'toolbarTitle' based on the provided XML.
         findViewById<TextView>(R.id.toolbarTitle).text = "Reviews for ${ad.title}"
 
         backButton.setOnClickListener {
             finish()
         }
 
-        // Only allow submitting a review if the current user is NOT the seller/user being reviewed
         val currentUserId = sessionManager.getUserId()
         if (ad.userId == currentUserId) {
             submitReviewContainer.visibility = View.GONE
@@ -104,7 +99,6 @@ class ReviewActivity : AppCompatActivity() {
         val token = sessionManager.fetchAuthToken()
         val userIdToReview = ad.userId
 
-        // Ensure non-null checks are handled safely
         if (token.isNullOrEmpty() || userIdToReview.isNullOrEmpty()) {
             loadingDialog.dismiss()
             Toast.makeText(this, "Authentication or User ID error. Please log in.", Toast.LENGTH_SHORT).show()
@@ -113,7 +107,7 @@ class ReviewActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Fetch reviews for the user who posted the ad (ad.userId)
+                // Correctly use the apiService instance
                 val response = apiService.getUserReviews("Bearer $token", userIdToReview)
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
@@ -128,7 +122,7 @@ class ReviewActivity : AppCompatActivity() {
                             noReviewsTextView.visibility = View.GONE
                         }
                     } else {
-                        Toast.makeText(this@ReviewActivity, "Failed to load reviews.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ReviewActivity, "Failed to load reviews: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                         Log.e("ReviewActivity", "Failed to load reviews: ${response.code()} - ${response.errorBody()?.string()}")
                     }
                 }
@@ -158,9 +152,8 @@ class ReviewActivity : AppCompatActivity() {
 
         val token = sessionManager.fetchAuthToken()
         val userIdToReview = ad.userId
-        val advertId = ad.id // This is a String (UUID)
+        val advertId = ad.id
 
-        // Ensure all required UUIDs are present
         if (token.isNullOrEmpty() || userIdToReview.isNullOrEmpty() || advertId.isNullOrEmpty()) {
             Toast.makeText(this, "Review data missing. Cannot submit review.", Toast.LENGTH_SHORT).show()
             return
@@ -170,7 +163,6 @@ class ReviewActivity : AppCompatActivity() {
             loadingDialog.show(supportFragmentManager, "loading")
         }
 
-        // FIX: Pass UUID String directly from ad.id
         val reviewRequest = ReviewRequest(
             advert_id = advertId,
             user_id = userIdToReview,
@@ -180,15 +172,14 @@ class ReviewActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // Correctly use the apiService instance
                 val response = apiService.postReview("Bearer $token", reviewRequest)
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
                     if (response.isSuccessful && response.body() != null) {
                         Toast.makeText(this@ReviewActivity, "Review submitted successfully!", Toast.LENGTH_SHORT).show()
-                        // Clear the input fields
                         ratingBar.rating = 0f
                         reviewEditText.setText("")
-                        // Refresh the list of reviews
                         fetchReviews()
                     } else {
                         val errorBody = response.errorBody()?.string()

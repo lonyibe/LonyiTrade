@@ -31,6 +31,9 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var noResultsTextView: TextView
     private lateinit var sessionManager: SessionManager
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     // New UI elements for animation
     private lateinit var searchFormLayout: LinearLayout
     private lateinit var collapsedSearchIcon: ImageView
@@ -102,7 +105,8 @@ class SearchActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.searchAdverts(query, district, minPrice, maxPrice, null, null)
+                // Correctly use the apiService instance
+                val response = apiService.searchAdverts(query, district, minPrice, maxPrice, null, null)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ads = response.body()
@@ -113,6 +117,7 @@ class SearchActivity : AppCompatActivity() {
                         }
                     } else {
                         showNoResults()
+                        Toast.makeText(this@SearchActivity, "Search failed: ${response.errorBody()?.string()}", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
@@ -155,7 +160,7 @@ class SearchActivity : AppCompatActivity() {
     private fun showAdResults(ads: List<Ad>) {
         searchResultsRecyclerView.visibility = View.VISIBLE
         noResultsTextView.visibility = View.GONE
-        val adAdapter = AdAdapter(ads, sessionManager.fetchAuthToken()) { /* Handle message click */ }
+        val adAdapter = AdAdapter(ads, sessionManager.getUserId()) { /* Handle message click */ }
         searchResultsRecyclerView.adapter = adAdapter
     }
 
