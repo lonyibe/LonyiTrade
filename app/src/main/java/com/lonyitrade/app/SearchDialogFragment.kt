@@ -55,7 +55,6 @@ class SearchDialogFragment : DialogFragment() {
 
         setupCategorySpinner()
 
-        // Set up the listener for the listing type radio group
         listingTypeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.listingTypeAd -> adSearchOptions.visibility = View.VISIBLE
@@ -89,32 +88,30 @@ class SearchDialogFragment : DialogFragment() {
                 if (listingType == R.id.listingTypeAd) {
                     val type = if (adType == R.id.adSearchBuy) "for_sale" else "wanted"
                     val category = adCategorySpinner.selectedItem?.toString()
-                    // Correctly use the apiService instance
-                    val response = apiService.searchAdverts(query, district, minPrice, maxPrice, type, category)
+                    // Corrected: Added the missing sortBy parameter
+                    val response = apiService.searchAdverts(query, district, minPrice, maxPrice, type, category, sortBy = null)
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             val ads = response.body()
                             if (ads.isNullOrEmpty()) {
-                                // Inform the user that no ads were found
                                 Toast.makeText(context, "No ads found matching your criteria.", Toast.LENGTH_LONG).show()
                                 sharedViewModel.setAdList(mutableListOf())
                             } else {
                                 sharedViewModel.setAdList(ads.toMutableList())
                             }
-                            dismiss() // Close the dialog
+                            dismiss()
                         } else {
-                            Toast.makeText(context, "Failed to search for ads", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Failed to search for ads: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else if (listingType == R.id.listingTypeRental) {
-                    // Correctly use the apiService instance
                     val response = apiService.getRentals()
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
-                            // Since this returns Rentals, you would need to handle this differently,
-                            // for example by navigating to the RentalsFragment.
                             Toast.makeText(context, "Rental search logic to be implemented", Toast.LENGTH_SHORT).show()
                             dismiss()
+                        } else {
+                            Toast.makeText(context, "Failed to search rentals: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }

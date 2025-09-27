@@ -31,7 +31,6 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var noResultsTextView: TextView
     private lateinit var sessionManager: SessionManager
 
-    // Correctly initialize ApiClient
     private val apiService by lazy { ApiClient().getApiService(this) }
 
     // New UI elements for animation
@@ -66,7 +65,6 @@ class SearchActivity : AppCompatActivity() {
             }
         }
 
-        // Handle the system back button press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (searchFormLayout.visibility == View.GONE) {
@@ -84,7 +82,6 @@ class SearchActivity : AppCompatActivity() {
         searchResultsRecyclerView = findViewById(R.id.searchResultsRecyclerView)
         noResultsTextView = findViewById(R.id.noResultsTextView)
 
-        // Animation views
         searchFormLayout = findViewById(R.id.searchFormLayout)
         collapsedSearchIcon = findViewById(R.id.collapsedSearchIcon)
         searchButton = findViewById(R.id.search_button)
@@ -105,8 +102,8 @@ class SearchActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Correctly use the apiService instance
-                val response = apiService.searchAdverts(query, district, minPrice, maxPrice, null, null)
+                // Corrected: Added the missing sortBy parameter
+                val response = apiService.searchAdverts(query, district, minPrice, maxPrice, null, null, sortBy = null)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val ads = response.body()
