@@ -5,8 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Review(
-    val id: String, // FIX: Changed from Int to String (UUID)
-    val advert_id: String, // FIX: Changed from Int to String (UUID)
+    val id: String,
+    val advert_id: String,
     val user_id: String,
     val reviewer_id: String,
     val rating: Int,
@@ -17,13 +17,13 @@ data class Review(
 ) : Parcelable
 
 data class ReviewRequest(
-    val advert_id: String, // FIX: Changed from Int to String (UUID)
+    val advert_id: String,
     val user_id: String,
     val rating: Int,
     val review_text: String?
 )
 
-// --- FIX 1: New data model for displaying reviews in the Notifications list ---
+// --- FIX: New data model for displaying reviews in the Notifications list ---
 @Parcelize
 data class ReviewNotification(
     val id: String,
