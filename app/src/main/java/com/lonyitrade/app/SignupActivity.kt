@@ -35,6 +35,9 @@ class SignupActivity : AppCompatActivity() {
     private lateinit var signupProgressBar: ProgressBar
     private lateinit var sessionManager: SessionManager
 
+    // Correctly initialize ApiClient
+    private val apiService by lazy { ApiClient().getApiService(this) }
+
     private var profilePictureUri: Uri? = null
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -84,7 +87,8 @@ class SignupActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val request = RegisterRequest(fullName, phoneNumber, password, district)
-                        val response = ApiClient.apiService.registerUser(request)
+                        // Correctly use the apiService instance
+                        val response = apiService.registerUser(request)
 
                         withContext(Dispatchers.Main) {
                             if (response.isSuccessful) {
@@ -130,7 +134,8 @@ class SignupActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     if (token != null) {
-                        ApiClient.apiService.uploadProfilePicture("Bearer $token", userId, photoPart)
+                        // Correctly use the apiService instance
+                        apiService.uploadProfilePicture("Bearer $token", userId, photoPart)
                         withContext(Dispatchers.Main) {
                             showLoading(false)
                             Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
