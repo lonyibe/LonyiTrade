@@ -1,6 +1,7 @@
 package com.lonyitrade.app.api
 
 import com.lonyitrade.app.data.models.*
+import com.lonyitrade.app.data.models.ReviewNotification // FIX 1: Ensure ReviewNotification is imported or accessible
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -50,7 +51,7 @@ interface ApiService {
     suspend fun getMyAdverts(@Header("Authorization") token: String): Response<List<Ad>>
 
     @GET("api/adverts/{id}")
-    suspend fun getAdvertById(@Header("Authorization") token: String, @Path("id") adId: String): Response<Ad>
+    suspend fun getAdvertById(@Path("id") adId: String): Response<Ad> // Removed token, as per backend route definition
 
     @POST("api/adverts")
     suspend fun postAdvert(@Header("Authorization") token: String, @Body adRequest: AdRequest): Response<Ad>
@@ -104,6 +105,7 @@ interface ApiService {
     @GET("api/messages/unread/count")
     suspend fun getUnreadMessageCount(@Header("Authorization") token: String): Response<UnreadCountResponse>
 
+    // NOTE: This call is unused as marking is done via WebSocket, but keeping for completeness if REST fallback is needed.
     @POST("api/messages/read/{advertId}/{otherUserId}")
     suspend fun markMessagesAsRead(
         @Header("Authorization") token: String,
@@ -135,6 +137,15 @@ interface ApiService {
     // FIX 1: New API call to fetch combined notification counts
     @GET("api/notifications/count")
     suspend fun getNotificationCounts(@Header("Authorization") token: String): Response<NotificationCountsResponse>
+
+    // --- Notifications (New Endpoints) ---
+    // FIX 1: New API call to fetch actual unread reviews for the Notifications list
+    @GET("api/notifications/reviews")
+    suspend fun getUnreadReviews(@Header("Authorization") token: String): Response<List<ReviewNotification>>
+
+    // FIX 1: New API call to mark all reviews as read (used by NotificationsActivity)
+    @POST("api/notifications/reviews/read")
+    suspend fun markReviewsAsRead(@Header("Authorization") token: String): Response<Unit>
 
 
     // --- Job Applications ---

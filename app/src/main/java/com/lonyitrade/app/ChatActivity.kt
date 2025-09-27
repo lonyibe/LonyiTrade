@@ -287,9 +287,9 @@ class ChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // CRITICAL FIX: The backend route /api/adverts/:id does not require the token,
-                // but if it is passed, it needs to be formatted correctly.
-                val adResponse = apiService.getAdvertById("Bearer $token", adId)
+                // CRITICAL FIX: The backend route /api/adverts/:id does not require the token.
+                // FIX: Removed the token argument to match the ApiService function signature.
+                val adResponse = apiService.getAdvertById(adId)
 
                 if (!adResponse.isSuccessful || adResponse.body() == null) {
                     throw IOException("Failed to fetch Ad details for ID: $adId. HTTP Code: ${adResponse.code()}")
@@ -606,11 +606,13 @@ class ChatActivity : AppCompatActivity() {
                         messageList.addAll(messages)
                         messageAdapter.notifyDataSetChanged()
                         messagesRecyclerView.scrollToPosition(messageList.size - 1)
-                        if (messages.any {
-                                it.receiverId == myUserId && it.status != "read"
-                            }) {
-                            WebSocketManager.markMessagesAsRead(advertId, partnerId)
-                        }
+
+                        // --- FIX 2: UNCONDITIONALLY mark messages as read on successful chat load ---
+                        // This sends the WebSocket message to the backend, which marks them as read
+                        // and sends the global unreadCountUpdate back to the MainAppActivity.
+                        WebSocketManager.markMessagesAsRead(advertId, partnerId)
+                        // --------------------------------------------------------------------------
+
                     }
                 }
             } catch (e: Exception) {
@@ -644,7 +646,10 @@ class ChatActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             val uploadedMessage = response.body()
                             if (uploadedMessage != null) {
-                                // FIX: Use observeNewMessages logic to handle addition/update
+                                // FIX: Rely on observeNewMessages logic to handle addition/update
+                                // Since the backend sends a WebSocket message upon successful upload,
+                                // the observeNewMessages observer handles inserting the final message.
+                                // We don't need explicit message list manipulation here.
                             }
                         } else {
                             Toast.makeText(this@ChatActivity, "Failed to upload media: ${response.code()}", Toast.LENGTH_SHORT).show()

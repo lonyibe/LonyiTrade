@@ -71,18 +71,19 @@ class ReviewActivity : AppCompatActivity() {
 
     // FIX 3: New function to fetch Ad details by ID for notification deep-linking
     private fun fetchAdDetails(adId: String) {
+        // NOTE: Adverts route is public. Token is not needed here.
         val token = sessionManager.fetchAuthToken()
         if (token.isNullOrEmpty()) {
-            loadingDialog.dismiss()
-            Toast.makeText(this, "Please log in to view this review.", Toast.LENGTH_LONG).show()
-            finish()
-            return
+            // NOTE: Even though the route is public, the user might need to be logged in for context
+            // Retaining this warning for UX is fine, but the API call itself doesn't need the token.
+            // We proceed with the API call regardless of the token's presence.
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Use the API service to fetch the full Ad object
-                val response = apiService.getAdvertById("Bearer $token", adId)
+                // CRITICAL FIX: Removed the token argument to match the ApiService function signature.
+                val response = apiService.getAdvertById(adId)
+
                 withContext(Dispatchers.Main) {
                     loadingDialog.dismiss()
                     if (response.isSuccessful && response.body() != null) {
