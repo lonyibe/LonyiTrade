@@ -13,8 +13,8 @@ class ApiClient {
     private lateinit var apiService: ApiService
 
     companion object {
-        // Corrected: Removed the 'private' keyword
-        const val BASE_URL = "http://192.168.1.100:3000/" // Replace with your IP
+        // *** FIX IS HERE: Use your public VPS IP address ***
+        const val BASE_URL = "http://212.115.108.58:3000/"
     }
 
     fun getApiService(context: Context): ApiService {

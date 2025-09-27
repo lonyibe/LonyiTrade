@@ -42,10 +42,9 @@ class HomeFragment : Fragment() {
     private lateinit var categoryContainer: LinearLayout
     private lateinit var networkErrorLayout: LinearLayout
     private var selectedCategory: String? = null
-    private var currentSortBy: String = "latest" // Default sort
+    private var currentSortBy: String = "latest"
 
     private val apiService by lazy { ApiClient().getApiService(requireContext()) }
-
     private lateinit var networkChangeReceiver: NetworkChangeReceiver
 
     override fun onAttach(context: Context) {
@@ -72,7 +71,6 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         sessionManager = SessionManager(requireContext())
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         adsRecyclerView = view.findViewById(R.id.adsRecyclerView)
@@ -94,14 +92,7 @@ class HomeFragment : Fragment() {
                 (activity as? MainAppActivity)?.openChatActivity(ad)
             }
             adsRecyclerView.adapter = adAdapter
-
-            if (updatedList.isEmpty()) {
-                adsRecyclerView.visibility = View.GONE
-                noAdsTextView.visibility = View.VISIBLE
-            } else {
-                adsRecyclerView.visibility = View.VISIBLE
-                noAdsTextView.visibility = View.GONE
-            }
+            updateEmptyView(updatedList.isEmpty())
         }
 
         swipeRefreshLayout.setOnRefreshListener {
@@ -135,7 +126,6 @@ class HomeFragment : Fragment() {
     private fun setupCategoryBubbles() {
         val categories = resources.getStringArray(R.array.categories)
         categoryContainer.removeAllViews()
-
         for (category in categories) {
             val categoryView = LayoutInflater.from(context).inflate(R.layout.category_bubble, categoryContainer, false)
             val categoryTextView = categoryView.findViewById<TextView>(R.id.categoryTextView)
@@ -143,7 +133,6 @@ class HomeFragment : Fragment() {
             categoryView.setOnClickListener {
                 selectedCategory = category
                 fetchAllAdverts(category, currentSortBy)
-                Toast.makeText(context, "Searching for ads in $category...", Toast.LENGTH_SHORT).show()
             }
             categoryContainer.addView(categoryView)
         }
@@ -157,38 +146,39 @@ class HomeFragment : Fragment() {
         }
 
         hideNetworkError()
-
-        if (!swipeRefreshLayout.isRefreshing) {
-            swipeRefreshLayout.isRefreshing = true
-        }
+        swipeRefreshLayout.isRefreshing = true
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Use the new unified searchAdverts function for all cases
                 val response = apiService.searchAdverts(
                     query = null,
                     category = category,
                     district = null,
                     minPrice = null,
                     maxPrice = null,
-                    type = "for_sale", // Always fetch "for_sale" ads on the home screen
+                    type = "for_sale",
                     sortBy = sortBy
                 )
-
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false
-                    if (response.isSuccessful) {
-                        val fetchedAds = response.body()
-                        sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to fetch ads: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                    // *** FIX IS HERE ***
+                    if (isAdded) {
+                        swipeRefreshLayout.isRefreshing = false
+                        if (response.isSuccessful) {
+                            val fetchedAds = response.body()
+                            sharedViewModel.setAdList(fetchedAds?.toMutableList() ?: mutableListOf())
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to fetch ads: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    swipeRefreshLayout.isRefreshing = false
-                    Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
-                    showNetworkError()
+                    // *** FIX IS HERE ***
+                    if (isAdded) {
+                        swipeRefreshLayout.isRefreshing = false
+                        Toast.makeText(requireContext(), "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                        showNetworkError()
+                    }
                 }
             }
         }
@@ -198,7 +188,16 @@ class HomeFragment : Fragment() {
         if (selectedCategory != null) {
             selectedCategory = null
             fetchAllAdverts(sortBy = currentSortBy)
-            Toast.makeText(requireContext(), "Showing all ads", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateEmptyView(isEmpty: Boolean) {
+        if (isEmpty) {
+            adsRecyclerView.visibility = View.GONE
+            noAdsTextView.visibility = View.VISIBLE
+        } else {
+            adsRecyclerView.visibility = View.VISIBLE
+            noAdsTextView.visibility = View.GONE
         }
     }
 
