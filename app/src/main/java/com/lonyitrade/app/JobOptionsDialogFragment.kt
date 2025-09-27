@@ -1,3 +1,5 @@
+// File: lonyibe/lonyitrade/LonyiTrade-972927e6330d9227af4b84243941aa2c481cafba/app/src/main/java/com/lonyitrade/app/JobOptionsDialogFragment.kt
+
 package com.lonyitrade.app
 
 import android.content.Intent
@@ -13,19 +15,17 @@ import androidx.fragment.app.DialogFragment
 
 class JobOptionsDialogFragment : DialogFragment() {
 
-    // FIX: Add constants for the new activity names that will be created
     companion object {
         const val OPTION_APPLY_FOR_JOB = "Apply for a Job"
-        const val OPTION_HIRE_EMPLOYEE = "Hire an Employee (View Applicants)"
-        const val OPTION_FIND_JOB_LISTING = "Find Job" // FIX: New option for job seekers to find listings
+        // FIX: Changed constant to match the actual text in dialog_job_options.xml ("Hire an Employee")
+        const val OPTION_HIRE_EMPLOYEE = "Hire an Employee"
+        const val OPTION_FIND_JOB_LISTING = "Find Job"
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // NOTE: The corresponding layout file R.layout.dialog_job_options must be updated
-        // to include the new radio button for "Find Job".
         return inflater.inflate(R.layout.dialog_job_options, container, false)
     }
 
@@ -53,17 +53,15 @@ class JobOptionsDialogFragment : DialogFragment() {
                         startActivity(applyForJobIntent)
                         dismiss()
                     }
+                    // FIX APPLIED HERE: The logic block is now reached correctly
                     OPTION_HIRE_EMPLOYEE -> {
-                        // This option now explicitly states it's for viewing applicants
                         Toast.makeText(requireContext(), "Opening 'Hire an Employee' listings...", Toast.LENGTH_SHORT).show()
                         val hireEmployeeIntent = Intent(requireContext(), HireEmployeeActivity::class.java)
                         startActivity(hireEmployeeIntent)
                         dismiss()
                     }
                     OPTION_FIND_JOB_LISTING -> {
-                        // FIX: New functionality for job seekers to view posted job listings
                         Toast.makeText(requireContext(), "Opening 'Job Listings' search...", Toast.LENGTH_SHORT).show()
-                        // FIX: Intent will open a new activity called JobListingActivity (to be created)
                         val findJobIntent = Intent(requireContext(), JobListingActivity::class.java)
                         startActivity(findJobIntent)
                         dismiss()
