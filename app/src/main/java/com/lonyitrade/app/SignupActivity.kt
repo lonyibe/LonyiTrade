@@ -3,7 +3,6 @@ package com.lonyitrade.app
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -13,8 +12,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.messaging.FirebaseMessaging
 import com.lonyitrade.app.api.ApiClient
-import com.lonyitrade.app.data.models.AuthResponse
 import com.lonyitrade.app.data.models.RegisterRequest
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +34,6 @@ class SignupActivity : AppCompatActivity() {
     private lateinit var signupProgressBar: ProgressBar
     private lateinit var sessionManager: SessionManager
 
-    // Correctly initialize ApiClient
     private val apiService by lazy { ApiClient().getApiService(this) }
 
     private var profilePictureUri: Uri? = null
@@ -75,49 +73,57 @@ class SignupActivity : AppCompatActivity() {
         }
 
         signupButton.setOnClickListener {
-            val fullName = nameEditText.text.toString()
-            val phoneNumber = phoneNumberEditText.text.toString()
-            val district = districtEditText.text.toString()
-            val password = passwordEditText.text.toString()
+            val fullName = nameEditText.text.toString().trim()
+            val phoneNumber = phoneNumberEditText.text.toString().trim()
+            val district = districtEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
 
             if (fullName.isEmpty() || phoneNumber.isEmpty() || district.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
                 showLoading(true)
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        val request = RegisterRequest(fullName, phoneNumber, password, district)
-                        // Correctly use the apiService instance
-                        val response = apiService.registerUser(request)
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        showLoading(false)
+                        Toast.makeText(this, "Fetching FCM token failed. Please try again.", Toast.LENGTH_SHORT).show()
+                        return@addOnCompleteListener
+                    }
+                    val fcmToken = task.result
 
-                        withContext(Dispatchers.Main) {
-                            if (response.isSuccessful) {
-                                val authResponse = response.body()
-                                if (authResponse != null) {
-                                    sessionManager.saveAuthToken(authResponse.token)
-                                    sessionManager.saveUserId(authResponse.id)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val request = RegisterRequest(fullName, phoneNumber, password, district, fcmToken)
+                            val response = apiService.registerUser(request)
 
-                                    if (profilePictureUri != null) {
-                                        uploadProfilePicture(authResponse.id, profilePictureUri!!)
+                            withContext(Dispatchers.Main) {
+                                if (response.isSuccessful) {
+                                    val authResponse = response.body()
+                                    if (authResponse != null) {
+                                        sessionManager.saveAuthToken(authResponse.token)
+                                        sessionManager.saveUserId(authResponse.id)
+
+                                        if (profilePictureUri != null) {
+                                            uploadProfilePicture(authResponse.id, profilePictureUri!!)
+                                        } else {
+                                            showLoading(false)
+                                            Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
+                                            startActivity(Intent(this@SignupActivity, MainAppActivity::class.java))
+                                            finish()
+                                        }
                                     } else {
                                         showLoading(false)
-                                        Toast.makeText(this@SignupActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                        startActivity(Intent(this@SignupActivity, MainAppActivity::class.java))
-                                        finish()
+                                        Toast.makeText(this@SignupActivity, "Registration failed: Empty response", Toast.LENGTH_LONG).show()
                                     }
                                 } else {
                                     showLoading(false)
-                                    Toast.makeText(this@SignupActivity, "Registration failed: Response body is null", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(this@SignupActivity, "Registration failed: User may already exist", Toast.LENGTH_LONG).show()
                                 }
-                            } else {
-                                showLoading(false)
-                                Toast.makeText(this@SignupActivity, "Registration failed: User may already exist", Toast.LENGTH_LONG).show()
                             }
-                        }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            showLoading(false)
-                            Toast.makeText(this@SignupActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                showLoading(false)
+                                Toast.makeText(this@SignupActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
@@ -134,7 +140,6 @@ class SignupActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     if (token != null) {
-                        // Correctly use the apiService instance
                         apiService.uploadProfilePicture("Bearer $token", userId, photoPart)
                         withContext(Dispatchers.Main) {
                             showLoading(false)
@@ -152,7 +157,6 @@ class SignupActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) {
                         showLoading(false)
                         Toast.makeText(this@SignupActivity, "Photo upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                        // Proceed to MainAppActivity even if photo upload fails
                         startActivity(Intent(this@SignupActivity, MainAppActivity::class.java))
                         finish()
                     }

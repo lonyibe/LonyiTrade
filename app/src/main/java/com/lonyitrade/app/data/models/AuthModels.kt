@@ -7,13 +7,15 @@ data class RegisterRequest(
     val fullName: String,
     val phoneNumber: String,
     val password: String,
-    val district: String
+    val district: String,
+    val fcmToken: String?
 )
 
 // Model for user login data
 data class LoginRequest(
     val phoneNumber: String,
-    val password: String
+    val password: String,
+    val fcmToken: String?
 )
 
 // Model for the response from the /register endpoint

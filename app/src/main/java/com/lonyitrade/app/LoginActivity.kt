@@ -10,10 +10,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.lonyitrade.app.api.ApiClient
 import com.lonyitrade.app.data.models.LoginRequest
-import com.lonyitrade.app.data.models.TokenResponse
 import com.lonyitrade.app.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,45 +42,54 @@ class LoginActivity : AppCompatActivity() {
         val signupTextView = findViewById<TextView>(R.id.signupTextView)
 
         loginButton.setOnClickListener {
-            val phoneNumber = phoneNumberEditText.text.toString()
-            val password = passwordEditText.text.toString()
+            val phoneNumber = phoneNumberEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
 
             if (phoneNumber.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
                 showLoading(true)
-                CoroutineScope(Dispatchers.IO).launch {
-                    try {
-                        val request = LoginRequest(phoneNumber, password)
-                        // Correctly use the apiService instance
-                        val response = apiService.loginUser(request)
+                // Get FCM token before making the login request
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        showLoading(false)
+                        Toast.makeText(this, "Fetching FCM token failed. Please try again.", Toast.LENGTH_SHORT).show()
+                        return@addOnCompleteListener
+                    }
+                    val fcmToken = task.result
 
-                        withContext(Dispatchers.Main) {
-                            showLoading(false)
-                            if (response.isSuccessful) {
-                                val tokenResponse = response.body()
-                                if (tokenResponse != null) {
-                                    sessionManager.saveAuthToken(tokenResponse.token)
-                                    sessionManager.saveUserData("user_name_here", phoneNumber)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val request = LoginRequest(phoneNumber, password, fcmToken)
+                            val response = apiService.loginUser(request)
 
-                                    // NEW: Save user ID from the token
-                                    val userId = getUserIdFromToken(tokenResponse.token)
-                                    userId?.let { sessionManager.saveUserId(it) }
+                            withContext(Dispatchers.Main) {
+                                showLoading(false)
+                                if (response.isSuccessful) {
+                                    val tokenResponse = response.body()
+                                    if (tokenResponse != null) {
+                                        sessionManager.saveAuthToken(tokenResponse.token)
+                                        // You might want to fetch user data after login instead of hardcoding
+                                        sessionManager.saveUserData("user_name_here", phoneNumber)
 
-                                    Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
-                                    startActivity(Intent(this@LoginActivity, MainAppActivity::class.java))
-                                    finish()
+                                        val userId = getUserIdFromToken(tokenResponse.token)
+                                        userId?.let { sessionManager.saveUserId(it) }
+
+                                        Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                                        startActivity(Intent(this@LoginActivity, MainAppActivity::class.java))
+                                        finish()
+                                    } else {
+                                        Toast.makeText(this@LoginActivity, "Login failed: Empty response", Toast.LENGTH_SHORT).show()
+                                    }
                                 } else {
-                                    Toast.makeText(this@LoginActivity, "Login failed: Token not received", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@LoginActivity, "Login failed: Invalid credentials", Toast.LENGTH_SHORT).show()
                                 }
-                            } else {
-                                Toast.makeText(this@LoginActivity, "Login failed: Invalid credentials", Toast.LENGTH_SHORT).show()
                             }
-                        }
-                    } catch (e: Exception) {
-                        withContext(Dispatchers.Main) {
-                            showLoading(false)
-                            Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                showLoading(false)
+                                Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
@@ -104,14 +113,13 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // NEW: Helper function to get the user ID from the JWT token payload
     private fun getUserIdFromToken(token: String): String? {
         return try {
             val parts = token.split(".")
             if (parts.size != 3) return null
             val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
             val tokenPayload = Gson().fromJson(payload, Map::class.java)
-            tokenPayload["userId"] as String
+            tokenPayload["userId"] as? String
         } catch (e: Exception) {
             null
         }
