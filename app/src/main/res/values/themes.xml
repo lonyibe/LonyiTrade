@@ -14,8 +14,11 @@
 
         <item name="android:statusBarColor">@color/google_files_background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        <item name="android:navigationBarColor">@color/google_files_background</item>
+
+        <item name="android:navigationBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o">true</item>
+
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
 
         <item name="materialCardViewStyle">@style/Widget.App.CardView.GoogleFiles</item>
         <item name="bottomNavigationStyle">@style/Widget.App.BottomNavigationView</item>
@@ -35,6 +38,9 @@
         <item name="itemIconSize">@dimen/bottom_nav_icon_size</item>
         <item name="itemIconTint">?attr/colorPrimary</item>
         <item name="itemTextColor">?attr/colorPrimary</item>
+
+        <item name="itemRippleColor">@android:color/transparent</item>
+
         <item name="itemTextAppearanceActive">@style/Widget.App.BottomNavigationView.TextAppearance</item>
         <item name="itemTextAppearanceInactive">@style/Widget.App.BottomNavigationView.TextAppearance</item>
         <item name="android:background">?attr/colorSurface</item>

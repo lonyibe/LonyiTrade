@@ -12,11 +12,12 @@
         <item name="colorSurface">@color/google_files_dark_surface</item>
         <item name="colorOnSurface">@color/google_files_dark_text_primary</item>
 
-        <item name="android:windowBackground">@color/google_files_dark_background</item>
-
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+
         <item name="android:navigationBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o">false</item>
+
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
     </style>
 </resources>
